@@ -2,12 +2,12 @@ package modele;
 
 public class Point {
 	private int id;
-	private int x;
-	private int y;
-	private int z;
+	private double x;
+	private double y;
+	private double z;
 	static int nAuto = 0;
 	
-	public Point(int x, int y, int z) {
+	public Point(double x, double y, double z) {
 		this.id = nAuto;
 		nAuto++;
 		this.x = x;
@@ -15,15 +15,15 @@ public class Point {
 		this.z = z;
 	}
 
-	public int getX() {
+	public double getX() {
 		return x;
 	}
 
-	public int getY() {
+	public double getY() {
 		return y;
 	}
 
-	public int getZ() {
+	public double getZ() {
 		return z;
 	}
 	
