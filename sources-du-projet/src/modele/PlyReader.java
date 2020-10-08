@@ -39,7 +39,7 @@ public class PlyReader {
 			String endHeaderString = "end_header";
 			String patternPoint = "(-?[0-9]+(.[0-9]+)?) (-?[0-9]+(.[0-9]+)?) (-?[0-9]+(.[0-9]+)?)$";
 			String patternFace = "[0-9]+ [0-9]+ [0-9]+ [0-9]+ $";
-			Pattern pointP = Pattern.compile("[0-9]+ ");
+			Pattern pointP = Pattern.compile(" [0-9]+ ?");
 			Pattern px = Pattern.compile("(-?[0-9]+(.[0-9]+)?) ");
 			Pattern py = Pattern.compile(" (-?[0-9]+(.[0-9]+)?) " );
 			Pattern pz = Pattern.compile(" (-?[0-9]+(.[0-9]+)?) $");
@@ -65,9 +65,10 @@ public class PlyReader {
 					}
 
 				}
-				System.out.println(tmpReader);
-				System.out.println(Pattern.matches(patternFace, tmpReader));
+			//	System.out.println(tmpReader);
+				//System.out.println(Pattern.matches(patternFace, tmpReader));
 				if(endHeader == true && Pattern.matches(patternFace,tmpReader)) {
+					System.out.println("jerentre ici");
 					Matcher pointMatch = pointP.matcher(tmpReader);
 					this.listFace.add(new Face(this.listPoint.get(Integer.parseInt(pointMatch.group(0))), this.listPoint.get(Integer.parseInt(pointMatch.group(1))), this.listPoint.get(Integer.parseInt(pointMatch.group(2)))));
 				}
