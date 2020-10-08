@@ -1,5 +1,7 @@
 package modele;
 
+import java.util.Arrays;
+
 /**
  * <b>Matrice est la classe représentant une matrice algébrique.</b>
  * <p>
@@ -155,31 +157,7 @@ public class Matrice {
 	 * @exception IllegalArgumentException vérification des dimensions.
 	 */
 	public Matrice multiplication(Matrice m) {
-		double vals[][];
-		int l1 = this.nb_Lignes;
-		int c1 = this.nb_Col;
-		
-		int l2 = m.getNb_Lignes();
-		int c2 = m.getNb_Col();
-		
-		if(c1 == l2) {
-			vals = new double [l1][c2];
-		} else {
-			throw new IllegalArgumentException("Multiplication impossible : Problème de dimensions.");
-		}
-		
-		for(int i = 0; i<l1; i++) {
-			for(int j = 0; j<c2; j++) {
-				vals[i][j] = 0;
-				for(int k = 0; k<c1; k++) {
-					vals[i][j] += this.M[i][k] * m.getM()[k][j];
-				}
-			}
-		}
-		
-		Matrice res = new Matrice(vals);
-		
-		return res;
+		return this.multiplication(this, m);
 	}
 	
 	/**
@@ -221,7 +199,7 @@ public class Matrice {
 			for(int j = 0; j<c2; j++) {
 				vals[i][j] = 0;
 				for(int k = 0; k<c1; k++) {
-					vals[i][j] += m1.getM()[i][k] * m2.getM()[k][j];
+					vals[i][j] = vals[i][j] + m1.getM()[i][k] * m2.getM()[k][j];
 				}
 			}
 		}
@@ -322,13 +300,35 @@ public class Matrice {
 	 * 				l'angle de l'origine
 	 * @return
 	 * 			Le résultat de la rotation.
+	 * @exception Vérification de la nature de la rotation.
 	 */
-	public Matrice rotation(int degre) {
-		double vals[][] = new double[][] { 
-			{Math.cos(degre), -Math.sin(degre), 0}, 
-			{Math.sin(degre), Math.cos(degre), 0}, 
-			{0, 0, 1}
-		};
+	public Matrice rotation(Rotation r, int degre) {
+		double vals[][] = null;
+		if(r.equals(Rotation.X)) {
+			vals = new double[][] { 
+				{1, 0, 0, 0},
+				{0, Math.cos(degre), -Math.sin(degre), 0}, 
+				{0, Math.sin(degre), Math.cos(degre), 0}, 
+				{0, 0, 0, 1},
+			};
+		} else if(r.equals(Rotation.Y)) {
+			vals = new double[][] { 
+				{Math.cos(degre), 0, Math.sin(degre), 0},
+				{0, 1, 0, 0}, 
+				{-Math.sin(degre), 0, Math.cos(degre), 0}, 
+				{0, 0, 0, 1},
+			};
+		} else if(r.equals(Rotation.Z)) {
+			vals = new double[][] { 
+				{Math.cos(degre), -Math.sin(degre), 0, 0},
+				{Math.sin(degre), Math.cos(degre), 0, 0}, 
+				{0, 0, 1, 0}, 				
+				{0, 0, 0, 1},
+			};
+		} else {
+			throw new IllegalArgumentException("Le type de rotation n'est pas valable.");
+		}
+		
 		
 		Matrice m = new Matrice(vals);
 		
@@ -347,5 +347,27 @@ public class Matrice {
 			res+="\n";
 		}
 		return res;
+	}
+
+	
+	/**
+	 * Override de equals
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Matrice other = (Matrice) obj;
+		if (!Arrays.deepEquals(M, other.M))
+			return false;
+		if (nb_Col != other.nb_Col)
+			return false;
+		if (nb_Lignes != other.nb_Lignes)
+			return false;
+		return true;
 	}
 }
