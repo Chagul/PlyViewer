@@ -342,7 +342,7 @@ public class Matrice {
 		String res = "";
 		for(int i = 0; i< this.nb_Lignes; i++) {
 			for(int j = 0; j< this.nb_Col; j++) {
-				res+=this.M[i][j];
+				res+=this.M[i][j] + " ";
 			}
 			res+="\n";
 		}
