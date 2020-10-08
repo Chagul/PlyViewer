@@ -34,12 +34,14 @@ public class Point {
 	public int getNAuto() {
 		return nAuto;
 	}
+	
+	public static void resetNAuto() {
+		nAuto = 0;
+	}
+	
 	@Override
 	public String toString() {
 		return "Point [x=" + x + ", y=" + y + ", z=" + z + "]";
 	}
 	
-	public static void resetNAuto() {
-		nAuto = 0;
-	}
 }
