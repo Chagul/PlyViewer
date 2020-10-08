@@ -1,5 +1,7 @@
 package modele;
 
+import java.util.Arrays;
+
 /**
  * <b>Matrice est la classe représentant une matrice algébrique.</b>
  * <p>
@@ -345,5 +347,27 @@ public class Matrice {
 			res+="\n";
 		}
 		return res;
+	}
+
+	
+	/**
+	 * Override de equals
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Matrice other = (Matrice) obj;
+		if (!Arrays.deepEquals(M, other.M))
+			return false;
+		if (nb_Col != other.nb_Col)
+			return false;
+		if (nb_Lignes != other.nb_Lignes)
+			return false;
+		return true;
 	}
 }
