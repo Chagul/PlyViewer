@@ -232,6 +232,22 @@ public class Matrice {
 	}
 	
 	/**
+	 * Multiplication d'une matrice par un nombre scalaire.
+	 * @param scalaire
+	 * 					Nombre par lequel on multiplie la matrice.
+	 * @return
+	 * 			La Matrice résultat.
+	 */
+	public Matrice multiplication(Matrice m, int scalaire) {
+		for(int i = 0; i < this.nb_Lignes; i++) {
+			for(int j = 0; j < this.nb_Col; j++) {
+				m.getM()[i][j] = m.getM()[i][j]*scalaire;
+			}
+		}
+		return m;
+	}
+	
+	/**
 	 * Homothétie de rapport k autour de l'origine.
 	 * <p>
 	 * La matrice THIS est conservée, après homothétie la fonction retourne une nouvelle matrice résultat.
