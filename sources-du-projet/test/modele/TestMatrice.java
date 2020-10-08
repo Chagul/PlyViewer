@@ -61,9 +61,13 @@ public class TestMatrice {
 	
 	@Test
 	public void testAddition() {
-		assertFalse(m1.addition(m1).equals(null));
-		assertTrue(m1.addition(m1).equals(m3));
-		assertTrue(m1.addition(m10).equals(m2));	
+		Matrice test = m1.addition(m1);
+		assertFalse(test.equals(null));
+		
+		test = m1.addition(m1);
+		assertTrue(test.equals(m3));
+		test = m1.addition(m10);
+		assertTrue(test.equals(m2));	
 		
 	}
 

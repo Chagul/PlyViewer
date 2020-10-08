@@ -131,7 +131,7 @@ public class Matrice {
 			}
 		}
 		
-		Matrice res = new Matrice(M);
+		Matrice res = new Matrice(vals);
 		return res;
 	}
 	
