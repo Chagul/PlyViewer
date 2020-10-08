@@ -38,19 +38,19 @@ public class PlyReader {
 			String faceString = "element face ";
 			String endHeaderString = "end_header";
 			String patternPoint = "(-?[0-9]+(.[0-9]+)?) (-?[0-9]+(.[0-9]+)?) (-?[0-9]+(.[0-9]+)?)$";
-			String patternFace = "[0-9] [0-9]+ [0-9]+ [0-9]+";
-			Pattern pointP = Pattern.compile("[0-9+]");
+			String patternFace = "[0-9]+ [0-9]+ [0-9]+ [0-9]+ $";
+			Pattern pointP = Pattern.compile("[0-9]+ ");
 			Pattern px = Pattern.compile("(-?[0-9]+(.[0-9]+)?) ");
 			Pattern py = Pattern.compile(" (-?[0-9]+(.[0-9]+)?) " );
-			Pattern pz = Pattern.compile(" (-?[0-9]+(.[0-9]+)?)$");
+			Pattern pz = Pattern.compile(" (-?[0-9]+(.[0-9]+)?) $");
 			boolean endHeader = false;
 			tmpReader = sc.nextLine();
-			System.out.println(tmpReader);
+			//System.out.println(tmpReader);
 			if(!tmpReader.contains("ply") && cptLine == 0) return false;
 			while(sc.hasNextLine()) {
 				cptLine++;
 				tmpReader = sc.nextLine();
-				System.out.println(tmpReader);
+			//	System.out.println(tmpReader);
 				if(tmpReader.contains(vertexString)) this.nbPoint = Integer.parseInt(tmpReader.substring(vertexString.length(), tmpReader.length()));
 				if(tmpReader.contains(faceString)) this.nbFace = Integer.parseInt(tmpReader.substring(faceString.length(), tmpReader.length()));
 				if(tmpReader.equals((endHeaderString))) endHeader = true;
@@ -65,6 +65,8 @@ public class PlyReader {
 					}
 
 				}
+				System.out.println(tmpReader);
+				System.out.println(Pattern.matches(patternFace, tmpReader));
 				if(endHeader == true && Pattern.matches(patternFace,tmpReader)) {
 					Matcher pointMatch = pointP.matcher(tmpReader);
 					this.listFace.add(new Face(this.listPoint.get(Integer.parseInt(pointMatch.group(0))), this.listPoint.get(Integer.parseInt(pointMatch.group(1))), this.listPoint.get(Integer.parseInt(pointMatch.group(2)))));
