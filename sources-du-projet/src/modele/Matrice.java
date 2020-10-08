@@ -336,7 +336,7 @@ public class Matrice {
 	}
 	
 	/**
-	 * Fonction d'affichage d'une Matrice.
+	 * Fonction d'affichage d'une Matrice THIS.
 	 */
 	public String toString() {
 		String res = "";
