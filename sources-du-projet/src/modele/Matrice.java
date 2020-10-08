@@ -248,6 +248,17 @@ public class Matrice {
 	}
 	
 	/**
+	 * Multiplication de THIS par un nombre scalaire.
+	 * @param scalaire
+	 * 			Nombre par lequel on multiplie la matrice.
+	 * @return
+	 * 			La Matrice résultat.
+	 */
+	public Matrice multiplication(int scalaire) {
+		return this.multiplication(this, scalaire);
+	}
+	
+	/**
 	 * Homothétie de rapport k autour de l'origine.
 	 * <p>
 	 * La matrice THIS est conservée, après homothétie la fonction retourne une nouvelle matrice résultat.
