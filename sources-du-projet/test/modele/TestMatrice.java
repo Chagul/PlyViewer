@@ -7,12 +7,17 @@ import org.junit.Before;
 import org.junit.Test;
 
 public class TestMatrice {
-	
-	public Matrice m1, m2, m3, m4, m5, m6, m7, m8, m9, m10;
+	int k;
+	int degre;
+	Rotation x, y, z;
+	public Matrice m1, m2, m3, m4, m5, m6, m7, m8, m9, m10;	
 	
 	@Before
 	public void initialization() {
 
+		k = 2;
+		degre = 90;
+		x = Rotation.X; y = Rotation.Y; z = Rotation.Z;
 		double[][] tab1 = new double[][]{{0, 0, 0, 0, 4, 4, 4, 4}, 
 	               						{0, 0, 4, 4, 0, 0, 4, 4},
 	               						{0, 4, 0, 4, 0, 4, 0, 4}};
@@ -61,14 +66,55 @@ public class TestMatrice {
 	
 	@Test
 	public void testAddition() {
-		Matrice test = m1.addition(m1);
-		assertFalse(test.equals(null));
-		
-		test = m1.addition(m1);
-		assertTrue(test.equals(m3));
-		test = m1.addition(m10);
-		assertTrue(test.equals(m2));	
-		
+		assertFalse(m1.addition(m1).equals(null));
+		assertTrue(m1.addition(m1).equals(m3));
+		assertTrue(m1.addition(m10).equals(m2));	
+		assertFalse(m1.addition(m1).equals(m5));
+	}
+	
+	@Test
+	public void testMultiplication(){
+		assertFalse(m1.multiplication(m1).equals(null));
+		assertTrue(m1.multiplication(1).equals(m1));
+		assertTrue(m1.multiplication(k).equals(m3));
+		assertTrue(m1.multiplication(0.5).equals(m2));
+		assertFalse(m1.multiplication(0.5).equals(m3));
+		// TO DO test entre 2 matrices
 	}
 
+	@Test
+	public void testHomothétie(){
+		assertFalse(m1.homothétie(k).equals(null));
+		assertTrue(m1.homothétie(k).equals(m5));
+		assertFalse(m1.homothétie(k).equals(m6));
+	}
+	
+	@Test
+	public void testTranslation(){
+		assertFalse(m1.translation(k,k,k).equals(null));
+		assertTrue(m1.translation(k,k,k).equals(m6));
+		assertFalse(m1.translation(k,k,k).equals(m5));
+	}
+	
+	@Test
+	public void testRotation(){
+		assertFalse(m1.rotation(x, degre).equals(null));
+		assertTrue(m1.rotation(x, degre).equals(m7));
+		assertTrue(m1.rotation(x, 0).equals(m1));
+		//assertTrue(m1.rotation(x, 360).equals(m1));
+		//Pas de Modulo donc pas possible mais serait intéressant à programmer
+		assertFalse(m1.rotation(x, degre).equals(m8));
+		assertFalse(m1.rotation(y, degre).equals(null));
+		assertTrue(m1.rotation(y, degre).equals(m8));
+		assertTrue(m1.rotation(y, 0).equals(m1));
+		//assertTrue(m1.rotation(y, 360).equals(m1));
+		//Pas de Modulo donc pas possible mais serait intéressant à programmer
+		assertFalse(m1.rotation(y, degre).equals(m7));
+		assertFalse(m1.rotation(z, degre).equals(null));
+		assertTrue(m1.rotation(z, degre).equals(m9));
+		assertTrue(m1.rotation(z, 0).equals(m1));
+		//assertTrue(m1.rotation(z, 360).equals(m1));
+		//Pas de Modulo donc pas possible mais serait intéressant à programmer
+		assertFalse(m1.rotation(z, degre).equals(m8));		
+	}
 }

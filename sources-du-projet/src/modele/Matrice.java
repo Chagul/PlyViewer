@@ -216,7 +216,7 @@ public class Matrice {
 	 * @return
 	 * 			La Matrice résultat.
 	 */
-	public Matrice multiplication(Matrice m, int scalaire) {
+	public Matrice multiplication(Matrice m, double scalaire) {
 		for(int i = 0; i < this.nb_Lignes; i++) {
 			for(int j = 0; j < this.nb_Col; j++) {
 				m.getM()[i][j] = m.getM()[i][j]*scalaire;
@@ -232,7 +232,7 @@ public class Matrice {
 	 * @return
 	 * 			La Matrice résultat.
 	 */
-	public Matrice multiplication(int scalaire) {
+	public Matrice multiplication(double scalaire) {
 		return this.multiplication(this, scalaire);
 	}
 	
