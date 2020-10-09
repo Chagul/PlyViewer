@@ -10,7 +10,7 @@ public class TestMatrice {
 	int k;
 	int degre;
 	Rotation x, y, z;
-	public Matrice m1, m2, m3, m4, m5, m6, m7, m8, m9, m10;	
+	public Matrice m1, m2, m3, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13;
 	
 	@Before
 	public void initialization() {
@@ -45,6 +45,16 @@ public class TestMatrice {
 		double[][] tab10 = new double[][]{{0, 0, 0, 0, -2, -2, -2, -2}, 
    										{0, 0, -2, -2, 0, 0, -2, -2},
    										{0, -2, 0, -2, 0, -2, 0, -2}};
+   		double[][] tab11 = new double[][]{{1, 2, 3}, 
+   	   									{4, 5, 6},
+   	   									{7, 8, 9}};
+   	   	double[][] tab12 = new double[][]{{1, 0, 0}, 
+   	   									{0, 1, 0},
+   	   									{0, 0, 1}};
+   	   	double[][] tab13 = new double[][]{{30, 36, 42}, 
+   	   									{66, 81, 96},
+   	   									{102, 126, 150}};								
+   	   									
 		m1 = new Matrice(tab1);
 		m4 = new Matrice(tab1);
 		m2 = new Matrice(tab2);
@@ -55,6 +65,9 @@ public class TestMatrice {
 		m8 = new Matrice(tab8);
 		m9 = new Matrice(tab9);
 		m10 = new Matrice(tab10);
+		m11 = new Matrice(tab11);
+		m12 = new Matrice(tab12);
+		m13 = new Matrice(tab13);
 	}
 	@Test
 	public void testEquals() {
@@ -74,12 +87,17 @@ public class TestMatrice {
 	
 	@Test
 	public void testMultiplication(){
+		//multiplications scalaires
 		assertFalse(m1.multiplication(m1).equals(null));
 		assertTrue(m1.multiplication(1).equals(m1));
 		assertTrue(m1.multiplication(k).equals(m3));
 		assertTrue(m1.multiplication(0.5).equals(m2));
 		assertFalse(m1.multiplication(0.5).equals(m3));
-		// TO DO test entre 2 matrices
+		// multiplications matricielles
+		assertFalse(m11.multiplication(m11).equals(null));
+		assertFalse(m11.multiplication(m11).equals(m12));
+		assertTrue(m11.multiplication(m12).equals(m11));
+		assertTrue(m11.multiplication(m11).equals(m13));
 	}
 
 	@Test
