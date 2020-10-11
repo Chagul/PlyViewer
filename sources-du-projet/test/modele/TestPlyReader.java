@@ -1,20 +1,23 @@
 package modele;
+
 import static org.junit.Assert.*;
 
-import org.junit.Test;
+import java.io.FileNotFoundException;
 
-import modele.PlyReader;
-import modele.Point;
+import org.junit.Test;
 
 public class TestPlyReader {
 	
 	/**
 	 * Teste si la lecture de fichier se fait bien
 	 */
-	@Test
-	public void testRead() {
+	@Test(expected = java.io.FileNotFoundException.class)
+	public void testReadNotOK() throws FileNotFoundException {
 		PlyReader aPlyReader = new PlyReader("~/");
-		assertFalse(aPlyReader.initPly());
+		aPlyReader.initPly();
+	}
+	@Test
+	public void testReadOk() {
 		PlyReader aPlyReader2 = new PlyReader("sources-du-projet/exemples/cow.ply");
 		assertTrue(aPlyReader2.initPly());
 		}
@@ -37,7 +40,18 @@ public class TestPlyReader {
 	public void testCreationPoint() {
 		PlyReader aPlyReader = new PlyReader("sources-du-projet/exemples/cow.ply");
 		aPlyReader.initPly();
-		assertEquals(new Point(0.605538, 0.183122, -0.472278 ),aPlyReader.getPoint(0));
+		Point test = new Point(0.605538, 0.183122, -0.472278 );
+		assertEquals(test, aPlyReader.getListPoint().get(0));
+	}
+	/**
+	 * Teste si les points créés correspondent bien à ce qui est lu dans le ply
+	 */
+	@Test
+	public void testCreationFace() {
+		PlyReader aPlyReader = new PlyReader("sources-du-projet/exemples/cow.ply");
+		aPlyReader.initPly();
+		Face test = new Face(aPlyReader.getListPoint().get(0), aPlyReader.getListPoint().get(1), aPlyReader.getListPoint().get(2));
+		assertEquals(test, aPlyReader.getListFace().get(0));
 	}
 
 }
