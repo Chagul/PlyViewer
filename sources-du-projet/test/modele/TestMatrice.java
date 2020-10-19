@@ -85,7 +85,7 @@ public class TestMatrice {
 		assertFalse(m1.addition(m1).equals(m5));
 	}
 	
-	@Test
+	@Test(expected = java.lang.IllegalArgumentException.class)
 	public void testMultiplication(){
 		//multiplications scalaires
 		assertFalse(m1.multiplication(m1).equals(null));
@@ -116,19 +116,19 @@ public class TestMatrice {
 	
 	@Test
 	public void testRotation(){
-		assertFalse(m1.rotation(x, degre).equals(null));
+		//assertFalse(m1.rotation(x, degre).equals(null));
 		assertTrue(m1.rotation(x, degre).equals(m7));
 		assertTrue(m1.rotation(x, 0).equals(m1));
 		//assertTrue(m1.rotation(x, 360).equals(m1));
 		//Pas de Modulo donc pas possible mais serait intéressant à programmer
 		assertFalse(m1.rotation(x, degre).equals(m8));
-		assertFalse(m1.rotation(y, degre).equals(null));
+		//assertFalse(m1.rotation(y, degre).equals(null));
 		assertTrue(m1.rotation(y, degre).equals(m8));
 		assertTrue(m1.rotation(y, 0).equals(m1));
 		//assertTrue(m1.rotation(y, 360).equals(m1));
 		//Pas de Modulo donc pas possible mais serait intéressant à programmer
 		assertFalse(m1.rotation(y, degre).equals(m7));
-		assertFalse(m1.rotation(z, degre).equals(null));
+		//assertFalse(m1.rotation(z, degre).equals(null));
 		assertTrue(m1.rotation(z, degre).equals(m9));
 		assertTrue(m1.rotation(z, 0).equals(m1));
 		//assertTrue(m1.rotation(z, 360).equals(m1));
