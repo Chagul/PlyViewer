@@ -248,9 +248,10 @@ public class Matrice {
 	 */
 	public Matrice homothétie(int rapportK) {
 		double vals[][] = new double[][] { 
-			{rapportK, 0, 0}, 
-			{0, rapportK, 0}, 
-			{0, 0, 1}
+			{rapportK, 0, 0, 0}, 
+			{0, rapportK, 0, 0}, 
+			{0, 0, 1, 0},
+			{0, 0, 0, 1}
 		};
 		
 		Matrice m = new Matrice(vals);
@@ -276,21 +277,7 @@ public class Matrice {
 		
 		Matrice m1 = new Matrice(vals);
 		
-		double newVals [][] = new double[this.nb_Lignes+1][this.nb_Col];
-		
-		for(int i = 0; i < newVals.length; i++) {
-			for(int j = 0; j < this.nb_Col; j++) {
-				if(i == (newVals.length - 1)) {
-					newVals[i][j] = 1;
-				} else {
-					newVals[i][j] = this.M[i][j];
-				}
-			}
-		}
-		
-		Matrice newMatrice = new Matrice(newVals);
-		
-		return multiplication(m1, newMatrice);
+		return multiplication(m1, this);
 		
 	}
 	
