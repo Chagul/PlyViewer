@@ -15,6 +15,14 @@ public class PlyReader {
 	private ArrayList<Face> listFace;
 	private int nbPoint;
 	private int nbFace;
+	private final String endHeaderString = "end_header";
+	private final String patternPoint = "^-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s?$";
+	private final String patternFace = "^ ?[0-9]+ [0-9]+ [0-9]+ [0-9]+ ?$";
+	private final Pattern pointP = Pattern.compile("[0-9]+");
+	private final Pattern px = Pattern.compile("^-?[0-9]+(\\.[0-9]+)? ");
+	private final Pattern py = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? " );
+	private final Pattern pz = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? $");
+	Scanner sc;
 
 	//constructor
 	public PlyReader(String aPathToAPly) {
@@ -27,70 +35,99 @@ public class PlyReader {
 	/**
 	 * Lis le fichier, vérifie si le chemin est valide, que c'est bien un fichier ply conforme (pas de points manquants,pas de face avec des points en moins ..) et créé les points et face lues
 	 * @return Vrai si le chemin du fichier est valide, que c'est un ply et que la créations des points et faces est valide, faux sinon.
+	 * @throws FileNotFoundException 
 	 */
-	public boolean initPly() {
-		Scanner sc;
-		try {
-			sc = new Scanner(new File(pathToPly));
-			int cptLine = 0;
-			String tmpReader = "";
-			String vertexString = "element vertex ";
-			String faceString = "element face ";
-			String endHeaderString = "end_header";
-			String patternPoint = "^-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s?$";
-			String patternFace = "^ ?[0-9]+ [0-9]+ [0-9]+ [0-9]+ ?$";
-			Pattern pointP = Pattern.compile("[0-9]+");
-			Pattern px = Pattern.compile("^-?[0-9]+(\\.[0-9]+)? ");
-			Pattern py = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? " );
-			Pattern pz = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? $");
-			boolean endHeader = false;
+	public boolean initPly() throws FileNotFoundException {
+		sc = new Scanner(new File(pathToPly));
+		boolean endHeader = false;
+		int cptLine = 0;
+		String tmpReader = "";
+		String vertexString = "element vertex ";
+		String faceString = "element face ";
+		tmpReader = sc.nextLine();
+		if(!tmpReader.contains("ply") && cptLine == 0) return false;
+		while(sc.hasNextLine() && !endHeader) {
 			tmpReader = sc.nextLine();
-			if(!tmpReader.contains("ply") && cptLine == 0) return false;
-			while(sc.hasNextLine()) {
-				cptLine++;
-				//System.out.println(cptLine);
-				tmpReader = sc.nextLine();
-				if(tmpReader.contains(vertexString)) this.nbPoint = Integer.parseInt(tmpReader.substring(vertexString.length(), tmpReader.length()));
-				
-				if(tmpReader.contains(faceString)) this.nbFace = Integer.parseInt(tmpReader.substring(faceString.length(), tmpReader.length()));
-				
-				if(tmpReader.equals((endHeaderString))) endHeader = true;
-				
-				if(endHeader == true && Pattern.matches(patternPoint, tmpReader)) {
-					Matcher mx = px.matcher(tmpReader);
-					Matcher my = py.matcher(tmpReader);
-					Matcher mz = pz.matcher(tmpReader);
-					if(mx.find() && my.find() && mz.find()) {
-						//System.out.println("je creer le point");
-						this.listPoint.add(new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group())));
-					}else {
-						return false;
-					}
-				}
-				
-				if(endHeader == true && Pattern.matches(patternFace,tmpReader) ) {
-					Matcher pointMatch = pointP.matcher(tmpReader);
-					int point1 = 0;
-					int point2 = 0;
-					int point3 = 0;
-					int cpt = 0;
-					while(pointMatch.find()) {
-						if(cpt == 1) point1 = Integer.parseInt(pointMatch.group());
-						if(cpt == 2) point2 = Integer.parseInt(pointMatch.group());
-						if(cpt == 3) point3 = Integer.parseInt(pointMatch.group());
-						cpt++;
-					}
-					this.listFace.add(new Face(this.listPoint.get(point1), this.listPoint.get(point2), this.listPoint.get(point3)));
-				}
+			if(tmpReader.contains(vertexString)) this.nbPoint = Integer.parseInt(tmpReader.substring(vertexString.length(), tmpReader.length()));
+
+			if(tmpReader.contains(faceString)) this.nbFace = Integer.parseInt(tmpReader.substring(faceString.length(), tmpReader.length()));
+
+			if(tmpReader.equals((endHeaderString))) endHeader = true;
+		}
+		if(this.nbPoint==0 || this.nbFace==0)
+			return false;	
+		return true;
+	}
+
+	public boolean readPly() {
+		String tmpReader = "";
+		tmpReader = "";
+		int cptPoint = 0;
+		int cptFace = 0;
+		while(sc.hasNextLine()) {
+			tmpReader = sc.nextLine();
+			if(Pattern.matches(patternPoint, tmpReader)) {
+				creationPoint(tmpReader);			
+				cptPoint++;
+			}else if(!Pattern.matches(patternPoint, tmpReader) && cptPoint < this.nbPoint) {
+				creationPoint("0 0 0 ");
+				cptPoint++;
 			}
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
-			return false;
+
+			if(Pattern.matches(patternFace,tmpReader)) {
+				creationFace(tmpReader);
+				cptFace++;
+			}else if(!Pattern.matches(patternPoint, tmpReader) && cptFace < this.nbFace) {
+				//probleme de face
+			}
+			
 		}
 		sc.close();
 		return true;
 	}
-	
+
+	/**
+	 * 
+	 * @param tmpReader Le String correspondant à un point
+	 * @return Vrai si on trouve bien les 3 points faux sinon
+	 */
+	public boolean creationPoint(String tmpReader) {
+		Matcher mx = px.matcher(tmpReader);
+		Matcher my = py.matcher(tmpReader);
+		Matcher mz = pz.matcher(tmpReader);
+		if(mx.find() && my.find() && mz.find()) {
+			//System.out.println("je creer le point");
+			this.listPoint.add(new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group())));
+			return true;
+		}
+		return false;
+	}
+	/**
+	 * 
+	 * @param tmpReader
+	 * @return
+	 */
+	public boolean creationFace(String tmpReader) {
+		Matcher pointMatch = pointP.matcher(tmpReader);
+		int point1 = 0;
+		int point2 = 0;
+		int point3 = 0;
+		int cpt = 1;
+		if(!pointMatch.find()) return false;
+
+		while(pointMatch.find()) {
+			if(cpt == 1) point1 = Integer.parseInt(pointMatch.group());
+			if(cpt == 2) point2 = Integer.parseInt(pointMatch.group());
+			if(cpt == 3) point3 = Integer.parseInt(pointMatch.group());
+			cpt++;
+		}
+		this.listFace.add(
+				new Face(this.listPoint.get(point1)
+				, this.listPoint.get(point2)
+				, this.listPoint.get(point3)));
+		return true;
+	}
+
 	//getters and setters
 	public ArrayList<Point> getListPoint() {
 		return listPoint;
@@ -124,7 +161,7 @@ public class PlyReader {
 	public Point getPoint(int number) {
 		return this.listPoint.get(number);
 	}
-	
+
 	/**
 	 * 
 	 * @param number Le numéro de la face
