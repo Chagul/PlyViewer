@@ -33,6 +33,7 @@ public class Main extends Application {
     	gc.beginPath();
     	gc.lineTo(100, 100);
     	gc.lineTo(50, 50);
+    	gc.lineTo(150, 200);
     	gc.closePath();
     	gc.fill();
     }
