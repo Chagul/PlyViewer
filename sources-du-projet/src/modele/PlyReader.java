@@ -18,11 +18,12 @@ public class PlyReader {
 	private int nbFace;
 	private final String endHeaderString = "end_header";
 	private final String patternPoint = "^-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s?$";
-	private final String patternFace = "^ ?[0-9]+ [0-9]+ [0-9]+ [0-9]+ ?$";
+	private final String patternFace = "^ ?[0-9]+ [0-9]+( [0-9]+ )*[0-9]+ ?$";
 	private final Pattern pointP = Pattern.compile("[0-9]+");
 	private final Pattern px = Pattern.compile("^-?[0-9]+(\\.[0-9]+)? ");
 	private final Pattern py = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? " );
 	private final Pattern pz = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? $");
+	private final Pattern nbPointFace = Pattern.compile("^ ?[0-9]+");
 	private int uniqIDpoint = 0;
 	Scanner sc;
 
@@ -57,7 +58,7 @@ public class PlyReader {
 			if(tmpReader.equals((endHeaderString))) endHeader = true;
 		}
 		if(this.nbPoint==0 || this.nbFace==0)
-			return false;	
+			return false;
 		return true;
 	}
 	/**
@@ -122,22 +123,18 @@ public class PlyReader {
 	 */
 	public boolean creationFace(String tmpReader) {
 		Matcher pointMatch = pointP.matcher(tmpReader);
-		int point1 = 0;
-		int point2 = 0;
-		int point3 = 0;
-		int cpt = 1;
-		if(!pointMatch.find()) return false;
+		Matcher pointDansFace = nbPointFace.matcher(tmpReader);
+		int cpt = 0;
+		Face tmp = new Face();
+		if(!pointMatch.find() || !pointDansFace.find()) return false;
 
 		while(pointMatch.find()) {
-			if(cpt == 1) point1 = Integer.parseInt(pointMatch.group());
-			if(cpt == 2) point2 = Integer.parseInt(pointMatch.group());
-			if(cpt == 3) point3 = Integer.parseInt(pointMatch.group());
+			tmp.addPoint(this.listPoint.get(Integer.parseInt(pointMatch.group())));
 			cpt++;
 		}
-		this.listFace.add(
-				new Face(this.listPoint.get(point1)
-						, this.listPoint.get(point2)
-						, this.listPoint.get(point3)));
+		System.out.println(pointDansFace.group());
+		if(cpt != Integer.parseInt(pointDansFace.group())) return false;
+		this.listFace.add(tmp);
 		return true;
 	}
 

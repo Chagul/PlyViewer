@@ -27,12 +27,22 @@ public class TestPlyReader {
 		PlyReader aPlyReader2 = new PlyReader("sources-du-projet/exemples/cow.ply");
 		aPlyReader2.initPly();
 		}
-
+	
+	@Test
+	public void testReadOkDode() throws FileNotFoundException, CreationPointException, CreationFaceException {
+		PlyReader aPlyReader2 = new PlyReader("sources-du-projet/exemples/dodecahedron.ply");
+		aPlyReader2.initPly();
+		aPlyReader2.readPly();
+	}
+	
 	@Before
 	public void init() throws FileNotFoundException, CreationPointException, CreationFaceException {
 		aPlyReader = new PlyReader("sources-du-projet/exemples/cow.ply");
 		aPlyReader.initPly();
+		try {
 		aPlyReader.readPly();
+		}catch(Exception e) {
+		}
 	}
 	/**
 	 * Teste si les nombres de face et de point du fichier ply sont bien affectés
@@ -63,7 +73,10 @@ public class TestPlyReader {
 	@Test
 	public void testCreationFaceFonction()  {
 		String testFace = "3 0 1 2 ";
+		String testFace2 = "4 52 63 89 85";
+		System.out.println("test ===");
 		assertTrue(aPlyReader.creationFace(testFace));
+		assertTrue(aPlyReader.creationFace(testFace2));
 	}
 	
 	/**
@@ -71,7 +84,10 @@ public class TestPlyReader {
 	 */
 	@Test
 	public void testCreationFace(){
-		Face test = new Face(new Point(0.605538,0.183122,-0.472278), new Point(0.649223,0.1297,-0.494875), new Point(0.601082,0.105512,-0.533343));
+		Face test = new Face();
+		test.addPoint(new Point(0.605538,0.183122,-0.472278));
+		test.addPoint(new Point(0.649223,0.1297,-0.494875));
+		test.addPoint(new Point(0.601082,0.105512,-0.533343));
 		assertEquals(test, aPlyReader.getListFace().get(0));
+		}
 	}
-}

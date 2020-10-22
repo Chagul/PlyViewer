@@ -1,14 +1,22 @@
 package modele;
 
+import java.util.ArrayList;
+
 public class Face {
 	private Point p1;
 	private Point p2;
 	private Point p3;
+	private ArrayList<Point> listPoint;
 	
 	public Face(Point p1, Point p2, Point p3) {
+		this.listPoint = new ArrayList<Point>();
 		this.p1 = p1;
 		this.p2 = p2;
 		this.p3 = p3;
+	}
+
+	public Face() {
+		this.listPoint = new ArrayList<Point>();
 	}
 
 	public Point getP1() {
@@ -23,6 +31,10 @@ public class Face {
 		return p3;
 	}
 
+	public void addPoint(Point p) {
+		this.listPoint.add(p);
+	}
+	
 	@Override
 	public String toString() {
 		return "Face [p1=" + p1 + ", p2=" + p2 + ", p3=" + p3 + "]";
