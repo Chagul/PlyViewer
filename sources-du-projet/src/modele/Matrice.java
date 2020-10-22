@@ -189,8 +189,8 @@ public class Matrice {
 		int l2 = m2.getNb_Lignes();
 		int c2 = m2.getNb_Col();
 		
-		if(c1 == l2) {
-			vals = new double [l1][c2];
+		if(l1 == c2) {
+			vals = new double [l2][c1];
 		} else {
 			throw new IllegalArgumentException("Multiplication impossible : Problème de dimensions.");
 		}
@@ -217,12 +217,18 @@ public class Matrice {
 	 * 			La Matrice résultat.
 	 */
 	public Matrice multiplication(Matrice m, double scalaire) {
-		for(int i = 0; i < this.nb_Lignes; i++) {
-			for(int j = 0; j < this.nb_Col; j++) {
-				m.getM()[i][j] = m.getM()[i][j]*scalaire;
+		double resTab[][] = new double[m.getNb_Lignes()][m.getNb_Col()];
+		for(int i = 0; i < resTab.length; i++) {
+			for(int j = 0; j < resTab[0].length; j++) {
+				if(i == resTab.length-1) {
+					resTab[i][j] = m.getM()[i][j];
+				} else {
+					resTab[i][j] = m.getM()[i][j]*scalaire;
+				}
+				
 			}
 		}
-		return m;
+		return new Matrice(resTab);
 	}
 	
 	/**
@@ -246,7 +252,7 @@ public class Matrice {
 	 * @return
 	 * 			La matrice résultat de l'homothétie sur THIS. En gardant THIS intacte.
 	 */
-	public Matrice homothétie(int rapportK) {
+	public Matrice homothétie(double rapportK) {
 		double vals[][] = new double[][] { 
 			{rapportK, 0, 0, 0}, 
 			{0, rapportK, 0, 0}, 
@@ -267,7 +273,7 @@ public class Matrice {
 	 * @return
 	 * 			Résultat de la translation.
 	 */
-	public Matrice translation(int t1, int t2, int t3) {
+	public Matrice translation(double t1, double t2, double t3) {
 		double vals[][] = new double[][] { 
 			{1, 0, 0, t1}, 
 			{0, 1, 0, t2},
@@ -289,8 +295,8 @@ public class Matrice {
 	 * 			Le résultat de la rotation.
 	 * @exception Vérification de la nature de la rotation.
 	 */
-	public Matrice rotation(Rotation r, int degre) {
-		double vals[][] = null;
+	public Matrice rotation(Rotation r, double degre) {
+		double vals[][] = new double[this.nb_Lignes][this.nb_Col];
 		if(r.equals(Rotation.X)) {
 			vals = new double[][] { 
 				{1, 0, 0, 0},
@@ -349,7 +355,7 @@ public class Matrice {
 		if (getClass() != obj.getClass())
 			return false;
 		Matrice other = (Matrice) obj;
-		if (!Arrays.deepEquals(M, other.M))
+		if (!Arrays.deepEquals(Arrays.copyOfRange(M, 0, 3), Arrays.copyOfRange(other.M, 0, 3)))
 			return false;
 		if (nb_Col != other.nb_Col)
 			return false;
