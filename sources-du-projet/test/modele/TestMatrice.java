@@ -12,7 +12,7 @@ public class TestMatrice {
 	double k;
 	double degre;
 	Rotation x, y, z;
-	public Matrice m1, m2, m3, m3bis, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13;
+	public MatriceBonne m1, m2, m2bis, m3, m3bis, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13;
 	
 	@Before
 	public void initialization() {
@@ -28,6 +28,10 @@ public class TestMatrice {
            				   				{0, 0, 2, 2, 0, 0, 2, 2},
            				   				{0, 2, 0, 2, 0, 2, 0, 2},
 	               						{1, 1, 1, 1, 1, 1, 1, 1}};
+	    double[][] tab2bis = new double[][]{{0, 0, 0, 0, 2, 2, 2, 2}, 
+	           				   			{0, 0, 2, 2, 0, 0, 2, 2},
+	           				   			{0, 2, 0, 2, 0, 2, 0, 2},
+		               					{0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5}};
 		double[][] tab3 = new double[][]{{0, 0, 0, 0, 8, 8, 8, 8}, 
 				   						{0, 0, 8, 8, 0, 0, 8, 8},
 				   						{0, 8, 0, 8, 0, 8, 0, 8},
@@ -38,7 +42,7 @@ public class TestMatrice {
 		               					{2, 2, 2, 2, 2, 2, 2, 2}};
 		double[][] tab5 = new double[][]{{0, 0, 0, 0, 8, 8, 8, 8}, 
 				   						{0, 0, 8, 8, 0, 0, 8, 8},
-				   						{0, 4, 0, 4, 0, 4, 0, 4},
+				   						{0, 8, 0, 8, 0, 8, 0, 8},
 	               						{1, 1, 1, 1, 1, 1, 1, 1}};
 		double[][] tab6 = new double[][]{{2, 2, 2, 2, 6, 6, 6, 6}, 
 				   						{2, 2, 6, 6, 2, 2, 6, 6},
@@ -70,20 +74,21 @@ public class TestMatrice {
    	   									{66, 81, 96},
    	   									{102, 126, 150}};								
    	   									
-		m1 = new Matrice(tab1);
-		m4 = new Matrice(tab1);
-		m2 = new Matrice(tab2);
-		m3 = new Matrice(tab3);
-		m3bis = new Matrice(tab3bis);
-		m5 = new Matrice(tab5);
-		m6 = new Matrice(tab6);
-		m7 = new Matrice(tab7);
-		m8 = new Matrice(tab8);
-		m9 = new Matrice(tab9);
-		m10 = new Matrice(tab10);
-		m11 = new Matrice(tab11);
-		m12 = new Matrice(tab12);
-		m13 = new Matrice(tab13);
+		m1 = new MatriceBonne(tab1);
+		m4 = new MatriceBonne(tab1);
+		m2 = new MatriceBonne(tab2);
+		m2bis = new MatriceBonne(tab2bis);
+		m3 = new MatriceBonne(tab3);
+		m3bis = new MatriceBonne(tab3bis);
+		m5 = new MatriceBonne(tab5);
+		m6 = new MatriceBonne(tab6);
+		m7 = new MatriceBonne(tab7);
+		m8 = new MatriceBonne(tab8);
+		m9 = new MatriceBonne(tab9);
+		m10 = new MatriceBonne(tab10);
+		m11 = new MatriceBonne(tab11);
+		m12 = new MatriceBonne(tab12);
+		m13 = new MatriceBonne(tab13);
 	}
 	@Test
 	public void testEquals() {
@@ -95,9 +100,8 @@ public class TestMatrice {
 	
 	@Test
 	public void testAddition() {
-		assertTrue(m1.addition(m1).equals(m3bis));
-		//assertTrue(m1.addition(m10).equals(m2));	
-		assertFalse(m1.addition(m1).equals(m5));
+		assertEquals(m1.addition(m1),m5);	
+		assertNotEquals(m1.addition(m1),m6);
 	}
 	
 	@Test
@@ -105,7 +109,7 @@ public class TestMatrice {
 		//multiplications scalaires
 		assertEquals(m1.multiplication(1),m1);
 		assertEquals(m1.multiplication(k),m3bis);
-		//assertEquals(m1.multiplication(0.5),m2);
+		assertEquals(m1.multiplication(0.5),m2bis);
 		assertNotEquals(m1.multiplication(0.5),m3);
 		// multiplications matricielles
 		assertNotEquals(m11.multiplication(m11),m12);
