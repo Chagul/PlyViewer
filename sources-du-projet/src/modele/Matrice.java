@@ -283,7 +283,7 @@ public class Matrice {
 		
 		Matrice m1 = new Matrice(vals);
 		
-		return multiplication(m1, this);
+		return multiplication(this, m1);
 		
 	}
 	
@@ -300,21 +300,21 @@ public class Matrice {
 		if(r.equals(Rotation.X)) {
 			vals = new double[][] { 
 				{1, 0, 0, 0},
-				{0, Math.cos(degre), -Math.sin(degre), 0}, 
-				{0, Math.sin(degre), Math.cos(degre), 0}, 
+				{0, Math.cos(Math.toRadians(degre)), -Math.sin(Math.toRadians(degre)), 0}, 
+				{0, Math.sin(Math.toRadians(degre)), Math.cos(Math.toRadians(degre)), 0}, 
 				{0, 0, 0, 1},
 			};
 		} else if(r.equals(Rotation.Y)) {
 			vals = new double[][] { 
-				{Math.cos(degre), 0, Math.sin(degre), 0},
+				{Math.cos(Math.toRadians(degre)), 0, Math.sin(Math.toRadians(degre)), 0},
 				{0, 1, 0, 0}, 
-				{-Math.sin(degre), 0, Math.cos(degre), 0}, 
+				{-Math.sin(Math.toRadians(degre)), 0, Math.cos(Math.toRadians(degre)), 0}, 
 				{0, 0, 0, 1},
 			};
 		} else if(r.equals(Rotation.Z)) {
 			vals = new double[][] { 
-				{Math.cos(degre), -Math.sin(degre), 0, 0},
-				{Math.sin(degre), Math.cos(degre), 0, 0}, 
+				{Math.cos(Math.toRadians(degre)), -Math.sin(Math.toRadians(degre)), 0, 0},
+				{Math.sin(Math.toRadians(degre)), Math.cos(Math.toRadians(degre)), 0, 0}, 
 				{0, 0, 1, 0}, 				
 				{0, 0, 0, 1},
 			};
@@ -324,7 +324,7 @@ public class Matrice {
 		
 		
 		Matrice m = new Matrice(vals);
-		
+		System.out.println("cos(90) = " + Math.cos(Math.toRadians(90.0)) + " sin(90) = " + Math.sin(Math.toRadians(degre)));
 		return this.multiplication(m);	
 	}
 	

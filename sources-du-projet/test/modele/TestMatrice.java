@@ -131,7 +131,7 @@ public class TestMatrice {
 	
 	@Test
 	public void testRotation(){
-		//assertFalse(m1.rotation(x, degre).equals(null));
+		assertNotEquals(m1.rotation(x, degre),null);
 		assertEquals(m1.rotation(x, degre),m7);
 		assertEquals(m1.rotation(x, 0),m1);
 		//assertTrue(m1.rotation(x, 360).equals(m1));
