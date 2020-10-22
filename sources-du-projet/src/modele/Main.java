@@ -1,6 +1,5 @@
 package modele;
 
-<<<<<<< HEAD
 public class Main {
 
 	public static void main(String[] args) {
@@ -27,29 +26,10 @@ public class Main {
 		
 		Matrice res = m1.rotation(Rotation.X, degre);
 		System.out.println(res);
+		
+		Matrice restranslation = m1.translation(tab1[0][7], tab1[0][7], tab1[0][7]);
 
 	}
-
-=======
-import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
-import javafx.scene.Scene;
-import javafx.stage.Stage;
-
-public class Main extends Application {
-
-    @Override
-    public void start(Stage primaryStage) throws Exception{
-        Parent root = FXMLLoader.load(getClass().getResource("../vue/view.fxml"));
-        primaryStage.setTitle("3D Viewer");
-        primaryStage.setScene(new Scene(root, 1280, 800));
-        primaryStage.show();
-    }
-
-
-    public static void main(String[] args) {
-        launch(args);
-    }
->>>>>>> branch 'master' of https://gitlab.univ-lille.fr/aurelien.plancke.etu/projetmode-alt3.git
 }
+
+
