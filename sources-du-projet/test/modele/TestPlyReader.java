@@ -89,5 +89,5 @@ public class TestPlyReader {
 		test.addPoint(new Point(0.649223,0.1297,-0.494875));
 		test.addPoint(new Point(0.601082,0.105512,-0.533343));
 		assertEquals(test, aPlyReader.getListFace().get(0));
-		}
 	}
+}

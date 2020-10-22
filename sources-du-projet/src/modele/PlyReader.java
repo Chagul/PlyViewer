@@ -134,7 +134,6 @@ public class PlyReader {
 		}
 		if(cpt != Integer.parseInt(pointDansFace.group())) return false;
 		this.listFace.add(tmp);
-		System.out.println(tmp);
 		return true;
 	}
 

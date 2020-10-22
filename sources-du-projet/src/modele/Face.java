@@ -30,6 +30,10 @@ public class Face {
 	public Point getP3() {
 		return p3;
 	}
+	
+	public ArrayList<Point> getListPoint() {
+		return this.listPoint;
+	}
 
 	public void addPoint(Point p) {
 		this.listPoint.add(p);
@@ -53,21 +57,16 @@ public class Face {
 		if (getClass() != obj.getClass())
 			return false;
 		Face other = (Face) obj;
-		if (p1 == null) {
-			if (other.p1 != null)
-				return false;
-		} else if (!p1.equals(other.p1))
+		if (this.getListPoint().isEmpty() || other.getListPoint().isEmpty())
 			return false;
-		if (p2 == null) {
-			if (other.p2 != null)
-				return false;
-		} else if (!p2.equals(other.p2))
+		if (this.getListPoint().size() != other.getListPoint().size())
 			return false;
-		if (p3 == null) {
-			if (other.p3 != null)
+		int cpt = 0;
+		for (Point point : other.getListPoint()) {
+			if(!point.equals(this.listPoint.get(cpt)))
 				return false;
-		} else if (!p3.equals(other.p3))
-			return false;
+		cpt++;
+	}
 		return true;
 	}
 	 
