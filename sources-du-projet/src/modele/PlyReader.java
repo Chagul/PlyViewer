@@ -18,7 +18,7 @@ public class PlyReader {
 	private int nbFace;
 	private final String endHeaderString = "end_header";
 	private final String patternPoint = "^-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s?$";
-	private final String patternFace = "^ ?[0-9]+ [0-9]+( [0-9]+ )*[0-9]+ ?$";
+	private final String patternFace = "^( ?[0-9]+ ?)* ?$";
 	private final Pattern pointP = Pattern.compile("[0-9]+");
 	private final Pattern px = Pattern.compile("^-?[0-9]+(\\.[0-9]+)? ");
 	private final Pattern py = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? " );
@@ -132,9 +132,9 @@ public class PlyReader {
 			tmp.addPoint(this.listPoint.get(Integer.parseInt(pointMatch.group())));
 			cpt++;
 		}
-		System.out.println(pointDansFace.group());
 		if(cpt != Integer.parseInt(pointDansFace.group())) return false;
 		this.listFace.add(tmp);
+		System.out.println(tmp);
 		return true;
 	}
 

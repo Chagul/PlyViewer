@@ -37,7 +37,11 @@ public class Face {
 	
 	@Override
 	public String toString() {
-		return "Face [p1=" + p1 + ", p2=" + p2 + ", p3=" + p3 + "]";
+		String tmp  = "";
+		for (Point point : listPoint) {
+			tmp += point;
+		}
+		return tmp;
 	}
 
 	@Override
