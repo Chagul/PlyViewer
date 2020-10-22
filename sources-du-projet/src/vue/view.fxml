@@ -12,7 +12,7 @@
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
 
-<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1280.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="modele.Main">
    <bottom>
       <HBox alignment="CENTER_LEFT" fillHeight="false" maxWidth="-Infinity" prefHeight="39.0" prefWidth="1292.0" BorderPane.alignment="CENTER_LEFT">
          <children>
@@ -26,11 +26,11 @@
               </items>
             </ToolBar>
             <Label text="X :   " />
-            <Slider fx:id="sliderX" prefHeight="14.0" prefWidth="250.0" />
+            <Slider fx:id="sliderX" majorTickUnit="90.0" max="360.0" prefHeight="14.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true" />
             <Label text="Y :   " />
-            <Slider fx:id="sliderY" prefHeight="14.0" prefWidth="251.0" />
+            <Slider fx:id="sliderY" majorTickUnit="90.0" max="360.0" prefHeight="14.0" prefWidth="251.0" showTickLabels="true" showTickMarks="true" />
             <Label text="Z :   " />
-            <Slider fx:id="sliderZ" prefHeight="14.0" prefWidth="249.0" />
+            <Slider fx:id="sliderZ" majorTickUnit="90.0" max="360.0" prefHeight="14.0" prefWidth="249.0" showTickLabels="true" showTickMarks="true" />
          </children>
       </HBox>
    </bottom>
