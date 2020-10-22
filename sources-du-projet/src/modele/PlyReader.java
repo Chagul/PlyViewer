@@ -3,6 +3,7 @@ package modele;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -11,7 +12,7 @@ public class PlyReader {
 
 	//attributes
 	private String pathToPly;
-	private ArrayList<Point> listPoint;
+	private HashMap<Integer,Point> listPoint;
 	private ArrayList<Face> listFace;
 	private int nbPoint;
 	private int nbFace;
@@ -22,12 +23,13 @@ public class PlyReader {
 	private final Pattern px = Pattern.compile("^-?[0-9]+(\\.[0-9]+)? ");
 	private final Pattern py = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? " );
 	private final Pattern pz = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? $");
+	private int uniqIDpoint = 0;
 	Scanner sc;
 
 	//constructor
 	public PlyReader(String aPathToAPly) {
 		this.pathToPly = aPathToAPly;
-		this.listPoint = new ArrayList<Point>();
+		this.listPoint = new HashMap<Integer,Point>();
 		this.listFace = new ArrayList<Face>();
 		this.nbPoint = 0;
 		this.nbFace = 0;
@@ -58,12 +60,18 @@ public class PlyReader {
 			return false;	
 		return true;
 	}
-
-	public boolean readPly() {
+	/**
+	 * Lis les lignes correspondantes aux points et aux faces dans le ply et les créer
+	 * @return true si tout s'est bien passé
+	 * @throws CreationPointException Quand il y a une erreur de format dans un point
+	 * @throws CreationFaceException Quand il y a une erreur de format dans une face
+	 */
+	public boolean readPly() throws CreationPointException, CreationFaceException {
 		String tmpReader = "";
 		tmpReader = "";
 		int cptPoint = 0;
 		int cptFace = 0;
+		boolean dansPoint = true;
 		while(sc.hasNextLine()) {
 			tmpReader = sc.nextLine();
 			if(Pattern.matches(patternPoint, tmpReader)) {
@@ -72,15 +80,19 @@ public class PlyReader {
 			}else if(!Pattern.matches(patternPoint, tmpReader) && cptPoint < this.nbPoint) {
 				creationPoint("0 0 0 ");
 				cptPoint++;
+				throw new CreationPointException();
 			}
-
-			if(Pattern.matches(patternFace,tmpReader)) {
+			if(cptPoint == this.nbPoint) dansPoint = false;
+			
+			if(!dansPoint && Pattern.matches(patternFace,tmpReader)) {
 				creationFace(tmpReader);
 				cptFace++;
-			}else if(!Pattern.matches(patternPoint, tmpReader) && cptFace < this.nbFace) {
-				//probleme de face
+			}else if(!dansPoint && !Pattern.matches(patternPoint, tmpReader) && cptFace < this.nbFace) {
+				creationFace("3 0 0 0 ");
+				cptFace++;
+				throw new CreationFaceException();
 			}
-			
+
 		}
 		sc.close();
 		return true;
@@ -97,14 +109,15 @@ public class PlyReader {
 		Matcher mz = pz.matcher(tmpReader);
 		if(mx.find() && my.find() && mz.find()) {
 			//System.out.println("je creer le point");
-			this.listPoint.add(new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group())));
+			this.listPoint.put(uniqIDpoint,new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group())));
+			uniqIDpoint++;
 			return true;
 		}
 		return false;
 	}
 	/**
-	 * 
-	 * @param tmpReader
+	 * Creer une face avec les différents point qui la compose
+	 * @param tmpReader le string contenant les points de la face
 	 * @return
 	 */
 	public boolean creationFace(String tmpReader) {
@@ -123,16 +136,16 @@ public class PlyReader {
 		}
 		this.listFace.add(
 				new Face(this.listPoint.get(point1)
-				, this.listPoint.get(point2)
-				, this.listPoint.get(point3)));
+						, this.listPoint.get(point2)
+						, this.listPoint.get(point3)));
 		return true;
 	}
 
 	//getters and setters
-	public ArrayList<Point> getListPoint() {
+	public HashMap<Integer, Point> getListPoint() {
 		return listPoint;
 	}
-	public void setListPoint(ArrayList<Point> listPoint) {
+	public void setListPoint(HashMap<Integer, Point> listPoint) {
 		this.listPoint = listPoint;
 	}
 	public ArrayList<Face> getListFace() {
