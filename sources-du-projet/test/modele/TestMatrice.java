@@ -12,7 +12,7 @@ public class TestMatrice {
 	double k;
 	double degre;
 	Rotation x, y, z;
-	public MatriceBonne m1, m2, m2bis, m3, m3bis, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13;
+	public Matrice m1, m2, m2bis, m3, m3bis, m4, m5, m6, m7, m8, m9, m10, m11, m12, m13;
 	
 	@Before
 	public void initialization() {
@@ -74,21 +74,21 @@ public class TestMatrice {
    	   									{66, 81, 96},
    	   									{102, 126, 150}};								
    	   									
-		m1 = new MatriceBonne(tab1);
-		m4 = new MatriceBonne(tab1);
-		m2 = new MatriceBonne(tab2);
-		m2bis = new MatriceBonne(tab2bis);
-		m3 = new MatriceBonne(tab3);
-		m3bis = new MatriceBonne(tab3bis);
-		m5 = new MatriceBonne(tab5);
-		m6 = new MatriceBonne(tab6);
-		m7 = new MatriceBonne(tab7);
-		m8 = new MatriceBonne(tab8);
-		m9 = new MatriceBonne(tab9);
-		m10 = new MatriceBonne(tab10);
-		m11 = new MatriceBonne(tab11);
-		m12 = new MatriceBonne(tab12);
-		m13 = new MatriceBonne(tab13);
+		m1 = new Matrice(tab1);
+		m4 = new Matrice(tab1);
+		m2 = new Matrice(tab2);
+		m2bis = new Matrice(tab2bis);
+		m3 = new Matrice(tab3);
+		m3bis = new Matrice(tab3bis);
+		m5 = new Matrice(tab5);
+		m6 = new Matrice(tab6);
+		m7 = new Matrice(tab7);
+		m8 = new Matrice(tab8);
+		m9 = new Matrice(tab9);
+		m10 = new Matrice(tab10);
+		m11 = new Matrice(tab11);
+		m12 = new Matrice(tab12);
+		m13 = new Matrice(tab13);
 	}
 	@Test
 	public void testEquals() {

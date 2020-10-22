@@ -149,53 +149,6 @@ public class Matrice {
 	
 	
 	/**
-	 * soustraction de deux matrices, celle donnée en paramètre et THIS.
-	 * @param m
-	 * 			Matrice à soustraire au THIS.
-	 * @return
-	 * 			La matrice résultat en conservant la matrice THIS.
-	 * @exception IllegalArgumentException vérification des dimentions
-	 */
-	
-	public Matrice soustraction(Matrice m) {
-		double vals[][];
-		int l1 = this.nb_Lignes;
-		int c1 = this.nb_Col;
-		
-		int l2 = m.getNb_Lignes();
-		int c2 = m.getNb_Col();
-		
-		if(l1 != l2 || c1 != c2) {
-			throw new IllegalArgumentException("Addition impossible : Problème de dimensions.");
-		} else {
-			vals = new double[l1][c1];
-		}
-		
-		for (int i = 0; i < l1; i++) {
-			for(int j = 0; j<c1; j++) {
-				vals[i][j] = this.M[i][j] - m.getM()[i][j];
-			}
-		}
-		
-		Matrice res = new Matrice(vals);
-		return res;
-	}
-	
-	/**
-	 * soustraction de deux matrices dont l'une est contruite à partir d'un point.
-	 * @param p
-	 * 			Point à partir duquel on construit la matrice.
-	 * @return
-	 * 			Le résultat de la soustraction.
-	 */
-	
-	public Matrice soustraction(Point p) {
-		Matrice m = new Matrice(p);
-		return this.soustraction(m);
-	}
-	
-	
-	/**
 	 * Multiplication de deux Matrices, This et celle donnée en paramètre.
 	 * @param m
 	 * 			Matrice other.
@@ -242,11 +195,11 @@ public class Matrice {
 			throw new IllegalArgumentException("Multiplication impossible : Problème de dimensions.");
 		}
 		
-		for(int i = 0; i<l1; i++) {
-			for(int j = 0; j<c2; j++) {
+		for(int i = 0; i<l2; i++) {
+			for(int j = 0; j<c1; j++) {
 				vals[i][j] = 0;
-				for(int k = 0; k<c1; k++) {
-					vals[i][j] = vals[i][j] + m1.getM()[i][k] * m2.getM()[k][j];
+				for(int k = 0; k<c2; k++) {
+					vals[i][j] = vals[i][j] + m2.getM()[i][k] * m1.getM()[k][j];
 				}
 			}
 		}
@@ -303,7 +256,7 @@ public class Matrice {
 		double vals[][] = new double[][] { 
 			{rapportK, 0, 0, 0}, 
 			{0, rapportK, 0, 0}, 
-			{0, 0, 1, 0},
+			{0, 0, rapportK, 0},
 			{0, 0, 0, 1}
 		};
 		

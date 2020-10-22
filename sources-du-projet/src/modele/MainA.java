@@ -16,15 +16,15 @@ public class MainA {
 			{0, Math.sin(degre), Math.cos(degre), 0}, 
 			{0, 0, 0, 1}};
 				
-		MatriceBonne m1 = new MatriceBonne(tab1);
-		MatriceBonne m6 = new MatriceBonne(tab6);
+		Matrice m1 = new Matrice(tab1);
+		Matrice m6 = new Matrice(tab6);
 		
 		int k = 2;
 		
 		System.out.println(m6);
 		System.out.println();
 		
-		MatriceBonne res = m1.rotation(Rotation.X, degre);
+		Matrice res = m1.rotation(Rotation.X, degre);
 		System.out.println(res);
 
 	}

@@ -13,12 +13,12 @@ public class MainStat {
 			,{3,4,5}
 			,{6,7,8}
 		};
-		MatriceBonne m1 = new MatriceBonne(m);
-		MatriceBonne m2 = new MatriceBonne(m23);
+		Matrice m1 = new Matrice(m);
+		Matrice m2 = new Matrice(m23);
 		System.out.println(m1);
 		m1.multiplication(m2);
 		System.out.println(m1);
-		MatriceBonne m3 = new MatriceBonne(m);
+		Matrice m3 = new Matrice(m);
 		m3 = m3.multiplication(m1,m2);
 		System.out.println(m3);
 
