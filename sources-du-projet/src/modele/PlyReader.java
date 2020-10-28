@@ -11,6 +11,7 @@ import java.util.regex.Matcher;
 public class PlyReader {
 
 	//attributes
+	private double[][] listPointTab;
 	private String pathToPly;
 	private HashMap<Integer,Point> listPoint;
 	private ArrayList<Face> listFace;
@@ -57,6 +58,7 @@ public class PlyReader {
 
 			if(tmpReader.equals((endHeaderString))) endHeader = true;
 		}
+		this.listPointTab = new double[4][this.nbPoint];
 		if(this.nbPoint==0 || this.nbFace==0)
 			return false;
 		return true;
@@ -110,7 +112,13 @@ public class PlyReader {
 		Matcher mz = pz.matcher(tmpReader);
 		if(mx.find() && my.find() && mz.find()) {
 			//System.out.println("je creer le point");
-			this.listPoint.put(uniqIDpoint,new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group())));
+			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
+			this.listPoint.put(uniqIDpoint,tmp);
+			this.listPointTab[0][uniqIDpoint] = tmp.getX();
+			this.listPointTab[1][uniqIDpoint] = tmp.getY();
+			this.listPointTab[2][uniqIDpoint] = tmp.getZ();
+			this.listPointTab[3][uniqIDpoint] = 1;
+				
 			uniqIDpoint++;
 			return true;
 		}
@@ -178,5 +186,8 @@ public class PlyReader {
 	 */
 	public Face getFace(int number) {
 		return this.listFace.get(number);
+	}
+	public double[][] getListPointTab() {
+		return this.listPointTab;
 	}
 }
