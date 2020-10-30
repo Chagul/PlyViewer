@@ -51,7 +51,7 @@
             <Slider fx:id="sliderZ" majorTickUnit="90.0" max="360.0" prefHeight="14.0" prefWidth="249.0" showTickLabels="true" showTickMarks="true" />
          </children>
       </HBox>
-      <ListView id="recentlyOpened" fx:id="listViewFiles1" layoutY="375.0" prefHeight="288.0" prefWidth="200.0" />
+      <ListView id="recentlyOpened" fx:id="recentlyOpened" layoutY="375.0" prefHeight="288.0" prefWidth="200.0" />
       <Text layoutX="10.0" layoutY="367.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ouvert récemment " wrappingWidth="135.7294921875" />
       <Button id="parcourir" fx:id="parcourir" layoutX="119.0" layoutY="12.0" mnemonicParsing="false" onAction="#buttonPressedParcourir" text="Parcourir" />
       <Button fx:id="afficher" layoutX="138.0" layoutY="349.0" mnemonicParsing="false" onAction="#buttonPressedAfficher" prefHeight="26.0" prefWidth="61.0" text="Afficher" />

@@ -18,6 +18,11 @@ public class PlyReader {
 	private int nbPoint;
 	private int nbFace;
 	private final String endHeaderString = "end_header";
+	private int uniqIDpoint = 0;
+	Scanner sc;
+	/**
+	 * Les patterns que nous retrouverons dans un fichier ply
+	 */
 	private final String patternPoint = "^-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s?$";
 	private final String patternFace = "^( ?[0-9]+ ?)* ?$";
 	private final Pattern pointP = Pattern.compile("[0-9]+");
@@ -25,11 +30,10 @@ public class PlyReader {
 	private final Pattern py = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? " );
 	private final Pattern pz = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? $");
 	private final Pattern nbPointFace = Pattern.compile("^ ?[0-9]+");
-	private int uniqIDpoint = 0;
-	Scanner sc;
 
 	//constructor
 	public PlyReader(String aPathToAPly) {
+		Point.resetNAuto();
 		this.pathToPly = aPathToAPly;
 		this.listPoint = new HashMap<Integer,Point>();
 		this.listFace = new ArrayList<Face>();
@@ -52,13 +56,16 @@ public class PlyReader {
 		if(!tmpReader.contains("ply") && cptLine == 0) return false;
 		while(sc.hasNextLine() && !endHeader) {
 			tmpReader = sc.nextLine();
-			if(tmpReader.contains(vertexString)) this.nbPoint = Integer.parseInt(tmpReader.substring(vertexString.length(), tmpReader.length()));
+			if(tmpReader.contains(vertexString)) 
+				this.nbPoint = Integer.parseInt(tmpReader.substring(vertexString.length(), tmpReader.length()));
 
-			if(tmpReader.contains(faceString)) this.nbFace = Integer.parseInt(tmpReader.substring(faceString.length(), tmpReader.length()));
+			if(tmpReader.contains(faceString)) 
+				this.nbFace = Integer.parseInt(tmpReader.substring(faceString.length(), tmpReader.length()));
 
-			if(tmpReader.equals((endHeaderString))) endHeader = true;
+			if(tmpReader.equals((endHeaderString))) 
+				endHeader = true;
 		}
-		this.listPointTab = new double[4][this.nbPoint];
+		this.listPointTab = new double[this.nbPoint][4];
 		if(this.nbPoint==0 || this.nbFace==0)
 			return false;
 		return true;
@@ -111,15 +118,12 @@ public class PlyReader {
 		Matcher my = py.matcher(tmpReader);
 		Matcher mz = pz.matcher(tmpReader);
 		if(mx.find() && my.find() && mz.find()) {
-			//System.out.println("je creer le point");
 			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
-			this.listPoint.put(uniqIDpoint,tmp);
-			this.listPointTab[0][uniqIDpoint] = tmp.getX();
-			this.listPointTab[1][uniqIDpoint] = tmp.getY();
-			this.listPointTab[2][uniqIDpoint] = tmp.getZ();
-			this.listPointTab[3][uniqIDpoint] = 1;
-				
-			uniqIDpoint++;
+			this.listPoint.put(tmp.getId(),tmp);
+			this.listPointTab[tmp.getId()][0] = tmp.getX();
+			this.listPointTab[tmp.getId()][1] = tmp.getY();
+			this.listPointTab[tmp.getId()][2] = tmp.getZ();
+			//this.listPointTab[tmp.getId()][3] = 1;
 			return true;
 		}
 		return false;

@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.ResourceBundle;
 
 import javafx.collections.FXCollections;
@@ -21,6 +22,7 @@ import modele.CreationFaceException;
 import modele.CreationPointException;
 import modele.Face;
 import modele.Matrice;
+import modele.MatriceBonne;
 import modele.PlyReader;
 
 public class MainWindow{
@@ -30,7 +32,8 @@ public class MainWindow{
 	}
 	
 	Stage stage;
-	ObservableList<String> listLien = FXCollections.observableArrayList();
+	ObservableList<String> listLien;
+	ObservableList<String> listRecentlyOpened;
 	@FXML
 	Canvas canvas;
 	@FXML
@@ -44,16 +47,20 @@ public class MainWindow{
 	
 
 	public void initialize() throws IOException {
+		listLien = FXCollections.observableArrayList();
+		listRecentlyOpened = FXCollections.observableArrayList();
 		File repertory = new File("sources-du-projet/exemples/");
 		if(!repertory.isDirectory()) System.out.println("Pas un repertoire !");
 		File fileList[] = repertory.listFiles();
-		for(File f : fileList) {
+		for(File f : fileList)
 			listLien.add(f.getCanonicalPath());
-			//System.out.println(f.getName());
-		}
 		listViewFiles.setItems(listLien);
+		recentlyOpened.setItems(listRecentlyOpened);
 	}
 
+	/**
+	 * Permet de choisir un dossier contenant des ply pour les afficher dans une listView
+	 */
 	public void buttonPressedParcourir() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().add(
@@ -66,6 +73,9 @@ public class MainWindow{
 	
 	public void buttonPressedAfficher() throws FileNotFoundException, CreationPointException, CreationFaceException {
 		draw(listViewFiles.getSelectionModel().getSelectedItem());
+		if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
+			listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
+		
 	}
 	
 	public void draw(String pathToPly) throws FileNotFoundException, CreationPointException, CreationFaceException {
@@ -74,53 +84,26 @@ public class MainWindow{
 		PlyReader aPlyReader = new PlyReader(pathToPly);
 		aPlyReader.initPly();
 		aPlyReader.readPly();
-		//System.out.println(Arrays.deepToString(aPlyReader.getListPointTab()));
-		Matrice matricePoint = new Matrice(aPlyReader.getListPointTab());
-		//System.out.println(matricePoint.toString());	
+		MatriceBonne matricePoint = new MatriceBonne(aPlyReader.getListPointTab());
 		matricePoint = matricePoint.multiplication(100.0);
-		//System.out.println(matricePoint.toString());
 		ArrayList<Face> listFace = new ArrayList<Face>();
 		listFace.addAll(aPlyReader.getListFace());
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		gc.beginPath();
 		gc.translate(canvas.getWidth()/2, canvas.getHeight()/2);
-		for (Face face : listFace) {
-			for(int i = 0; i < face.getListPoint().size(); i++) {
-				if(i < face.getListPoint().size() - 1)
-					gc.strokeLine(face.getListPoint().get(i).getX()*100, face.getListPoint().get(i).getY()*100, face.getListPoint().get(i+1).getX()*100, face.getListPoint().get(i+1).getY()*100);
-				else
-					gc.strokeLine(face.getListPoint().get(i).getX()*100, face.getListPoint().get(i).getY()*100, face.getListPoint().get(0).getX()*100, face.getListPoint().get(0).getY()*100);
-			}
-		}
-		gc.closePath();
-	}
-	/*public void initialize() throws FileNotFoundException, CreationPointException, CreationFaceException {
-		Point2D p1 = new Point2D(15,15);
-		canvas.getGraphicsContext2D().fillRect(p1.getX(), p1.getY(), 150, 150);
-		double ratioX = canvas.getWidth() / (canvas.getWidth()+1280);
-		double ratioY = canvas.getHeight() / (canvas.getHeight() + 800);
-		PlyReader aPlyReader = new PlyReader("sources-du-projet/exemples/dodecahedron.ply");
-		aPlyReader.initPly();
-		aPlyReader.readPly();
-		System.out.println(Arrays.deepToString(aPlyReader.getListPointTab()));
-		Matrice matricePoint = new Matrice(aPlyReader.getListPointTab());
-		System.out.println(matricePoint.toString());	
-		matricePoint = matricePoint.multiplication(100.0);
-		System.out.println(matricePoint.toString());
-		ArrayList<Face> listFace = new ArrayList<Face>();
-		listFace.addAll(aPlyReader.getListFace());
-		GraphicsContext gc = canvas.getGraphicsContext2D();
+		int ntmp = 0;
 		gc.beginPath();
-		gc.translate(600, 400);
 		for (Face face : listFace) {
 			for(int i = 0; i < face.getListPoint().size(); i++) {
-				if(i < face.getListPoint().size() - 1)
-					gc.strokeLine(face.getListPoint().get(i).getX()*100, face.getListPoint().get(i).getY()*100, face.getListPoint().get(i+1).getX()*100, face.getListPoint().get(i+1).getY()*100);
+				if(i < face.getListPoint().size() - 1) 				
+					//System.out.println("Face : " + ntmp + "\t" +  matricePoint.getM()[face.getListPoint().get(i).getId()][0] + ":" + matricePoint.getM()[face.getListPoint().get(i).getId()][1] + "\tà\t" + matricePoint.getM()[face.getListPoint().get(i+1).getId()][0] + ":" + matricePoint.getM()[face.getListPoint().get(i+1).getId()][1]);
+					gc.strokeLine(matricePoint.getM()[face.getListPoint().get(i).getId()][0], matricePoint.getM()[face.getListPoint().get(i).getId()][1], matricePoint.getM()[face.getListPoint().get(i+1).getId()][0],matricePoint.getM()[face.getListPoint().get(i+1).getId()][1] );
 				else
-					gc.strokeLine(face.getListPoint().get(i).getX()*100, face.getListPoint().get(i).getY()*100, face.getListPoint().get(0).getX()*100, face.getListPoint().get(0).getY()*100);
+					gc.strokeLine(matricePoint.getM()[face.getListPoint().get(i).getId()][0], matricePoint.getM()[face.getListPoint().get(i).getId()][1], matricePoint.getM()[face.getListPoint().get(0).getId()][0],matricePoint.getM()[face.getListPoint().get(0).getId()][1] );
 			}
+			ntmp++;
 		}
 		gc.closePath();
-	}*/
+		gc.translate(-canvas.getWidth()/2, -canvas.getHeight()/2);
+	}
 }
