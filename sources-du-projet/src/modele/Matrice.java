@@ -188,7 +188,6 @@ public class Matrice {
 		
 		int l2 = m2.getNb_Lignes();
 		int c2 = m2.getNb_Col();
-		
 		if(l1 == c2) {
 			vals = new double [l2][c1];
 		} else {

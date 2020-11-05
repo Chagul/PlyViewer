@@ -3,37 +3,36 @@ package controller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.ResourceBundle;
 
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.fxml.Initializable;
 import javafx.scene.canvas.Canvas;
-import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
+import javafx.scene.control.Slider;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import modele.CreationFaceException;
 import modele.CreationPointException;
-import modele.Face;
-import modele.Matrice;
-import modele.MatriceBonne;
+import modele.PlyFile;
 import modele.PlyReader;
+import modele.Rotation;
 
-public class MainWindow{
+public class MainWindow {
 
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
-	
+
 	Stage stage;
 	ObservableList<String> listLien;
 	ObservableList<String> listRecentlyOpened;
+	PlyFile ply;
+	PlyReader aPlyReader;
+	String stringDirectory;
 	@FXML
 	Canvas canvas;
 	@FXML
@@ -44,18 +43,69 @@ public class MainWindow{
 	ListView<String> recentlyOpened;
 	@FXML
 	Button afficher;
-	
+	@FXML
+	Slider sliderX;
+	@FXML 
+	Slider sliderY;
+	@FXML
+	Slider sliderZ;
+	@FXML
+	Slider sliderZoom;
 
+	/**
+	 * Peuple les listView avant l'affichage de la fenetre, initialise les eventHandler
+	 * @throws IOException
+	 */
 	public void initialize() throws IOException {
 		listLien = FXCollections.observableArrayList();
 		listRecentlyOpened = FXCollections.observableArrayList();
-		File repertory = new File("sources-du-projet/exemples/");
+		stringDirectory = "sources-du-projet/exemples/";
+		File repertory = new File(stringDirectory);
 		if(!repertory.isDirectory()) System.out.println("Pas un repertoire !");
 		File fileList[] = repertory.listFiles();
 		for(File f : fileList)
-			listLien.add(f.getCanonicalPath());
+			if(f.getName().contains(".ply"))
+				listLien.add(f.getName());
 		listViewFiles.setItems(listLien);
 		recentlyOpened.setItems(listRecentlyOpened);
+		/**
+		 * On lie les sliders avec les fonctions de matrices qui leur correspondent
+		 */
+		sliderX.valueProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));	
+				ply.draw(canvas);
+			}		
+		});
+
+		sliderY.valueProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+
+				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, (double)newValue-(double)oldValue));	
+				ply.draw(canvas);
+			}		
+		});
+
+		sliderZ.valueProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, (double)newValue-(double)oldValue));	
+				ply.draw(canvas);
+			}		
+		});
+		/**
+		 * A revoir
+		 */
+		sliderZoom.valueProperty().addListener(new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				ply.setMatricePoint(ply.getMatricePoint().multiplication((double)newValue));	
+				ply.draw(canvas);
+			}		
+		});
+
 	}
 
 	/**
@@ -66,44 +116,22 @@ public class MainWindow{
 		fileChooser.getExtensionFilters().add(
 				new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
-		if(tmp != null) {
+		stringDirectory = tmp.getParent();
+		if(tmp != null && !listLien.contains((String) tmp.getName())) {
 			listLien.add(tmp.getName());
 		}
 	}
+
 	
 	public void buttonPressedAfficher() throws FileNotFoundException, CreationPointException, CreationFaceException {
-		draw(listViewFiles.getSelectionModel().getSelectedItem());
-		if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
-			listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
-		
-	}
-	
-	public void draw(String pathToPly) throws FileNotFoundException, CreationPointException, CreationFaceException {
-		//double ratioX = canvas.getWidth() / (canvas.getWidth()+1280);
-		//double ratioY = canvas.getHeight() / (canvas.getHeight() + 800);
-		PlyReader aPlyReader = new PlyReader(pathToPly);
+		aPlyReader = new PlyReader(stringDirectory + listViewFiles.getSelectionModel().getSelectedItem());
 		aPlyReader.initPly();
 		aPlyReader.readPly();
-		MatriceBonne matricePoint = new MatriceBonne(aPlyReader.getListPointTab());
-		matricePoint = matricePoint.multiplication(100.0);
-		ArrayList<Face> listFace = new ArrayList<Face>();
-		listFace.addAll(aPlyReader.getListFace());
-		GraphicsContext gc = canvas.getGraphicsContext2D();
-		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		gc.translate(canvas.getWidth()/2, canvas.getHeight()/2);
-		int ntmp = 0;
-		gc.beginPath();
-		for (Face face : listFace) {
-			for(int i = 0; i < face.getListPoint().size(); i++) {
-				if(i < face.getListPoint().size() - 1) 				
-					//System.out.println("Face : " + ntmp + "\t" +  matricePoint.getM()[face.getListPoint().get(i).getId()][0] + ":" + matricePoint.getM()[face.getListPoint().get(i).getId()][1] + "\tà\t" + matricePoint.getM()[face.getListPoint().get(i+1).getId()][0] + ":" + matricePoint.getM()[face.getListPoint().get(i+1).getId()][1]);
-					gc.strokeLine(matricePoint.getM()[face.getListPoint().get(i).getId()][0], matricePoint.getM()[face.getListPoint().get(i).getId()][1], matricePoint.getM()[face.getListPoint().get(i+1).getId()][0],matricePoint.getM()[face.getListPoint().get(i+1).getId()][1] );
-				else
-					gc.strokeLine(matricePoint.getM()[face.getListPoint().get(i).getId()][0], matricePoint.getM()[face.getListPoint().get(i).getId()][1], matricePoint.getM()[face.getListPoint().get(0).getId()][0],matricePoint.getM()[face.getListPoint().get(0).getId()][1] );
-			}
-			ntmp++;
-		}
-		gc.closePath();
-		gc.translate(-canvas.getWidth()/2, -canvas.getHeight()/2);
+		ply = new PlyFile(aPlyReader.getListFace(), aPlyReader.getListPoint(), aPlyReader.getPath());
+		ply.draw(canvas);
+		if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
+			listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
+
 	}
+
 }

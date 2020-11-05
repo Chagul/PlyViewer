@@ -11,14 +11,12 @@ import java.util.regex.Matcher;
 public class PlyReader {
 
 	//attributes
-	private double[][] listPointTab;
 	private String pathToPly;
 	private HashMap<Integer,Point> listPoint;
 	private ArrayList<Face> listFace;
 	private int nbPoint;
 	private int nbFace;
 	private final String endHeaderString = "end_header";
-	private int uniqIDpoint = 0;
 	Scanner sc;
 	/**
 	 * Les patterns que nous retrouverons dans un fichier ply
@@ -65,7 +63,6 @@ public class PlyReader {
 			if(tmpReader.equals((endHeaderString))) 
 				endHeader = true;
 		}
-		this.listPointTab = new double[this.nbPoint][4];
 		if(this.nbPoint==0 || this.nbFace==0)
 			return false;
 		return true;
@@ -120,10 +117,6 @@ public class PlyReader {
 		if(mx.find() && my.find() && mz.find()) {
 			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
 			this.listPoint.put(tmp.getId(),tmp);
-			this.listPointTab[tmp.getId()][0] = tmp.getX();
-			this.listPointTab[tmp.getId()][1] = tmp.getY();
-			this.listPointTab[tmp.getId()][2] = tmp.getZ();
-			//this.listPointTab[tmp.getId()][3] = 1;
 			return true;
 		}
 		return false;
@@ -191,7 +184,8 @@ public class PlyReader {
 	public Face getFace(int number) {
 		return this.listFace.get(number);
 	}
-	public double[][] getListPointTab() {
-		return this.listPointTab;
+	
+	public String getPath() {
+		return this.pathToPly;
 	}
 }
