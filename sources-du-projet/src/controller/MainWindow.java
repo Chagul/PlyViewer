@@ -21,6 +21,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import modele.CreationFaceException;
 import modele.CreationPointException;
+import modele.Fichier;
 import modele.PlyFile;
 import modele.PlyReader;
 import modele.Rotation;
@@ -127,16 +128,14 @@ public class MainWindow {
 		 * sources-du-projet/exemples, on ajoute donc le fichier choisis par l'utilisateur
 		 * à ce repertoire.
 		 */
-		Path source = Paths.get(tmp.getPath()); //Le chemin source du fichier.
-		Path cible = Paths.get("/Users/kharmacm/git/projetmode-alt3/sources-du-projet/exemples/" + 
-														tmp.getName()); //Le chemin cible du fichier.
-	    StandardCopyOption remplacerSiExiste=StandardCopyOption.REPLACE_EXISTING;
+		
 	    
 		//stringDirectory = tmp.getParent(); //Changer le rep ici signifie qu'on est obligé d'ouvrir le fichier que l'on a selectionné.
 	     
 		if(tmp != null && !listLien.contains((String) tmp.getName())) {
 			listLien.add(tmp.getName());
-			Files.move(source, cible, remplacerSiExiste);
+			Fichier.move(tmp.getPath(), "/Users/kharmacm/git/projetmode-alt3/sources-du-projet/exemples/" + 
+					tmp.getName());
 		}
 	}
 
