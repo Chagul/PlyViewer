@@ -3,6 +3,10 @@ package controller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -110,15 +114,29 @@ public class MainWindow {
 
 	/**
 	 * Permet de choisir un dossier contenant des ply pour les afficher dans une listView
+	 * @throws IOException 
 	 */
-	public void buttonPressedParcourir() {
+	public void buttonPressedParcourir() throws IOException {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().add(
 				new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
-		stringDirectory = tmp.getParent();
+		
+		/* 
+		 * Comme les fichier ply sont lus à partir du repertoire
+		 * sources-du-projet/exemples, on ajoute donc le fichier choisis par l'utilisateur
+		 * à ce repertoire.
+		 */
+		Path source = Paths.get(tmp.getPath()); //Le chemin source du fichier.
+		Path cible = Paths.get("/Users/kharmacm/git/projetmode-alt3/sources-du-projet/exemples/" + 
+														tmp.getName()); //Le chemin cible du fichier.
+	    StandardCopyOption remplacerSiExiste=StandardCopyOption.REPLACE_EXISTING;
+	    
+		//stringDirectory = tmp.getParent(); //Changer le rep ici signifie qu'on est obligé d'ouvrir le fichier que l'on a selectionné.
+	     
 		if(tmp != null && !listLien.contains((String) tmp.getName())) {
 			listLien.add(tmp.getName());
+			Files.move(source, cible, remplacerSiExiste);
 		}
 	}
 
