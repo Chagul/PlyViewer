@@ -26,12 +26,16 @@ import modele.PlyFile;
 import modele.PlyReader;
 import modele.Rotation;
 /**
- * 
- * @author planckea
- *
+ * Controller Principal
+ * @author planckea kharmacm
+ * @version 09/11/2020
  */
 public class MainWindow {
 
+	/**
+	 * 
+	 * @param stage
+	 */
 	public void setStage(Stage stage) {
 		this.stage = stage;
 	}
