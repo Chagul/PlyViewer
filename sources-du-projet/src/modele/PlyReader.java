@@ -25,7 +25,8 @@ public class PlyReader {
 	/**
 	 * Les patterns que nous retrouverons dans un fichier ply
 	 */
-	private final String patternPoint = "^-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s-?[0-9]+(\\.[0-9]+)?\\s?$";
+	private final String FLOAT = "-?[0-9]+((\\.[0-9]+)?(e(\\+|-)?[0-9]+)?)" ;
+	private final String patternPoint = "^(\\s)*" + FLOAT + "\\s+" + FLOAT + "\\s+" + FLOAT + "(\\s)*$" ;
 	private final String patternFace = "^( ?[0-9]+ ?)* ?$";
 	private final Pattern pointP = Pattern.compile("[0-9]+");
 	private final Pattern px = Pattern.compile("^-?[0-9]+(\\.[0-9]+)? ");
