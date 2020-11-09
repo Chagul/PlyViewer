@@ -1,7 +1,7 @@
 package modele;
 
 public enum Rotation {
-	X("axeX"), Y("axeZ"), Z("axeZ");
+	X("axeX"), Y("axeY"), Z("axeZ");
 	
 	private String s;
 	

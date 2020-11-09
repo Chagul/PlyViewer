@@ -323,7 +323,7 @@ public class Matrice {
 		
 		
 		Matrice m = new Matrice(vals);
-		System.out.println("cos(90) = " + Math.cos(Math.toRadians(90.0)) + " sin(90) = " + Math.sin(Math.toRadians(degre)));
+		//System.out.println("cos(90) = " + Math.cos(Math.toRadians(90.0)) + " sin(90) = " + Math.sin(Math.toRadians(degre)));
 		return this.multiplication(m);	
 	}
 	

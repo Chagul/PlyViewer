@@ -3,25 +3,24 @@ package controller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
+
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
+import javafx.scene.input.MouseEvent;
+import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import modele.CreationFaceException;
 import modele.CreationPointException;
-import modele.Fichier;
 import modele.PlyFile;
 import modele.PlyReader;
 import modele.Rotation;
@@ -73,6 +72,69 @@ public class MainWindow {
 				listLien.add(f.getName());
 		listViewFiles.setItems(listLien);
 		recentlyOpened.setItems(listRecentlyOpened);
+
+
+		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED,new EventHandler<MouseEvent>() {
+			double dX;
+			double dY;
+			double rotationX;
+			double rotationY;
+			@Override
+			public void handle(MouseEvent mouseDragged) {
+				rotationX = (mouseDragged.getSceneX()-dX);
+				rotationY = (mouseDragged.getSceneY()-dY);
+				if(dX - mouseDragged.getSceneX() < 0)
+					rotationX = -rotationX;
+				if(dY - mouseDragged.getSceneY() < 0)
+					rotationY = -rotationY;
+				/**
+				 * Clic gauche = rotation X et Y
+				 */
+				if(mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
+
+					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
+					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, rotationX));
+					ply.draw(canvas);
+				}
+				/**
+				 * Clic droit = rotation Z
+				 */
+				if(!mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
+					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));	
+					ply.draw(canvas);
+				}
+				/**
+				 *  Deux clic en même temps = translation
+				 */
+				if(mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
+					
+					//translation ??
+					
+					ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX(),mouseDragged.getSceneY(),1));	
+
+					ply.draw(canvas);
+				}
+				dX = mouseDragged.getSceneX();
+				dY = mouseDragged.getSceneY();
+			}
+		});
+		
+		/**
+		 * Scroll souris = zoom ou dézoom selon le sens
+		 */
+		canvas.setOnScroll(new EventHandler<ScrollEvent>() {
+			@Override
+			public void handle(ScrollEvent wheelScroll) {
+				double zoom = 1.05;
+				double deltaY = wheelScroll.getDeltaY();
+				if(deltaY < 0)
+					zoom = 0.95;
+				
+				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));
+				ply.draw(canvas);
+				
+			}
+		});
 		/**
 		 * On lie les sliders avec les fonctions de matrices qui leur correspondent
 		 */
@@ -106,7 +168,10 @@ public class MainWindow {
 		sliderZoom.valueProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				ply.setMatricePoint(ply.getMatricePoint().multiplication((double)newValue));	
+				double zoom = 1.05;
+				if((double) oldValue > (double)newValue)
+					zoom = 0.95;
+				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
 				ply.draw(canvas);
 			}		
 		});
@@ -115,31 +180,19 @@ public class MainWindow {
 
 	/**
 	 * Permet de choisir un dossier contenant des ply pour les afficher dans une listView
-	 * @throws IOException 
 	 */
-	public void buttonPressedParcourir() throws IOException {
+	public void buttonPressedParcourir() {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().add(
 				new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
-		
-		/* 
-		 * Comme les fichier ply sont lus à partir du repertoire
-		 * sources-du-projet/exemples, on ajoute donc le fichier choisis par l'utilisateur
-		 * à ce repertoire.
-		 */
-		
-	    
-		//stringDirectory = tmp.getParent(); //Changer le rep ici signifie qu'on est obligé d'ouvrir le fichier que l'on a selectionné.
-	     
+		stringDirectory = tmp.getParent();
 		if(tmp != null && !listLien.contains((String) tmp.getName())) {
 			listLien.add(tmp.getName());
-			Fichier.move(tmp.getPath(), "/Users/kharmacm/git/projetmode-alt3/sources-du-projet/exemples/" + 
-					tmp.getName());
 		}
 	}
 
-	
+
 	public void buttonPressedAfficher() throws FileNotFoundException, CreationPointException, CreationFaceException {
 		aPlyReader = new PlyReader(stringDirectory + listViewFiles.getSelectionModel().getSelectedItem());
 		aPlyReader.initPly();

@@ -19,8 +19,6 @@ public class MainA {
 		Matrice m1 = new Matrice(tab1);
 		Matrice m6 = new Matrice(tab6);
 		
-		int k = 2;
-		
 		System.out.println(m6);
 		System.out.println();
 		
