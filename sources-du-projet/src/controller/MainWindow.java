@@ -41,7 +41,9 @@ public class MainWindow {
 	ObservableList<File> listRecentlyOpened;
 	PlyFile ply;
 	PlyReader aPlyReader;
-	
+	EventHandler<MouseEvent> mouseDraggedEvent;
+	EventHandler<ScrollEvent> mousescrollEvent;
+
 	@FXML
 	Canvas canvas;
 	@FXML
@@ -68,59 +70,50 @@ public class MainWindow {
 	public void initialize() throws IOException {
 		listLien = FXCollections.observableArrayList();
 		listRecentlyOpened = FXCollections.observableArrayList();
-		
-		
+
+
 		listViewFiles.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
-		    
+
 
 			@Override
 			public ListCell<File> call(ListView<File> param) {
 				return new ListCell<File>() {
 
-		            @Override
-		            protected void updateItem(File value, boolean empty) {
-		    
-		                super.updateItem(value, empty);
-		                if (empty || value == null || value.getName() == null) {
-	                        setText(null);
-	                    } else {
-	                        setText(value.getName());
-	                            
-	                    }
-		               
-		            }
-		        };
+					@Override
+					protected void updateItem(File value, boolean empty) {
+
+						super.updateItem(value, empty);
+						if (empty || value == null || value.getName() == null)
+							setText(null);
+						else
+							setText(value.getName());
+
+					}
+				};
 			}
 		});
-		
+
 		recentlyOpened.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
-		    
-
 			@Override
 			public ListCell<File> call(ListView<File> param) {
 				return new ListCell<File>() {
 
-		            @Override
-		            protected void updateItem(File value, boolean empty) {
-		    
-		                super.updateItem(value, empty);
-		                if (empty || value == null || value.getName() == null) {
-	                        setText(null);
-	                    } else {
-	                        setText(value.getName());
-	                            
-	                    }
-		               
-		            }
-		        };
+					@Override
+					protected void updateItem(File value, boolean empty) {
+
+						super.updateItem(value, empty);
+						if (empty || value == null || value.getName() == null)
+							setText(null);
+						else
+							setText(value.getName());
+					}};
 			}
-		});
-		
+		});		
 		listViewFiles.setItems(listLien);
 		recentlyOpened.setItems(listRecentlyOpened);
 
 
-		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED,new EventHandler<MouseEvent>() {
+		mouseDraggedEvent = new EventHandler<MouseEvent>() {
 			double dX;
 			double dY;
 			double rotationX;
@@ -129,7 +122,7 @@ public class MainWindow {
 			public void handle(MouseEvent mouseDragged) {
 				rotationX = (mouseDragged.getSceneX()-dX);
 				rotationY = (mouseDragged.getSceneY()-dY);
-				
+
 				/**
 				 * Clic gauche = rotation X et Y
 				 */
@@ -150,34 +143,34 @@ public class MainWindow {
 				 *  Deux clic en même temps = translation
 				 */
 				if(mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-					
-					//translation ??
-					
-					ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX(),mouseDragged.getSceneY(),1));	
 
+					//translation ??
+					System.out.println(ply.getMatricePoint().toString());
+					ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX(),mouseDragged.getSceneY(),1));	
+					System.out.println(ply.getMatricePoint().toString());
 					ply.draw(canvas);
 				}
 				dX = mouseDragged.getSceneX();
 				dY = mouseDragged.getSceneY();
 			}
-		});
-		
+		};
+
 		/**
 		 * Scroll souris = zoom ou dézoom selon le sens
 		 */
-		canvas.setOnScroll(new EventHandler<ScrollEvent>() {
+		mousescrollEvent = new EventHandler<ScrollEvent>() {
 			@Override
 			public void handle(ScrollEvent wheelScroll) {
 				double zoom = 1.05;
 				double deltaY = wheelScroll.getDeltaY();
 				if(deltaY < 0)
 					zoom = 0.95;
-				
+
 				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));
 				ply.draw(canvas);
-				
+
 			}
-		});
+		};
 		/**
 		 * On lie les sliders avec les fonctions de matrices qui leur correspondent
 		 */
@@ -205,9 +198,6 @@ public class MainWindow {
 				ply.draw(canvas);
 			}		
 		});
-		/**
-		 * A revoir
-		 */
 		sliderZoom.valueProperty().addListener(new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
@@ -230,7 +220,7 @@ public class MainWindow {
 		fileChooser.getExtensionFilters().add(
 				new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
-		
+
 		if(tmp != null && !listLien.contains(tmp)) {
 			listLien.add(tmp);
 		}
@@ -246,6 +236,8 @@ public class MainWindow {
 		aPlyReader = new PlyReader(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
 		aPlyReader.initPly();
 		aPlyReader.readPly();
+		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
+		canvas.setOnScroll(mousescrollEvent);
 		ply = new PlyFile(aPlyReader.getListFace(), aPlyReader.getListPoint(), aPlyReader.getPath());
 		ply.draw(canvas);
 		if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
