@@ -21,10 +21,15 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import modele.CreationFaceException;
 import modele.CreationPointException;
+import modele.Fichier;
 import modele.PlyFile;
 import modele.PlyReader;
 import modele.Rotation;
-
+/**
+ * 
+ * @author planckea
+ *
+ */
 public class MainWindow {
 
 	public void setStage(Stage stage) {
@@ -83,17 +88,14 @@ public class MainWindow {
 			public void handle(MouseEvent mouseDragged) {
 				rotationX = (mouseDragged.getSceneX()-dX);
 				rotationY = (mouseDragged.getSceneY()-dY);
-				if(dX - mouseDragged.getSceneX() < 0)
-					rotationX = -rotationX;
-				if(dY - mouseDragged.getSceneY() < 0)
-					rotationY = -rotationY;
+				
 				/**
 				 * Clic gauche = rotation X et Y
 				 */
 				if(mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
 
 					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
-					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, rotationX));
+					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, -rotationX));
 					ply.draw(canvas);
 				}
 				/**
@@ -180,8 +182,9 @@ public class MainWindow {
 
 	/**
 	 * Permet de choisir un dossier contenant des ply pour les afficher dans une listView
+	 * @throws IOException 
 	 */
-	public void buttonPressedParcourir() {
+	public void buttonPressedParcourir() throws IOException {
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().add(
 				new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
@@ -194,9 +197,14 @@ public class MainWindow {
 		}
 	}
 
-
+	/**
+	 * Lit un fichier ply à partir de la selection de l'utilisateur, le charge en mémoire et l'affiche
+	 * @throws FileNotFoundException si le fichier selectionné n'est pas trouvé
+	 * @throws CreationPointException si il y a un problème à la creation d'un point
+	 * @throws CreationFaceException si il y a un problème à la création d'une face
+	 */
 	public void buttonPressedAfficher() throws FileNotFoundException, CreationPointException, CreationFaceException {
-		aPlyReader = new PlyReader(stringDirectory + listViewFiles.getSelectionModel().getSelectedItem());
+		aPlyReader = new PlyReader(stringDirectory + "/" + listViewFiles.getSelectionModel().getSelectedItem());
 		aPlyReader.initPly();
 		aPlyReader.readPly();
 		ply = new PlyFile(aPlyReader.getListFace(), aPlyReader.getListPoint(), aPlyReader.getPath());

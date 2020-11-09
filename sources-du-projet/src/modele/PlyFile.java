@@ -5,7 +5,11 @@ import java.util.HashMap;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-
+/**
+ * 
+ * @author planckea
+ *
+ */
 public class PlyFile {
 
 	ArrayList<Face> arrayListFace;
@@ -28,7 +32,10 @@ public class PlyFile {
 		this.matricePoint = this.matricePoint.multiplication(-1);
 		
 	}
-	
+	/**
+	 * Dessine un ply à partir de ses points et de ses faces
+	 * @param canvas Le canvas sur lequel le ply sera dessiné
+	 */
 	public void draw(Canvas canvas)  {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
@@ -45,6 +52,7 @@ public class PlyFile {
 		gc.closePath();
 		gc.translate(-canvas.getWidth()/2, -canvas.getHeight()/2);
 	}
+
 
 	public ArrayList<Face> getArrayListFace() {
 		return arrayListFace;

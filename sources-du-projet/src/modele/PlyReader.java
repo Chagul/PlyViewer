@@ -7,7 +7,11 @@ import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
-
+/**
+ * 
+ * @author planckea
+ *
+ */
 public class PlyReader {
 
 	//attributes

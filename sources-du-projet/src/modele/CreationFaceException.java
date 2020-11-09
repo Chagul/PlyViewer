@@ -1,5 +1,9 @@
 package modele;
-
+/**
+ * 
+ * @author planckea
+ *
+ */
 public class CreationFaceException extends Exception {
 
 	/**

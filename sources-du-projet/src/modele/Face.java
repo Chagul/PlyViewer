@@ -47,7 +47,9 @@ public class Face {
 		}
 		return tmp;
 	}
-
+	/**
+	 * Deux faces sont considérées comme égales si tout les points qui les composents sont égaux
+	 */
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj)

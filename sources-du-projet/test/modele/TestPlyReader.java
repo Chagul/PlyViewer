@@ -6,7 +6,11 @@ import java.io.FileNotFoundException;
 
 import org.junit.Before;
 import org.junit.Test;
-
+/**
+ * 
+ * @author planckea
+ *
+ */
 public class TestPlyReader {
 	
 	private PlyReader aPlyReader;
