@@ -4,7 +4,6 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
-
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -13,15 +12,16 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.Button;
+import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import modele.CreationFaceException;
 import modele.CreationPointException;
-import modele.Fichier;
 import modele.PlyFile;
 import modele.PlyReader;
 import modele.Rotation;
@@ -37,19 +37,19 @@ public class MainWindow {
 	}
 
 	Stage stage;
-	ObservableList<String> listLien;
-	ObservableList<String> listRecentlyOpened;
+	ObservableList<File> listLien;
+	ObservableList<File> listRecentlyOpened;
 	PlyFile ply;
 	PlyReader aPlyReader;
-	String stringDirectory;
+	
 	@FXML
 	Canvas canvas;
 	@FXML
-	ListView<String> listViewFiles;
+	ListView<File> listViewFiles;
 	@FXML
 	Button parcourir;
 	@FXML
-	ListView<String> recentlyOpened;
+	ListView<File> recentlyOpened;
 	@FXML
 	Button afficher;
 	@FXML
@@ -68,13 +68,54 @@ public class MainWindow {
 	public void initialize() throws IOException {
 		listLien = FXCollections.observableArrayList();
 		listRecentlyOpened = FXCollections.observableArrayList();
-		stringDirectory = "sources-du-projet/exemples/";
-		File repertory = new File(stringDirectory);
-		if(!repertory.isDirectory()) System.out.println("Pas un repertoire !");
-		File fileList[] = repertory.listFiles();
-		for(File f : fileList)
-			if(f.getName().contains(".ply"))
-				listLien.add(f.getName());
+		
+		
+		listViewFiles.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
+		    
+
+			@Override
+			public ListCell<File> call(ListView<File> param) {
+				return new ListCell<File>() {
+
+		            @Override
+		            protected void updateItem(File value, boolean empty) {
+		    
+		                super.updateItem(value, empty);
+		                if (empty || value == null || value.getName() == null) {
+	                        setText(null);
+	                    } else {
+	                        setText(value.getName());
+	                            
+	                    }
+		               
+		            }
+		        };
+			}
+		});
+		
+		recentlyOpened.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
+		    
+
+			@Override
+			public ListCell<File> call(ListView<File> param) {
+				return new ListCell<File>() {
+
+		            @Override
+		            protected void updateItem(File value, boolean empty) {
+		    
+		                super.updateItem(value, empty);
+		                if (empty || value == null || value.getName() == null) {
+	                        setText(null);
+	                    } else {
+	                        setText(value.getName());
+	                            
+	                    }
+		               
+		            }
+		        };
+			}
+		});
+		
 		listViewFiles.setItems(listLien);
 		recentlyOpened.setItems(listRecentlyOpened);
 
@@ -189,11 +230,9 @@ public class MainWindow {
 		fileChooser.getExtensionFilters().add(
 				new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
-		stringDirectory = tmp.getParent();
-		if(tmp != null && !listLien.contains((String) tmp.getName())) {
-			listLien.add(tmp.getName());
-			Fichier.move(tmp.getPath(), "/Users/kharmacm/git/projetmode-alt3/sources-du-projet/exemples/" +	tmp.getName()); 
-
+		
+		if(tmp != null && !listLien.contains(tmp)) {
+			listLien.add(tmp);
 		}
 	}
 
@@ -204,7 +243,7 @@ public class MainWindow {
 	 * @throws CreationFaceException si il y a un problème à la création d'une face
 	 */
 	public void buttonPressedAfficher() throws FileNotFoundException, CreationPointException, CreationFaceException {
-		aPlyReader = new PlyReader(stringDirectory + "/" + listViewFiles.getSelectionModel().getSelectedItem());
+		aPlyReader = new PlyReader(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
 		aPlyReader.initPly();
 		aPlyReader.readPly();
 		ply = new PlyFile(aPlyReader.getListFace(), aPlyReader.getListPoint(), aPlyReader.getPath());
