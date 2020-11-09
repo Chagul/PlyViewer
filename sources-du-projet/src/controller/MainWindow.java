@@ -189,6 +189,8 @@ public class MainWindow {
 		stringDirectory = tmp.getParent();
 		if(tmp != null && !listLien.contains((String) tmp.getName())) {
 			listLien.add(tmp.getName());
+			Fichier.move(tmp.getPath(), "/Users/kharmacm/git/projetmode-alt3/sources-du-projet/exemples/" +	tmp.getName()); 
+
 		}
 	}
 
