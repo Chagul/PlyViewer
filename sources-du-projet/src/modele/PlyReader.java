@@ -14,68 +14,73 @@ import java.util.regex.Matcher;
  */
 public class PlyReader {
 
-	//attributes
-	private String pathToPly;
-	private HashMap<Integer,Point> listPoint;
-	private ArrayList<Face> listFace;
-	private int nbPoint;
-	private int nbFace;
-	private final String endHeaderString = "end_header";
-	Scanner sc;
-	private double minX = 0;
-	private double maxX = 0;
-	private double minY = 0;
-	private double maxY = 0;
+	
+
+	private static Scanner sc;
+	private static double minX = 0;
+	private static double maxX = 0;
+	private static double minY = 0;
+	private static double maxY = 0;
+	private boolean dansPoint = true;
 	/**
 	 * Les patterns que nous retrouverons dans un fichier ply
 	 */
-	private final String FLOAT = "-?[0-9]+((\\.[0-9]+)?(e(\\+|-)?[0-9]+)?)" ;
-	private final String patternPoint = "^(\\s)*" + FLOAT + "\\s+" + FLOAT + "\\s+" + FLOAT + "(\\s)*$" ;
-	private final String patternFace = "^( ?[0-9]+ ?)* ?$";
-	private final Pattern pointP = Pattern.compile("[0-9]+");
-	private final Pattern px = Pattern.compile("^-?" + FLOAT + "\\s");
-	private final Pattern py = Pattern.compile("\\s" + FLOAT + "\\s");
-	private final Pattern pz = Pattern.compile("\\s" + FLOAT + "\\s$");
-	private final Pattern nbPointFace = Pattern.compile("^ ?[0-9]+");
+	private static final String FLOAT = "-?[0-9]+((\\.[0-9]+)?(e(\\+|-)?[0-9]+)?)" ;
+	private static final String PATTERN_POINT = "^(\\s)*" + FLOAT + "\\s+" + FLOAT + "\\s+" + FLOAT + "(\\s)*$" ;
+	private static final String PATTERN_FACE = "^( ?[0-9]+ ?)* ?$";
+	private static final Pattern POINT = Pattern.compile("[0-9]+");
+	private static final Pattern X_POINT = Pattern.compile("^-?" + FLOAT + "\\s");
+	private static final Pattern Y_POINT = Pattern.compile("\\s" + FLOAT + "\\s");
+	private static final Pattern Z_POINT = Pattern.compile("\\s" + FLOAT + "\\s$");
+	private static final Pattern NOMBRE_POINT_DANS_FACE = Pattern.compile("^?[0-9]+");
 	
-	//Les attributs suivant servent pour la gestion des exceptions
-	private ArrayList<String> listPointErreur = new ArrayList<String>();
-	private ArrayList<String> listFaceErreur = new ArrayList<String>();
+	/**
+	 * Les differents compteurs
+	 */
+	private int cptPoint = 0;
+	private int cptFace = 0;
+	
+	//Attributes
+	private static int nbPoint;
+	private static int nbFace;
 	//constructor
-	public PlyReader(String aPathToAPly) {
-		Point.resetNAuto();
-		this.pathToPly = aPathToAPly;
-		this.listPoint = new HashMap<Integer,Point>();
-		this.listFace = new ArrayList<Face>();
-		this.nbPoint = 0;
-		this.nbFace = 0;
+	public PlyReader() {
+		nbPoint = 0;
+		nbFace = 0;
 	}
 	/**
 	 * Lis le fichier, vérifie si le chemin est valide, que c'est bien un fichier ply conforme (pas de points manquants,pas de face avec des points en moins ..) et créé les points et face lues
 	 * @return Vrai si le chemin du fichier est valide, que c'est un ply et que la créations des points et faces est valide, faux sinon.
 	 * @throws FileNotFoundException 
 	 */
-	public boolean initPly() throws FileNotFoundException {
+	public boolean initPly(String pathToPly) throws FileNotFoundException {
+		cptPoint = 0;
+		cptFace = 0;
+		final String END_HEADER_STRING = "end_header";
+		final String VERTEX_STRING = "element vertex ";
+		final String FACE_STRING = "element face ";
+		
 		sc = new Scanner(new File(pathToPly));
 		boolean endHeader = false;
 		int cptLine = 0;
+
 		String tmpReader = "";
-		String vertexString = "element vertex ";
-		String faceString = "element face ";
+
+
 		tmpReader = sc.nextLine();
 		if(!tmpReader.contains("ply") && cptLine == 0) return false;
 		while(sc.hasNextLine() && !endHeader) {
 			tmpReader = sc.nextLine();
-			if(tmpReader.contains(vertexString)) 
-				this.nbPoint = Integer.parseInt(tmpReader.substring(vertexString.length(), tmpReader.length()));
+			if(tmpReader.contains(VERTEX_STRING)) 
+				nbPoint = Integer.parseInt(tmpReader.substring(VERTEX_STRING.length(), tmpReader.length()));
 
-			if(tmpReader.contains(faceString)) 
-				this.nbFace = Integer.parseInt(tmpReader.substring(faceString.length(), tmpReader.length()));
+			if(tmpReader.contains(FACE_STRING)) 
+				nbFace = Integer.parseInt(tmpReader.substring(FACE_STRING.length(), tmpReader.length()));
 
-			if(tmpReader.equals((endHeaderString))) 
+			if(tmpReader.equals(END_HEADER_STRING)) 
 				endHeader = true;
 		}
-		if(this.nbPoint==0 || this.nbFace==0)
+		if(nbPoint==0 || nbFace==0)
 			return false;
 		return true;
 	}
@@ -85,38 +90,68 @@ public class PlyReader {
 	 * @throws CreationPointException Quand il y a une erreur de format dans un point
 	 * @throws CreationFaceException Quand il y a une erreur de format dans une face
 	 */
-	public boolean readPly() throws CreationPointException, CreationFaceException {
+	public PlyFile getPly(String pathToPly) {
+		Point.resetNAuto();
+		
+		PlyFile aPlyFile = new PlyFile(nbPoint);
 		String tmpReader = "";
-		int cptPoint = 0;
-		int cptFace = 0;
-		boolean dansPoint = true;
 		while(sc.hasNextLine()) {
 			tmpReader = sc.nextLine();
-			if(Pattern.matches(patternPoint, tmpReader)) {
-				creationPoint(tmpReader);			
-				cptPoint++;
-			}else if(!Pattern.matches(patternPoint, tmpReader) && cptPoint < this.nbPoint) {
-				this.listPointErreur.add(tmpReader);
-				creationPoint("0 0 0 ");
-				cptPoint++;
-				throw new CreationPointException();
+			try {
+				analyseString(tmpReader,aPlyFile);	
+			}catch(CreationFormatPointException cfpe){
+				aPlyFile.getErrorList().getListPointErreur().add(tmpReader + "erreur dans le format du point ");
+				continue;
+			}catch(CreationPointManquantException cpme) {
+				aPlyFile.getErrorList().getListPointErreur().add("Manque un point !");
+				continue;
+			}catch(CreationFormatFaceException cffe) {
+				aPlyFile.getErrorList().getListFaceErreur().add(tmpReader + "erreur dans le format de la face");
+				continue;
 			}
-			if(cptPoint == this.nbPoint) dansPoint = false;
-
-			if(!dansPoint && Pattern.matches(patternFace,tmpReader)) {
-				//System.out.println(cptPoint);
-				creationFace(tmpReader);
-				cptFace++;
-			}else if(!dansPoint && !Pattern.matches(patternPoint, tmpReader) && cptFace < this.nbFace) {
-				this.listFaceErreur.add(tmpReader);
-				creationFace("3 0 0 0 ");
-				cptFace++;
-				throw new CreationFaceException();
-			}
-
 		}
 		sc.close();
-		return true;
+		double rapport = 0;
+		boolean rapportHorizontal = false;
+		if(maxX - minX > maxY - minY) {
+			rapport = maxX -minX;
+			rapportHorizontal = true;
+		}else
+			rapport = maxY - minY;
+		aPlyFile.setRapportHorizontal(rapportHorizontal);
+		aPlyFile.setRapport(rapport);
+		aPlyFile.initMatrice();
+		return aPlyFile;
+	}
+
+	private void analyseString(String tmpReader,PlyFile aPlyFile) throws CreationFormatFaceException, CreationFormatPointException, CreationPointManquantException {
+		if(cptPoint <2905 && cptFace <10)
+		System.out.println(cptPoint + " : " + nbPoint + " :" + nbFace + " :" + tmpReader + " : " + dansPoint + " : " + (cptPoint == nbPoint));
+		
+		if(Pattern.matches(PATTERN_POINT, tmpReader)) {
+			creationPoint(tmpReader,aPlyFile.getHashMapPoint());			
+			cptPoint++;
+		}else if(dansPoint && !Pattern.matches(PATTERN_POINT, tmpReader)) {
+			creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
+			cptPoint++;
+			throw new CreationFormatPointException();
+		}else if(!dansPoint && cptPoint < nbPoint) {
+			while(cptPoint < nbPoint) {
+			creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
+			cptPoint++;
+			throw new CreationPointManquantException();
+			}
+		}
+		if(cptPoint == nbPoint) dansPoint = false;
+		
+		if(!dansPoint && Pattern.matches(PATTERN_FACE,tmpReader)) {
+			creationFace(tmpReader,aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
+			cptFace++;
+		}else if(!dansPoint && !Pattern.matches(PATTERN_POINT, tmpReader) && cptFace < nbFace) {
+			creationFace("3 0 0 0 ", aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
+			cptFace++;
+			throw new CreationFormatFaceException();
+		}
 	}
 
 	/**
@@ -124,10 +159,10 @@ public class PlyReader {
 	 * @param tmpReader Le String correspondant à un point
 	 * @return Vrai si on trouve bien les 3 points faux sinon
 	 */
-	public boolean creationPoint(String tmpReader) {
-		Matcher mx = px.matcher(tmpReader);
-		Matcher my = py.matcher(tmpReader);
-		Matcher mz = pz.matcher(tmpReader);
+	public boolean creationPoint(String tmpReader, HashMap<Integer,Point> hashMapPoint) {
+		Matcher mx = X_POINT.matcher(tmpReader);
+		Matcher my = Y_POINT.matcher(tmpReader);
+		Matcher mz = Z_POINT.matcher(tmpReader);
 		if(mx.find() && my.find() && mz.find()) {
 			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
 			if(minX == 0 && maxX == 0 && minY == 0 && maxY == 0){
@@ -145,7 +180,7 @@ public class PlyReader {
 				if(tmp.getY() > maxY)
 					maxY = tmp.getY();
 			}
-			this.listPoint.put(tmp.getId(),tmp);
+			hashMapPoint.put(tmp.getId(),tmp);
 			return true;
 		}
 		return false;
@@ -155,87 +190,20 @@ public class PlyReader {
 	 * @param tmpReader le string contenant les points de la face
 	 * @return
 	 */
-	public boolean creationFace(String tmpReader) {
-		Matcher pointMatch = pointP.matcher(tmpReader);
-		Matcher pointDansFace = nbPointFace.matcher(tmpReader);
+	public boolean creationFace(String tmpReader,ArrayList<Face> listFace, HashMap<Integer, Point> hashMapPoint) {
+		Matcher pointMatch = POINT.matcher(tmpReader);
+		Matcher pointDansFace = NOMBRE_POINT_DANS_FACE.matcher(tmpReader);
 		int cpt = 0;
 		Face tmp = new Face();
 		if(!pointMatch.find() || !pointDansFace.find()) return false;
 
 		while(pointMatch.find()) {
-			tmp.addPoint(this.listPoint.get(Integer.parseInt(pointMatch.group())));
+			tmp.addPoint(hashMapPoint.get(Integer.parseInt(pointMatch.group())));
 			cpt++;
 		}
 		if(cpt != Integer.parseInt(pointDansFace.group())) return false;
-		this.listFace.add(tmp);
+		listFace.add(tmp);
 		return true;
 	}
 
-	//getters and setters
-	public HashMap<Integer, Point> getListPoint() {
-		return listPoint;
-	}
-	public void setListPoint(HashMap<Integer, Point> listPoint) {
-		this.listPoint = listPoint;
-	}
-	public ArrayList<Face> getListFace() {
-		return listFace;
-	}
-	public void setListFace(ArrayList<Face> listFace) {
-		this.listFace = listFace;
-	}
-	public int getNbPoint() {
-		return nbPoint;
-	}
-	public void setNbPoint(int nbPoint) {
-		this.nbPoint = nbPoint;
-	}
-	public int getNbFace() {
-		return nbFace;
-	}
-	public void setNbFace(int nbFace) {
-		this.nbFace = nbFace;
-	}
-	/**
-	 * 
-	 * @param Le numéro du point
-	 * @return Le point correspondant à l'indice donné
-	 */
-	public Point getPoint(int number) {
-		return this.listPoint.get(number);
-	}
-
-	/**
-	 * 
-	 * @param number Le numéro de la face
-	 * @return	La face correspondant à l'indice donné
-	 */
-	public Face getFace(int number) {
-		return this.listFace.get(number);
-	}
-
-	public String getPath() {
-		return this.pathToPly;
-	}
-
-	public double getMinX() {
-		return this.minX;
-	}
-	public double getMaxX() {
-		return this.maxX;
-	}
-
-	public double getMinY() {
-		return this.minY;
-	}
-	public double getMaxY() {
-		return this.maxY;
-	}
-	
-	public ArrayList<String> getListPointErreur(){
-		return this.listPointErreur;
-	}
-	public ArrayList<String> getListFaceErreur(){
-		return this.listFaceErreur;
-	}
 }

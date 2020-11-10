@@ -14,14 +14,14 @@ public class PlyFile {
 
 	private ArrayList<Face> arrayListFace;
 	private HashMap<Integer, Point> hashMapPoint;
-	private String pathToPly;
 	private double[][] tabPoint;
 	private Matrice matricePoint;
-	private Canvas canvas;
 	private double rapport;
+	private ErrorList errorList;
+	public boolean rapportHorizontal;
 
-	public PlyFile(ArrayList<Face> arrayListFace, HashMap<Integer, Point> hashMapPoint, String pathToPly, double minX, double maxX, double minY, double maxY,Canvas canvas) {
-		this.pathToPly = pathToPly;
+	public PlyFile(ArrayList<Face> arrayListFace, HashMap<Integer, Point> hashMapPoint,ErrorList errorList, double rapport, boolean rapportHorizontal) {
+		
 		this.arrayListFace = new ArrayList<Face>(arrayListFace);
 		this.tabPoint = new double[4][hashMapPoint.size()];
 		this.hashMapPoint = hashMapPoint;
@@ -29,26 +29,41 @@ public class PlyFile {
 			this.tabPoint[0][p.getId()] = p.getX();
 			this.tabPoint[1][p.getId()] = p.getY();
 			this.tabPoint[2][p.getId()] = p.getZ();
+			this.tabPoint[3][p.getId()] = 1;
 		}
+		this.rapport = rapport;
 		this.matricePoint = new Matrice(this.tabPoint);
-		if(maxX - minX > maxY - minY) {
-			this.rapport = maxX -minX;
-			this.matricePoint = this.matricePoint.multiplication(-(canvas.getWidth()/(this.rapport)*0.75));
-		}else {
-			this.rapport = maxY - minY;
-			this.matricePoint = this.matricePoint.multiplication(-(canvas.getHeight()/(this.rapport)*0.75));
-		}
-		//System.out.println(this.matricePoint);
-
-		//System.out.println(this.matricePoint);
-		this.canvas = canvas;
+		this.errorList = errorList;
+		this.rapportHorizontal = rapportHorizontal;
 
 	}
+	
+	public PlyFile(int nbPoint) {
+		this.arrayListFace = new ArrayList<Face>();
+		this.hashMapPoint = new HashMap<Integer,Point>();
+		this.tabPoint = new double[4][nbPoint];
+		ArrayList<String> listPointErreur = new ArrayList<String>();
+		ArrayList<String> listFaceErreur = new ArrayList<String>();
+		this.errorList = new ErrorList(listPointErreur, listFaceErreur);
+	}
+	public void setRapport(double rapport) {
+		this.rapport = rapport;
+	}
+
+	public void setRapportHorizontal(boolean rapportHorizontal) {
+		this.rapportHorizontal = rapportHorizontal;
+	}
+
+	public void setErrorList(ErrorList errorList) {
+		this.errorList = errorList;
+	}
+
 	/**
 	 * Dessine un ply à partir de ses points et de ses faces
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
 	 */
-	public void draw()  {
+	public void draw(Canvas canvas)  {
+		
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		gc.translate(canvas.getWidth()*0.5, canvas.getHeight()*0.90);
@@ -64,7 +79,13 @@ public class PlyFile {
 		gc.closePath();
 		gc.translate(-canvas.getWidth()*0.5, -canvas.getHeight()*0.90);
 	}
-
+	public void firstDraw(Canvas canvas) {
+		if(rapportHorizontal)
+			this.matricePoint = this.matricePoint.multiplication(-(canvas.getWidth()/(this.rapport)*0.75));
+		else 
+			this.matricePoint = this.matricePoint.multiplication(-(canvas.getHeight()/(this.rapport)*0.75));
+		draw(canvas);
+	}
 
 	public ArrayList<Face> getArrayListFace() {
 		return arrayListFace;
@@ -82,14 +103,6 @@ public class PlyFile {
 		this.hashMapPoint = hashMapPoint;
 	}
 
-	public String getPathToPly() {
-		return pathToPly;
-	}
-
-	public void setPathToPly(String pathToPly) {
-		this.pathToPly = pathToPly;
-	}
-
 	public double[][] getTabPoint() {
 		return tabPoint;
 	}
@@ -105,6 +118,19 @@ public class PlyFile {
 	public void setMatricePoint(Matrice matricePoint) {
 		this.matricePoint = matricePoint;
 	}
+	public ErrorList getErrorList() {
+		return this.errorList;
+	}
 
+	public void initMatrice() {
+		for(Point p : hashMapPoint.values()) {
+			this.tabPoint[0][p.getId()] = p.getX();
+			this.tabPoint[1][p.getId()] = p.getY();
+			this.tabPoint[2][p.getId()] = p.getZ();
+			this.tabPoint[3][p.getId()] = 1;
+		}
+		this.matricePoint = new Matrice(this.tabPoint);
+		
+	}
 
 }
