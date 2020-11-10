@@ -12,34 +12,46 @@ import javafx.scene.canvas.GraphicsContext;
  */
 public class PlyFile {
 
-	ArrayList<Face> arrayListFace;
-	HashMap<Integer, Point> hashMapPoint;
-	String pathToPly;
-	double[][] tabPoint;
-	Matrice matricePoint;
+	private ArrayList<Face> arrayListFace;
+	private HashMap<Integer, Point> hashMapPoint;
+	private String pathToPly;
+	private double[][] tabPoint;
+	private Matrice matricePoint;
+	private Canvas canvas;
+	private double rapport;
 
-	public PlyFile(ArrayList<Face> arrayListFace, HashMap<Integer, Point> hashMapPoint, String pathToPly) {
+	public PlyFile(ArrayList<Face> arrayListFace, HashMap<Integer, Point> hashMapPoint, String pathToPly, double minX, double maxX, double minY, double maxY,Canvas canvas) {
 		this.pathToPly = pathToPly;
 		this.arrayListFace = new ArrayList<Face>(arrayListFace);
 		this.tabPoint = new double[4][hashMapPoint.size()];
+		this.hashMapPoint = hashMapPoint;
 		for(Point p : hashMapPoint.values()) {
 			this.tabPoint[0][p.getId()] = p.getX();
 			this.tabPoint[1][p.getId()] = p.getY();
 			this.tabPoint[2][p.getId()] = p.getZ();
 		}
 		this.matricePoint = new Matrice(this.tabPoint);
-		this.matricePoint = this.matricePoint.multiplication(100.0);
-		this.matricePoint = this.matricePoint.multiplication(-1);
-		
+		if(maxX - minX > maxY - minY) {
+			this.rapport = maxX -minX;
+			this.matricePoint = this.matricePoint.multiplication(-(canvas.getWidth()/(this.rapport)*0.75));
+		}else {
+			this.rapport = maxY - minY;
+			this.matricePoint = this.matricePoint.multiplication(-(canvas.getHeight()/(this.rapport)*0.75));
+		}
+		//System.out.println(this.matricePoint);
+
+		//System.out.println(this.matricePoint);
+		this.canvas = canvas;
+
 	}
 	/**
 	 * Dessine un ply à partir de ses points et de ses faces
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
 	 */
-	public void draw(Canvas canvas)  {
+	public void draw()  {
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		gc.translate(canvas.getWidth()/2, canvas.getHeight()/2);
+		gc.translate(canvas.getWidth()*0.5, canvas.getHeight()*0.90);
 		gc.beginPath();
 		for (Face face : arrayListFace) {
 			for(int i = 0; i < face.getListPoint().size(); i++) {
@@ -50,7 +62,7 @@ public class PlyFile {
 			}
 		}
 		gc.closePath();
-		gc.translate(-canvas.getWidth()/2, -canvas.getHeight()/2);
+		gc.translate(-canvas.getWidth()*0.5, -canvas.getHeight()*0.90);
 	}
 
 

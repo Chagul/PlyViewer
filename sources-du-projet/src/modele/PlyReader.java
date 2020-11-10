@@ -22,6 +22,10 @@ public class PlyReader {
 	private int nbFace;
 	private final String endHeaderString = "end_header";
 	Scanner sc;
+	private double minX = 0;
+	private double maxX = 0;
+	private double minY = 0;
+	private double maxY = 0;
 	/**
 	 * Les patterns que nous retrouverons dans un fichier ply
 	 */
@@ -29,11 +33,14 @@ public class PlyReader {
 	private final String patternPoint = "^(\\s)*" + FLOAT + "\\s+" + FLOAT + "\\s+" + FLOAT + "(\\s)*$" ;
 	private final String patternFace = "^( ?[0-9]+ ?)* ?$";
 	private final Pattern pointP = Pattern.compile("[0-9]+");
-	private final Pattern px = Pattern.compile("^-?[0-9]+(\\.[0-9]+)? ");
-	private final Pattern py = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? " );
-	private final Pattern pz = Pattern.compile(" -?[0-9]+(\\.[0-9]+)? $");
+	private final Pattern px = Pattern.compile("^-?" + FLOAT + "\\s");
+	private final Pattern py = Pattern.compile("\\s" + FLOAT + "\\s");
+	private final Pattern pz = Pattern.compile("\\s" + FLOAT + "\\s$");
 	private final Pattern nbPointFace = Pattern.compile("^ ?[0-9]+");
-
+	
+	//Les attributs suivant servent pour la gestion des exceptions
+	private ArrayList<String> listPointErreur = new ArrayList<String>();
+	private ArrayList<String> listFaceErreur = new ArrayList<String>();
 	//constructor
 	public PlyReader(String aPathToAPly) {
 		Point.resetNAuto();
@@ -80,7 +87,6 @@ public class PlyReader {
 	 */
 	public boolean readPly() throws CreationPointException, CreationFaceException {
 		String tmpReader = "";
-		tmpReader = "";
 		int cptPoint = 0;
 		int cptFace = 0;
 		boolean dansPoint = true;
@@ -90,16 +96,19 @@ public class PlyReader {
 				creationPoint(tmpReader);			
 				cptPoint++;
 			}else if(!Pattern.matches(patternPoint, tmpReader) && cptPoint < this.nbPoint) {
+				this.listPointErreur.add(tmpReader);
 				creationPoint("0 0 0 ");
 				cptPoint++;
 				throw new CreationPointException();
 			}
 			if(cptPoint == this.nbPoint) dansPoint = false;
-			
+
 			if(!dansPoint && Pattern.matches(patternFace,tmpReader)) {
+				//System.out.println(cptPoint);
 				creationFace(tmpReader);
 				cptFace++;
 			}else if(!dansPoint && !Pattern.matches(patternPoint, tmpReader) && cptFace < this.nbFace) {
+				this.listFaceErreur.add(tmpReader);
 				creationFace("3 0 0 0 ");
 				cptFace++;
 				throw new CreationFaceException();
@@ -121,6 +130,21 @@ public class PlyReader {
 		Matcher mz = pz.matcher(tmpReader);
 		if(mx.find() && my.find() && mz.find()) {
 			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
+			if(minX == 0 && maxX == 0 && minY == 0 && maxY == 0){
+				minX = tmp.getX();
+				maxX = tmp.getX();
+				minY = tmp.getY();
+				maxX = tmp.getY();
+			}else {
+				if(tmp.getX() < minX)
+					minX = tmp.getX();
+				if(tmp.getX() > maxX)
+					maxX = tmp.getX();
+				if(tmp.getY() < minY)
+					minY = tmp.getY();
+				if(tmp.getY() > maxY)
+					maxY = tmp.getY();
+			}
 			this.listPoint.put(tmp.getId(),tmp);
 			return true;
 		}
@@ -189,8 +213,29 @@ public class PlyReader {
 	public Face getFace(int number) {
 		return this.listFace.get(number);
 	}
-	
+
 	public String getPath() {
 		return this.pathToPly;
+	}
+
+	public double getMinX() {
+		return this.minX;
+	}
+	public double getMaxX() {
+		return this.maxX;
+	}
+
+	public double getMinY() {
+		return this.minY;
+	}
+	public double getMaxY() {
+		return this.maxY;
+	}
+	
+	public ArrayList<String> getListPointErreur(){
+		return this.listPointErreur;
+	}
+	public ArrayList<String> getListFaceErreur(){
+		return this.listFaceErreur;
 	}
 }

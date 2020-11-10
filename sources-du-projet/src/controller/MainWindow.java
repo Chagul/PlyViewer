@@ -134,14 +134,14 @@ public class MainWindow {
 
 					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
 					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, -rotationX));
-					ply.draw(canvas);
+					ply.draw();
 				}
 				/**
 				 * Clic droit = rotation Z
 				 */
 				if(!mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
 					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));	
-					ply.draw(canvas);
+					ply.draw();
 				}
 				/**
 				 *  Deux clic en même temps = translation
@@ -152,7 +152,7 @@ public class MainWindow {
 					System.out.println(ply.getMatricePoint().toString());
 					ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX(),mouseDragged.getSceneY(),1));	
 					System.out.println(ply.getMatricePoint().toString());
-					ply.draw(canvas);
+					ply.draw();
 				}
 				dX = mouseDragged.getSceneX();
 				dY = mouseDragged.getSceneY();
@@ -171,7 +171,7 @@ public class MainWindow {
 					zoom = 0.95;
 
 				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));
-				ply.draw(canvas);
+				ply.draw();
 
 			}
 		};
@@ -182,7 +182,7 @@ public class MainWindow {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
+				ply.draw();
 			}		
 		});
 
@@ -191,7 +191,7 @@ public class MainWindow {
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 
 				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
+				ply.draw();
 			}		
 		});
 
@@ -199,7 +199,7 @@ public class MainWindow {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
+				ply.draw();
 			}		
 		});
 		sliderZoom.valueProperty().addListener(new ChangeListener<Number>() {
@@ -209,7 +209,7 @@ public class MainWindow {
 				if((double) oldValue > (double)newValue)
 					zoom = 0.95;
 				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-				ply.draw(canvas);
+				ply.draw();
 			}		
 		});
 
@@ -236,16 +236,26 @@ public class MainWindow {
 	 * @throws CreationPointException si il y a un problème à la creation d'un point
 	 * @throws CreationFaceException si il y a un problème à la création d'une face
 	 */
-	public void buttonPressedAfficher() throws FileNotFoundException, CreationPointException, CreationFaceException {
+	public void buttonPressedAfficher() {
 		aPlyReader = new PlyReader(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
+		try {
 		aPlyReader.initPly();
 		aPlyReader.readPly();
-		canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
-		canvas.setOnScroll(mousescrollEvent);
-		ply = new PlyFile(aPlyReader.getListFace(), aPlyReader.getListPoint(), aPlyReader.getPath());
-		ply.draw(canvas);
-		if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
-			listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
+		}catch(CreationPointException pointException) {
+			//new pointExceptionWindow(aPlyReader.getListPointErreur());
+			System.out.println(aPlyReader.getListPointErreur());
+		}catch(CreationFaceException faceException) {
+			System.out.println(aPlyReader.getListFaceErreur());
+		}catch(FileNotFoundException fileException) {
+			fileException.printStackTrace();
+		}finally {
+			canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
+			canvas.setOnScroll(mousescrollEvent);
+			ply = new PlyFile(aPlyReader.getListFace(), aPlyReader.getListPoint(), aPlyReader.getPath(), aPlyReader.getMinX(), aPlyReader.getMaxX(),aPlyReader.getMinY(), aPlyReader.getMaxY(),canvas);
+			ply.draw();
+			if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
+				listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
+		}
 
 	}
 
