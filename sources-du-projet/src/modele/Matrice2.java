@@ -16,7 +16,7 @@ import java.util.Arrays;
  * @author kharmacm
  * @version 1.0
  */
-public class MatriceBonne {
+public class Matrice2 {
 	
 	/**
 	 * Nombre de Lignes de la matrice.
@@ -42,7 +42,7 @@ public class MatriceBonne {
 	 * @param p
 	 * 			Le point à partir duquel la matrice est crée.
 	 */
-	public MatriceBonne(Point p) {
+	public Matrice2(Point p) {
 		this.nb_Col = 3; //x, y et z donc 3.
 		this.nb_Lignes = 1; //Matrice ligne donc 1.
 		
@@ -62,7 +62,7 @@ public class MatriceBonne {
 	 * 			Tableau de valeurs.
 	 * @exception IllegalArgumentException Toutes les colonnes doivent avoir la même longueur.
 	 */
-	public MatriceBonne(double M[][]) {
+	public Matrice2(double M[][]) {
 		this.nb_Lignes = M.length;
 		this.nb_Col = M[0].length;
 		
@@ -111,7 +111,7 @@ public class MatriceBonne {
 	 * 			La matrice résultat en conservant la matrice THIS.
 	 * @exception IllegalArgumentException vérification des dimentions
 	 */
-	public MatriceBonne addition(MatriceBonne m) {
+	public Matrice2 addition(Matrice2 m) {
 		double vals[][];
 		int l1 = this.nb_Lignes;
 		int c1 = this.nb_Col;
@@ -131,7 +131,7 @@ public class MatriceBonne {
 			}
 		}
 		
-		MatriceBonne res = new MatriceBonne(vals);
+		Matrice2 res = new Matrice2(vals);
 		return res;
 	}
 	
@@ -142,8 +142,8 @@ public class MatriceBonne {
 	 * @return
 	 * 			Le résultat de l'addition.
 	 */
-	public MatriceBonne addition(Point p) {
-		MatriceBonne m = new MatriceBonne(p);
+	public Matrice2 addition(Point p) {
+		Matrice2 m = new Matrice2(p);
 		return this.addition(m);
 	}
 	
@@ -156,7 +156,7 @@ public class MatriceBonne {
 	 * 			La matrice résultat en conservant la matrice this.
 	 * @exception IllegalArgumentException vérification des dimensions.
 	 */
-	public MatriceBonne multiplication(MatriceBonne m) {
+	public Matrice2 multiplication(Matrice2 m) {
 		return this.multiplication(this, m);
 	}
 	
@@ -167,8 +167,8 @@ public class MatriceBonne {
 	 * @return
 	 * 			Le produit.
 	 */
-	public MatriceBonne multiplication(Point p) {
-		MatriceBonne m = new MatriceBonne(p);
+	public Matrice2 multiplication(Point p) {
+		Matrice2 m = new Matrice2(p);
 		return this.multiplication(m);
 	}
 	
@@ -181,7 +181,7 @@ public class MatriceBonne {
 	 * @return
 	 * 			Le produit.
 	 */
-	public MatriceBonne multiplication(MatriceBonne m1, MatriceBonne m2) {
+	public Matrice2 multiplication(Matrice2 m1, Matrice2 m2) {
 		double vals[][];
 		int l1 = m1.getNb_Lignes();
 		int c1 = m1.getNb_Col();
@@ -204,7 +204,7 @@ public class MatriceBonne {
 			}
 		}
 		
-		MatriceBonne res = new MatriceBonne(vals);
+		Matrice2 res = new Matrice2(vals);
 		
 		return res;
 	}
@@ -216,7 +216,7 @@ public class MatriceBonne {
 	 * @return
 	 * 			La Matrice résultat.
 	 */
-	public MatriceBonne multiplication(MatriceBonne m, double scalaire) {
+	public Matrice2 multiplication(Matrice2 m, double scalaire) {
 		double resTab[][] = new double[m.getNb_Lignes()][m.getNb_Col()];
 		for(int i = 0; i < resTab.length; i++) {
 			for(int j = 0; j < resTab[0].length; j++) {
@@ -228,7 +228,7 @@ public class MatriceBonne {
 				
 			}
 		}
-		return new MatriceBonne(resTab);
+		return new Matrice2(resTab);
 	}
 	
 	/**
@@ -238,7 +238,7 @@ public class MatriceBonne {
 	 * @return
 	 * 			La Matrice résultat.
 	 */
-	public MatriceBonne multiplication(double scalaire) {
+	public Matrice2 multiplication(double scalaire) {
 		return this.multiplication(this, scalaire);
 	}
 	
@@ -252,7 +252,7 @@ public class MatriceBonne {
 	 * @return
 	 * 			La matrice résultat de l'homothétie sur THIS. En gardant THIS intacte.
 	 */
-	public MatriceBonne homothétie(double rapportK) {
+	public Matrice2 homothétie(double rapportK) {
 		double vals[][] = new double[][] { 
 			{rapportK, 0, 0, 0}, 
 			{0, rapportK, 0, 0}, 
@@ -260,7 +260,7 @@ public class MatriceBonne {
 			{0, 0, 0, 1}
 		};
 		
-		MatriceBonne m = new MatriceBonne(vals);
+		Matrice2 m = new Matrice2(vals);
 		
 		return this.multiplication(m);	
 	}
@@ -273,7 +273,7 @@ public class MatriceBonne {
 	 * @return
 	 * 			Résultat de la translation.
 	 */
-	public MatriceBonne translation(double t1, double t2, double t3) {
+	public Matrice2 translation(double t1, double t2, double t3) {
 		double vals[][] = new double[][] { 
 			{1, 0, 0, t1}, 
 			{0, 1, 0, t2},
@@ -281,7 +281,7 @@ public class MatriceBonne {
 			{0, 0, 0, 1}
 		};
 		
-		MatriceBonne m1 = new MatriceBonne(vals);
+		Matrice2 m1 = new Matrice2(vals);
 		
 		return multiplication(m1, this);
 		
@@ -295,7 +295,7 @@ public class MatriceBonne {
 	 * 			Le résultat de la rotation.
 	 * @exception Vérification de la nature de la rotation.
 	 */
-	public MatriceBonne rotation(Rotation r, double degre) {
+	public Matrice2 rotation(Rotation r, double degre) {
 		double vals[][] = new double[this.nb_Lignes][this.nb_Col];
 		if(r.equals(Rotation.X)) {
 			vals = new double[][] { 
@@ -323,7 +323,7 @@ public class MatriceBonne {
 		}
 		
 		
-		MatriceBonne m = new MatriceBonne(vals);
+		Matrice2 m = new Matrice2(vals);
 		
 		return this.multiplication(m);	
 	}
@@ -354,7 +354,7 @@ public class MatriceBonne {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		MatriceBonne other = (MatriceBonne) obj;
+		Matrice2 other = (Matrice2) obj;
 		if (!Arrays.deepEquals(Arrays.copyOfRange(M, 0, 3), Arrays.copyOfRange(other.M, 0, 3)))
 			return false;
 		if (nb_Col != other.nb_Col)
