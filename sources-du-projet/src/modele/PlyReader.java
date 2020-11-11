@@ -37,25 +37,24 @@ public class PlyReader {
 	/**
 	 * Les differents compteurs
 	 */
-	private int cptPoint = 0;
-	private int cptFace = 0;
-	
-	//Attributes
-	private static int nbPoint;
-	private static int nbFace;
+	private static int cptPoint = 0;
+	private static int cptFace = 0;
+	private int nbPoint;
+	private int nbFace;
 	//constructor
 	public PlyReader() {
-		nbPoint = 0;
-		nbFace = 0;
 	}
 	/**
-	 * Lis le fichier, vérifie si le chemin est valide, que c'est bien un fichier ply conforme (pas de points manquants,pas de face avec des points en moins ..) et créé les points et face lues
+	 * Lis le header du fichier et verifie qu'il est valide
 	 * @return Vrai si le chemin du fichier est valide, que c'est un ply et que la créations des points et faces est valide, faux sinon.
-	 * @throws FileNotFoundException 
+	 * @throws FileNotFoundException Quand le chemin du fichier est incorrect
 	 */
 	public boolean initPly(String pathToPly) throws FileNotFoundException {
 		cptPoint = 0;
 		cptFace = 0;
+		nbPoint = 0;
+		dansPoint = true;
+		nbFace = 0;
 		final String END_HEADER_STRING = "end_header";
 		final String VERTEX_STRING = "element vertex ";
 		final String FACE_STRING = "element face ";
@@ -92,7 +91,6 @@ public class PlyReader {
 	 */
 	public PlyFile getPly(String pathToPly) {
 		Point.resetNAuto();
-		
 		PlyFile aPlyFile = new PlyFile(nbPoint);
 		String tmpReader = "";
 		while(sc.hasNextLine()) {
@@ -123,11 +121,16 @@ public class PlyReader {
 		aPlyFile.initMatrice();
 		return aPlyFile;
 	}
-
+	/**
+	 * Analyse la String correspondant à la ligne lue et dispatche le traitement selon la ligne dans d'autres methodes
+	 * @param tmpReader la ligne lue
+	 * @param aPlyFile l'objet sur lequel on ajouteras les points et face crées
+	 * @throws CreationFormatFaceException Si une face ne corresponds pas à une notation normale
+	 * @throws CreationFormatPointException Si un point ne corresponds pas à une notation normale
+	 * @throws CreationPointManquantException Si il manque des points quand on arrive à la lecture des faces
+	 */
 	private void analyseString(String tmpReader,PlyFile aPlyFile) throws CreationFormatFaceException, CreationFormatPointException, CreationPointManquantException {
-		if(cptPoint <2905 && cptFace <10)
-		System.out.println(cptPoint + " : " + nbPoint + " :" + nbFace + " :" + tmpReader + " : " + dansPoint + " : " + (cptPoint == nbPoint));
-		
+		if(cptPoint == nbPoint) dansPoint = false;
 		if(Pattern.matches(PATTERN_POINT, tmpReader)) {
 			creationPoint(tmpReader,aPlyFile.getHashMapPoint());			
 			cptPoint++;
@@ -135,14 +138,13 @@ public class PlyReader {
 			creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
 			cptPoint++;
 			throw new CreationFormatPointException();
-		}else if(!dansPoint && cptPoint < nbPoint) {
-			while(cptPoint < nbPoint) {
+		}else if(!dansPoint && cptPoint != nbPoint) {
+			while(cptPoint < nbPoint ) {
 			creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
 			cptPoint++;
-			throw new CreationPointManquantException();
 			}
+			throw new CreationPointManquantException();
 		}
-		if(cptPoint == nbPoint) dansPoint = false;
 		
 		if(!dansPoint && Pattern.matches(PATTERN_FACE,tmpReader)) {
 			creationFace(tmpReader,aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
@@ -155,9 +157,10 @@ public class PlyReader {
 	}
 
 	/**
-	 * 
+	 * Créé un point à partir d'un string et l'ajoutes à la hashmap du PlyFile
 	 * @param tmpReader Le String correspondant à un point
-	 * @return Vrai si on trouve bien les 3 points faux sinon
+	 * @param hashMapPoint la hashmap dans laquelle on ajouteras le point
+	 * @return Vrai si on trouve bien les x points (1er nombre du string) faux sinon
 	 */
 	public boolean creationPoint(String tmpReader, HashMap<Integer,Point> hashMapPoint) {
 		Matcher mx = X_POINT.matcher(tmpReader);
@@ -188,7 +191,7 @@ public class PlyReader {
 	/**
 	 * Creer une face avec les différents point qui la compose
 	 * @param tmpReader le string contenant les points de la face
-	 * @return
+	 * @return 
 	 */
 	public boolean creationFace(String tmpReader,ArrayList<Face> listFace, HashMap<Integer, Point> hashMapPoint) {
 		Matcher pointMatch = POINT.matcher(tmpReader);
