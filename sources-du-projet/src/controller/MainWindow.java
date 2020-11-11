@@ -16,6 +16,7 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
@@ -88,8 +89,28 @@ public class MainWindow {
 						super.updateItem(value, empty);
 						if (empty || value == null || value.getName() == null)
 							setText(null);
-						else
+						else {
 							setText(value.getName());
+							setOnMouseClicked(mouseClickedEvent -> {
+				                if (mouseClickedEvent.getButton().equals(MouseButton.PRIMARY) && mouseClickedEvent.getClickCount() == 2) {
+				                	try {
+				            			aPlyReader.initPly(value.getAbsolutePath());
+				            			ply = aPlyReader.getPly(value.getAbsolutePath());
+				            		}catch(FileNotFoundException fileException) {
+				            			fileException.printStackTrace();
+				            		}finally {
+				            			/*if(!ply.getErrorList().isEmpty())
+				            				new Stage();*/
+				            			canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
+				            			canvas.setOnScroll(mousescrollEvent);
+				            			ply.firstDraw(canvas);
+				            			if(!listRecentlyOpened.contains(value))
+				            				listRecentlyOpened.add(value);
+				            		}                       
+				                }
+				            });
+						}
+							
 
 					}
 				};
