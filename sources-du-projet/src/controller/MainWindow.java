@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
@@ -16,14 +17,13 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import modele.Outils;
 import modele.PlyFile;
 import modele.PlyReader;
 import modele.Rotation;
@@ -49,17 +49,41 @@ public class MainWindow {
 	PlyReader aPlyReader = new PlyReader();
 	EventHandler<MouseEvent> mouseDraggedEvent;
 	EventHandler<ScrollEvent> mousescrollEvent;
-
+	
+	/**Button afficher supprimé puisqu'on peut ouvrir en faisant un double clic
+	@FXML
+	Button afficher;
+	**/
+	
 	@FXML
 	Canvas canvas;
+	
 	@FXML
 	ListView<File> listViewFiles;
 	@FXML
+	ListView<File> recentlyOpened;
+	
+	@FXML
 	Button parcourir;
 	@FXML
-	ListView<File> recentlyOpened;
+	Button importOpen;
 	@FXML
-	Button afficher;
+	Button aboutUs;
+	
+	@FXML 
+	Button buttonZoomPlus;
+	@FXML
+	Button buttonZoomMoins;
+	@FXML
+	Button buttonLissage;
+	@FXML
+	Button buttonOmbre;
+	@FXML
+	Button buttonVueTranches;
+	
+	@FXML
+	Button quitter;
+	
 	@FXML
 	Slider sliderX;
 	@FXML 
@@ -78,22 +102,39 @@ public class MainWindow {
 		listRecentlyOpened = FXCollections.observableArrayList();
 		
 		
-		/**Remplacer texte des bouttons par des icones**/
+		/**Remplacer le texte des bouttons et menus par des icones**/
 		/**Button Import**/
-		File fImport = new File("sources-du-projet/ressources/icones/import.png");
-		ImageView iconImport = new ImageView(new Image(fImport.toURI().toURL().toString()));
-		iconImport.setFitHeight(15);
-		iconImport.setFitWidth(15);
-		parcourir.setGraphic(iconImport);
-
+		parcourir.setText("");
+		parcourir.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/import.png"));
+		
+		/**Button Import&Open**/
+		importOpen.setText("");
+		importOpen.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/importOpen.png"));
+		/**Button Quitter**/
+		quitter.setText("");
+		quitter.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/quitter.png"));
+		/**Button ZoomM et ZoomP**/
+		buttonZoomMoins.setText("");
+		buttonZoomMoins.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/zoomMinus.png"));
+		buttonZoomPlus.setText("");
+		buttonZoomPlus.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/zoomPlus.png"));
+		/**Button Ombre**/
+		buttonOmbre.setText("");
+		buttonOmbre.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/ombre.png"));
+		/**Button Tranches**/
+		buttonVueTranches.setText("");
+		buttonVueTranches.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/tranche.png"));
+		/**Button Lissage**/
+		buttonLissage.setText("");
+		buttonLissage.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/lissage.png"));
+		/**Button AboutUs**/
+		aboutUs.setText("");
+		aboutUs.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/info.png"));
 
 		listViewFiles.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
-
-
 			@Override
 			public ListCell<File> call(ListView<File> param) {
 				return new ListCell<File>() {
-
 					@Override
 					protected void updateItem(File value, boolean empty) {
 
@@ -120,9 +161,7 @@ public class MainWindow {
 				            		}                       
 				                }
 				            });
-						}
-							
-
+						}	
 					}
 				};
 			}
@@ -256,7 +295,33 @@ public class MainWindow {
 			listLien.add(tmp);
 		}
 	}
+	
+	public void buttonPressedParcourirEtOuvrir() throws IOException {
+		FileChooser fileChooser = new FileChooser();
+		fileChooser.getExtensionFilters().add(
+				new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
+		File tmp = fileChooser.showOpenDialog(stage);
 
+		if(tmp != null && !listLien.contains(tmp)) {
+			listLien.add(tmp);
+		}
+		try {
+			aPlyReader.initPly(tmp.getAbsolutePath());
+			ply = aPlyReader.getPly(tmp.getAbsolutePath());
+		}catch(FileNotFoundException fileException) {
+			fileException.printStackTrace();
+		}finally {
+			/*if(!ply.getErrorList().isEmpty())
+				new Stage();*/
+			canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
+			canvas.setOnScroll(mousescrollEvent);
+			ply.firstDraw(canvas);
+			if(!listRecentlyOpened.contains(tmp))
+				listRecentlyOpened.add(tmp);
+		}
+	}
+	
+	
 	/**
 	 * Lit un fichier ply à partir de la selection de l'utilisateur, le charge en mémoire et l'affiche
 	 * @throws FileNotFoundException si le fichier selectionné n'est pas trouvé
@@ -279,6 +344,59 @@ public class MainWindow {
 				listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
 		}
 
+	}
+	
+	/**
+	 * Possibilité d'avoir des infos sur l'application.
+	 */
+	public void buttonPressedAboutUs() {
+		
+	}
+	
+	/**
+	 * Zoom+ depuis le bouton.
+	 */
+	public void buttonPressedZoomPlus() {
+		double zoom = 1.05;
+		ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
+		ply.draw(canvas);
+	}
+	
+	/**
+	 * Zoom- depuis le button.
+	 */
+	public void buttonPressedZoomMoins() {
+		double zoom = 0.95;
+		ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
+		ply.draw(canvas);
+	}
+	
+	/**
+	 * Button lissage (soon).
+	 */
+	public void buttonPressedLissage() {
+		
+	}
+	/**
+	 * Button ombre (soon).
+	 */
+	public void buttonPressedOmbre() {
+		
+	}
+	
+	/**
+	 * Button vue tranches (soon).
+	 */
+	public void buttonPressedVueTranches() {
+		
+	}
+	
+	/**
+	 * Button permettant de quitter le programme.
+	 */
+	public void buttonPressedQuitter() {
+		Platform.exit();
+		System.exit(1);
 	}
 
 }

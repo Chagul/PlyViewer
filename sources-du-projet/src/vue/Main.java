@@ -18,7 +18,7 @@ public class Main extends Application {
 		MainWindow controller = loader.getController();
 		controller.setStage(primaryStage);
 		primaryStage.setTitle("3D Viewer");
-		primaryStage.setScene(new Scene(root, 1280, 800));
+		primaryStage.setScene(new Scene(root, 1280, 717));
 		primaryStage.show();
 	}
 
