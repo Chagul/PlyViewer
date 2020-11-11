@@ -16,6 +16,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.Slider;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -74,6 +76,15 @@ public class MainWindow {
 	public void initialize() throws IOException {
 		listLien = FXCollections.observableArrayList();
 		listRecentlyOpened = FXCollections.observableArrayList();
+		
+		
+		/**Remplacer texte des bouttons par des icones**/
+		/**Button Import**/
+		File fImport = new File("sources-du-projet/ressources/icones/import.png");
+		ImageView iconImport = new ImageView(new Image(fImport.toURI().toURL().toString()));
+		iconImport.setFitHeight(15);
+		iconImport.setFitWidth(15);
+		parcourir.setGraphic(iconImport);
 
 
 		listViewFiles.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
