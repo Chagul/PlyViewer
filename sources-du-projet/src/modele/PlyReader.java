@@ -59,12 +59,14 @@ public class PlyReader {
 		while(sc.hasNextLine() && !endHeader) {
 			tmpReader = sc.nextLine();
 			oec.incrCptLineDeUn();
-			if(tmpReader.contains(VERTEX_STRING)) 
+			if(tmpReader.contains(VERTEX_STRING)) {
 				nbPoint = Integer.parseInt(tmpReader.substring(VERTEX_STRING.length(), tmpReader.length()));
-
-			if(tmpReader.contains(FACE_STRING)) 
+				System.out.println("La figure est composée de " + nbPoint + " points");
+			}
+			if(tmpReader.contains(FACE_STRING)) {
 				nbFace = Integer.parseInt(tmpReader.substring(FACE_STRING.length(), tmpReader.length()));
-
+				System.out.println("La figure est composée de " + nbFace + " faces");
+			}
 			if(tmpReader.equals(END_HEADER_STRING)) 
 				endHeader = true;
 
@@ -117,7 +119,7 @@ public class PlyReader {
 			rapport = oec.getMaxY() - oec.getMinY();
 		aPlyFile.setRapportHorizontal(rapportHorizontal);
 		aPlyFile.setRapport(rapport);
-		aPlyFile.setPointDuMilieu(new Point(oec.getMinX()+ oec.getMaxX(), oec.getMinY() + oec.getMaxY(), 0));
+		aPlyFile.setPointDuMilieu(new Point(oec.getMinX() + oec.getMaxX()/2, oec.getMinY() + oec.getMaxY()/2, 0));
 		aPlyFile.initMatrice();
 		return aPlyFile;
 	}

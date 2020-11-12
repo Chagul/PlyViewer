@@ -55,23 +55,23 @@ public class MainWindow {
 	/**Button afficher supprimé puisqu'on peut ouvrir en faisant un double clic
 	@FXML
 	Button afficher;
-	**/
-	
+	 **/
+
 	@FXML
 	Canvas canvas;
-	
+
 	@FXML
 	ListView<File> listViewFiles;
 	@FXML
 	ListView<File> recentlyOpened;
-	
+
 	@FXML
 	Button parcourir;
 	@FXML
 	Button importOpen;
 	@FXML
 	Button aboutUs;
-	
+
 	@FXML 
 	Button buttonZoomPlus;
 	@FXML
@@ -82,10 +82,10 @@ public class MainWindow {
 	Button buttonOmbre;
 	@FXML
 	Button buttonVueTranches;
-	
+
 	@FXML
 	Button quitter;
-	
+
 	@FXML
 	Slider sliderX;
 	@FXML 
@@ -116,23 +116,23 @@ public class MainWindow {
 						else {
 							setText(value.getName());
 							setOnMouseClicked(mouseClickedEvent -> {
-				                if (mouseClickedEvent.getButton().equals(MouseButton.PRIMARY) && mouseClickedEvent.getClickCount() == 2) {
-				                	try {
-				            			aPlyReader.initPly(value.getAbsolutePath());
-				            			ply = aPlyReader.getPly(value.getAbsolutePath());
-				            		}catch(FileNotFoundException fileException) {
-				            			fileException.printStackTrace();
-				            		}finally {
-				            			/*if(!ply.getErrorList().isEmpty())
+								if (mouseClickedEvent.getButton().equals(MouseButton.PRIMARY) && mouseClickedEvent.getClickCount() == 2) {
+									try {
+										aPlyReader.initPly(value.getAbsolutePath());
+										ply = aPlyReader.getPly(value.getAbsolutePath());
+									}catch(FileNotFoundException fileException) {
+										fileException.printStackTrace();
+									}finally {
+										/*if(!ply.getErrorList().isEmpty())
 				            				new Stage();*/
-				            			canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
-				            			canvas.setOnScroll(mousescrollEvent);
-				            			ply.firstDraw(canvas);
-				            			if(!listRecentlyOpened.contains(value))
-				            				listRecentlyOpened.add(value);
-				            		}                       
-				                }
-				            });
+										canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
+										canvas.setOnScroll(mousescrollEvent);
+										ply.firstDraw(canvas);
+										if(!listRecentlyOpened.contains(value))
+											listRecentlyOpened.add(value);
+									}                       
+								}
+							});
 						}	
 					}
 				};
@@ -164,37 +164,58 @@ public class MainWindow {
 			double dY;
 			double rotationX;
 			double rotationY;
+			boolean isDragged = false;
+			boolean dansFenetre = true;
 			@Override
 			public void handle(MouseEvent mouseDragged) {
+				if(!isDragged && mouseDragged.isDragDetect()) {
+					isDragged = true;
+					dX = mouseDragged.getSceneX();
+					dY = mouseDragged.getSceneY();
+				}
+				if(isDragged && !mouseDragged.isDragDetect())
+					isDragged = false;
+
 				rotationX = (mouseDragged.getSceneX()-dX);
 				rotationY = (mouseDragged.getSceneY()-dY);
-
-				/**
-				 * Clic gauche = rotation X et Y
-				 */
-				if(mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
-
-					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
-					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, -rotationX));
-					ply.draw(canvas);
+				if(mouseDragged.getEventType().equals(MouseEvent.MOUSE_EXITED)) {
+					dansFenetre = false;
 				}
-				/**
-				 * Clic droit = rotation Z
-				 */
-				if(!mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));	
-					ply.draw(canvas);
+				if(mouseDragged.getEventType().equals(MouseEvent.MOUSE_ENTERED))
+					dansFenetre = true;
+					/**
+					 * Clic gauche = rotation X et Y
+					 */
+					if(dansFenetre && mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
+						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
+						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
+						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, rotationX));
+						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
+						ply.draw(canvas);
+					}
+					/**
+					 * Clic droit = rotation Z
+					 */
+					if(dansFenetre && !mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
+						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
+						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));	
+						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
+						ply.draw(canvas);
+					}
+					/**
+					 *  Deux clic en même temps = translation
+					 */
+					if(dansFenetre && mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
+						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
+						ply.getPointDuMilieu().setX(ply.getPointDuMilieu().getX()+ mouseDragged.getSceneX()-dX);
+						ply.getPointDuMilieu().setY(ply.getPointDuMilieu().getY()+ mouseDragged.getSceneY()-dY);
+						ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX()-dX ,mouseDragged.getSceneY()-dY,1));	
+						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
+						ply.draw(canvas);
+					}
+					dX = mouseDragged.getSceneX();
+					dY = mouseDragged.getSceneY();
 				}
-				/**
-				 *  Deux clic en même temps = translation
-				 */
-				if(mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-					ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX()-dX ,mouseDragged.getSceneY()-dY,1));	
-					ply.draw(canvas);
-				}
-				dX = mouseDragged.getSceneX();
-				dY = mouseDragged.getSceneY();
-			}
 		};
 
 		/**
@@ -207,8 +228,9 @@ public class MainWindow {
 				double deltaY = wheelScroll.getDeltaY();
 				if(deltaY < 0)
 					zoom = 0.95;
-
+				ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
 				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));
+				ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
 				ply.draw(canvas);
 
 			}
@@ -267,33 +289,34 @@ public class MainWindow {
 			listLien.add(tmp);
 		}
 	}
-	
+
 	public void buttonPressedParcourirEtOuvrir() throws IOException {
 		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().add(
-				new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
+		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
 
 		if(tmp != null && !listLien.contains(tmp)) {
 			listLien.add(tmp);
-		}
-		try {
-			aPlyReader.initPly(tmp.getAbsolutePath());
-			ply = aPlyReader.getPly(tmp.getAbsolutePath());
-		}catch(FileNotFoundException fileException) {
-			fileException.printStackTrace();
-		}finally {
-			/*if(!ply.getErrorList().isEmpty())
-				new Stage();*/
-			canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
-			canvas.setOnScroll(mousescrollEvent);
-			ply.firstDraw(canvas);
-			if(!listRecentlyOpened.contains(tmp))
-				listRecentlyOpened.add(tmp);
+
+			try {
+				aPlyReader.initPly(tmp.getAbsolutePath());
+				ply = aPlyReader.getPly(tmp.getAbsolutePath());
+				canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
+				canvas.setOnScroll(mousescrollEvent);
+				sliderX.valueProperty().addListener(sliderXListener);
+				sliderY.valueProperty().addListener(sliderYListener);
+				sliderZ.valueProperty().addListener(sliderZListener);
+				sliderZoom.valueProperty().addListener(sliderZoomListener);
+				ply.firstDraw(canvas);
+				if(!listRecentlyOpened.contains(tmp))
+					listRecentlyOpened.add(tmp);
+			}catch(FileNotFoundException fileException) {
+				fileException.printStackTrace();
+			}
 		}
 	}
-	
-	
+
+
 	/**
 	 * Lit un fichier ply à partir de la selection de l'utilisateur, le charge en mémoire et l'affiche
 	 * @throws FileNotFoundException si le fichier selectionné n'est pas trouvé
@@ -314,8 +337,8 @@ public class MainWindow {
 				error.show();*/
 				System.out.println(ply.getErrorList());
 
-		}
-			canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
+			}
+			canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
 			canvas.setOnScroll(mousescrollEvent);
 			sliderX.valueProperty().addListener(sliderXListener);
 			sliderY.valueProperty().addListener(sliderYListener);
@@ -327,56 +350,56 @@ public class MainWindow {
 		}
 
 	}
-	
+
 	/**
 	 * Possibilité d'avoir des infos sur l'application.
 	 */
 	public void buttonPressedAboutUs() {
-		
+
 	}
-	
+
 	/**
 	 * Zoom+ depuis le bouton.
 	 */
 	public void buttonPressedZoomPlus() {
 		if(this.ply != null) {
-		double zoom = 1.05;
-		ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-		ply.draw(canvas);
+			double zoom = 1.05;
+			ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
+			ply.draw(canvas);
 		}
 	}
-	
+
 	/**
 	 * Zoom- depuis le button.
 	 */
 	public void buttonPressedZoomMoins() {
 		if(this.ply != null) {
-		double zoom = 0.95;
-		ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-		ply.draw(canvas);
+			double zoom = 0.95;
+			ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
+			ply.draw(canvas);
 		}
 	}
-	
+
 	/**
 	 * Button lissage (soon).
 	 */
 	public void buttonPressedLissage() {
-		
+
 	}
 	/**
 	 * Button ombre (soon).
 	 */
 	public void buttonPressedOmbre() {
-		
+
 	}
-	
+
 	/**
 	 * Button vue tranches (soon).
 	 */
 	public void buttonPressedVueTranches() {
-		
+
 	}
-	
+
 	/**
 	 * Button permettant de quitter le programme.
 	 */

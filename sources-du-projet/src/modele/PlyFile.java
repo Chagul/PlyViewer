@@ -20,7 +20,7 @@ public class PlyFile {
 	private ErrorList errorList;
 	public boolean rapportHorizontal;
 	private Point pointDuMilieu;
-	
+
 	public PlyFile(int nbPoint) {
 		this.arrayListFace = new ArrayList<Face>();
 		this.hashMapPoint = new HashMap<Integer,Point>();
@@ -29,6 +29,7 @@ public class PlyFile {
 		ArrayList<String> listFaceErreur = new ArrayList<String>();
 		this.errorList = new ErrorList(listPointErreur, listFaceErreur);
 	}
+
 	public void setRapport(double rapport) {
 		this.rapport = rapport;
 	}
@@ -40,7 +41,7 @@ public class PlyFile {
 	public void setErrorList(ErrorList errorList) {
 		this.errorList = errorList;
 	}
-	
+
 	public void setPointDuMilieu(Point aPoint) {
 		this.pointDuMilieu = aPoint;
 	}
@@ -50,12 +51,9 @@ public class PlyFile {
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
 	 */
 	public void draw(Canvas canvas)  {
-		double coordonneePointDuMilieuX = this.pointDuMilieu.getX()*(canvas.getWidth()/(this.rapport)*0.60) + canvas.getWidth()/2;
-		double coordonneePointDuMilieuY = this.pointDuMilieu.getY()*(canvas.getHeight()/(this.rapport)*0.60) + canvas.getHeight()/2;
+		//this.matricePoint = this.matricePoint.translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
-		gc.translate(-coordonneePointDuMilieuX,-coordonneePointDuMilieuY);;
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		gc.translate(coordonneePointDuMilieuX,coordonneePointDuMilieuY);;
 		gc.beginPath();
 		for (Face face : arrayListFace) {
 			for(int i = 0; i < face.getListPoint().size(); i++) {
@@ -63,20 +61,46 @@ public class PlyFile {
 					gc.strokeLine(matricePoint.getM()[0][face.getListPoint().get(i).getId()], matricePoint.getM()[1][face.getListPoint().get(i).getId()], matricePoint.getM()[0][face.getListPoint().get(i+1).getId()],matricePoint.getM()[1][face.getListPoint().get(i+1).getId()] );
 				else
 					gc.strokeLine(matricePoint.getM()[0][face.getListPoint().get(i).getId()], matricePoint.getM()[1][face.getListPoint().get(i).getId()], matricePoint.getM()[0][face.getListPoint().get(0).getId()],matricePoint.getM()[1][face.getListPoint().get(0).getId()] );
-				}
+			}
 		}
 		gc.closePath();
-		//gc.translate(canvas.getWidth()*0.5, canvas.getHeight()*0.80);
+		//this.matricePoint = this.matricePoint.translation(canvas.getWidth()/2, canvas.getHeight()/2, 1);
 	}
+
 	public void firstDraw(Canvas canvas) {
-		if(rapportHorizontal)
-			this.matricePoint = this.matricePoint.multiplication(-(canvas.getWidth()/(this.rapport)*0.60));
-		else 
-			this.matricePoint = this.matricePoint.multiplication(-(canvas.getHeight()/(this.rapport)*0.60));	
-		double coordonneePointDuMilieuX = this.pointDuMilieu.getX()*(canvas.getWidth()/(this.rapport)*0.60) + canvas.getWidth()/2;
-		double coordonneePointDuMilieuY = this.pointDuMilieu.getY()*(canvas.getHeight()/(this.rapport)*0.60) + canvas.getHeight()/2;
-		canvas.getGraphicsContext2D().translate(coordonneePointDuMilieuX,coordonneePointDuMilieuY);;
+		final double RAPPORT_MISE_A_L_ECHELLE = 0.60;
+		final double MISE_A_L_ECHELLE_HORIZONTALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
+		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
+		//System.out.println(this.matricePoint.toString());
+		if(rapportHorizontal) {
+			this.matricePoint = this.matricePoint.multiplication( MISE_A_L_ECHELLE_HORIZONTALE);
+			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_HORIZONTALE);
+			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_HORIZONTALE);
+		}
+		else {
+			this.matricePoint = this.matricePoint.multiplication(MISE_A_L_ECHELLE_VERTICALE);
+			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_VERTICALE);
+			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_VERTICALE);
+		}
+		//System.out.println("APRES MISE A L'ECHELLE\n " + this.matricePoint.toString());
+		this.matricePoint = this.matricePoint.rotation(Rotation.X, 180);
+		//System.out.println("APRES ROTATION Y\n " + this.matricePoint.toString());
+		this.matricePoint = this.matricePoint.translation(pointDuMilieu.getX(),  pointDuMilieu.getY(), 1);
+		//System.out.println("APRES TRANSLATION DU POINT\n " + this.matricePoint.toString());
+		this.matricePoint = this.matricePoint.translation(canvas.getWidth()/2, canvas.getHeight()/2, 1);
+		//System.out.println("APRES TRANSLATION AU MILIEU DU CANVAS\n " + this.matricePoint.toString());
 		draw(canvas);
+	}
+
+	public void initMatrice() {
+		for(Point p : hashMapPoint.values()) {
+			this.tabPoint[0][p.getId()] = p.getX();
+			this.tabPoint[1][p.getId()] = p.getY();
+			this.tabPoint[2][p.getId()] = p.getZ();
+			this.tabPoint[3][p.getId()] = 1;
+		}
+		this.matricePoint = new Matrice(this.tabPoint);
+
 	}
 
 	public ArrayList<Face> getArrayListFace() {
@@ -113,16 +137,8 @@ public class PlyFile {
 	public ErrorList getErrorList() {
 		return this.errorList;
 	}
-
-	public void initMatrice() {
-		for(Point p : hashMapPoint.values()) {
-			this.tabPoint[0][p.getId()] = p.getX();
-			this.tabPoint[1][p.getId()] = p.getY();
-			this.tabPoint[2][p.getId()] = p.getZ();
-			this.tabPoint[3][p.getId()] = 1;
-		}
-		this.matricePoint = new Matrice(this.tabPoint);
-		
+	
+	public Point getPointDuMilieu() {
+		return this.pointDuMilieu;
 	}
-
 }
