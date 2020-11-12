@@ -71,7 +71,11 @@ public class PlyFile {
 		final double RAPPORT_MISE_A_L_ECHELLE = 0.60;
 		final double MISE_A_L_ECHELLE_HORIZONTALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
 		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
-		//System.out.println(this.matricePoint.toString());
+		System.out.println(pointDuMilieu.getX() + " ; " + pointDuMilieu.getY());
+		System.out.println(this.matricePoint.toString());
+		this.matricePoint = this.matricePoint.translation(pointDuMilieu.getX(), -pointDuMilieu.getY(), 0);
+		System.out.println(this.matricePoint.toString());
+		//System.out.println(pointDuMilieu.getX() + " ; " + pointDuMilieu.getY());
 		if(rapportHorizontal) {
 			this.matricePoint = this.matricePoint.multiplication( MISE_A_L_ECHELLE_HORIZONTALE);
 			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_HORIZONTALE);
@@ -82,13 +86,14 @@ public class PlyFile {
 			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_VERTICALE);
 			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_VERTICALE);
 		}
-		//System.out.println("APRES MISE A L'ECHELLE\n " + this.matricePoint.toString());
+	/*System.out.println("APRES MISE A L'ECHELLE\n " + this.matricePoint.toString());
 		this.matricePoint = this.matricePoint.rotation(Rotation.X, 180);
-		//System.out.println("APRES ROTATION Y\n " + this.matricePoint.toString());
-		this.matricePoint = this.matricePoint.translation(pointDuMilieu.getX(),  pointDuMilieu.getY(), 1);
-		//System.out.println("APRES TRANSLATION DU POINT\n " + this.matricePoint.toString());
-		this.matricePoint = this.matricePoint.translation(canvas.getWidth()/2, canvas.getHeight()/2, 1);
-		//System.out.println("APRES TRANSLATION AU MILIEU DU CANVAS\n " + this.matricePoint.toString());
+	System.out.println("APRES ROTATION Y\n " + this.matricePoint.toString());
+		System.out.println(pointDuMilieu.getX() + " ; " + pointDuMilieu.getY());
+		this.matricePoint = this.matricePoint.translation(pointDuMilieu.getX(),  pointDuMilieu.getY(), 0);
+	System.out.println("APRES TRANSLATION DU POINT\n " + this.matricePoint.toString());
+		this.matricePoint = this.matricePoint.translation(canvas.getWidth()/2, canvas.getHeight()/2, 0);
+		System.out.println("APRES TRANSLATION AU MILIEU DU CANVAS\n " + this.matricePoint.toString());*/
 		draw(canvas);
 	}
 

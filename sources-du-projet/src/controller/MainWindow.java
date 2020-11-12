@@ -325,7 +325,7 @@ public class MainWindow {
 				aPlyReader.initPly(tmp.getAbsolutePath());
 				ply = aPlyReader.getPly(tmp.getAbsolutePath());
 				canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-				canvas.setOnScroll(mousescrollEvent);
+				canvas.addEventHandler(ScrollEvent.SCROLL_STARTED, mousescrollEvent);
 				sliderX.valueProperty().addListener(sliderXListener);
 				sliderY.valueProperty().addListener(sliderYListener);
 				sliderZ.valueProperty().addListener(sliderZListener);
@@ -362,7 +362,7 @@ public class MainWindow {
 
 			}
 			canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-			canvas.setOnScroll(mousescrollEvent);
+			canvas.addEventHandler(ScrollEvent.SCROLL_STARTED, mousescrollEvent);
 			sliderX.valueProperty().addListener(sliderXListener);
 			sliderY.valueProperty().addListener(sliderYListener);
 			sliderZ.valueProperty().addListener(sliderZListener);
