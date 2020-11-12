@@ -144,6 +144,13 @@ public class MainWindow {
 										GraphicsContext gc = canvas.getGraphicsContext2D();
 										gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 										listLien.remove(value);
+										ply = null;
+										canvas.removeEventHandler(MouseEvent.ANY,mouseDraggedEvent );
+						                canvas.removeEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
+										sliderX.valueProperty().removeListener(sliderXListener);
+										sliderY.valueProperty().removeListener(sliderYListener);
+										sliderZ.valueProperty().removeListener(sliderZListener);
+										sliderZoom.valueProperty().removeListener(sliderZoomListener);
 									});
 									popUp.getItems().add(stopReading);
 									setContextMenu(popUp);
