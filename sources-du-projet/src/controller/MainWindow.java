@@ -10,12 +10,16 @@ import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
+import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.Button;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
+import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
@@ -131,6 +135,18 @@ public class MainWindow {
 										if(!listRecentlyOpened.contains(value))
 											listRecentlyOpened.add(value);
 									}                       
+								}
+								
+								if(mouseClickedEvent.getButton().equals(MouseButton.SECONDARY)) {
+									ContextMenu popUp = new ContextMenu();
+									MenuItem stopReading = new MenuItem("Fermer");
+									stopReading.setOnAction((ActionEvent e) -> {
+										GraphicsContext gc = canvas.getGraphicsContext2D();
+										gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
+										listLien.remove(value);
+									});
+									popUp.getItems().add(stopReading);
+									setContextMenu(popUp);
 								}
 							});
 						}	
