@@ -119,7 +119,7 @@ public class PlyReader {
 			rapport = oec.getMaxY() - oec.getMinY();
 		aPlyFile.setRapportHorizontal(rapportHorizontal);
 		aPlyFile.setRapport(rapport);
-		aPlyFile.setPointDuMilieu(new Point(oec.getMinX() + oec.getMaxX()/2, oec.getMinY() + oec.getMaxY()/2, 0));
+		aPlyFile.setPointDuMilieu(new Point((oec.getMinX() + oec.getMaxX())/2, (oec.getMinY() + oec.getMaxY())/2, 0));
 		aPlyFile.initMatrice();
 		return aPlyFile;
 	}
@@ -179,6 +179,7 @@ public class PlyReader {
 		Matcher mz = Z_POINT.matcher(tmpReader);
 		if(mx.find() && my.find() && mz.find()) {
 			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
+			System.out.println(tmp);
 			if(oec.getMinX() == 0 && oec.getMaxX() == 0 && oec.getMinY() == 0 && oec.getMaxY() == 0){
 				oec.setMinX(tmp.getX());
 				oec.setMaxX(tmp.getX());

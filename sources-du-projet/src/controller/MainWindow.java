@@ -206,34 +206,37 @@ public class MainWindow {
 				}
 				if(mouseDragged.getEventType().equals(MouseEvent.MOUSE_ENTERED))
 					dansFenetre = true;
+				
 					/**
 					 * Clic gauche = rotation X et Y
 					 */
+					/*System.out.println(!isDragged && mouseDragged.isDragDetect());
+					System.out.println(isDragged && !mouseDragged.isDragDetect());
+					System.out.println();*/
 					if(dansFenetre && mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
-						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
+						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
 						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, rotationX));
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
+						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
+						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
+						//System.out.println(ply.getMatricePoint());
 						ply.draw(canvas);
 					}
 					/**
 					 * Clic droit = rotation Z
 					 */
 					if(dansFenetre && !mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
-						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));	
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
+						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
+						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));
+						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
 						ply.draw(canvas);
 					}
 					/**
 					 *  Deux clic en même temps = translation
 					 */
 					if(dansFenetre && mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
-						ply.getPointDuMilieu().setX(ply.getPointDuMilieu().getX()+ mouseDragged.getSceneX()-dX);
-						ply.getPointDuMilieu().setY(ply.getPointDuMilieu().getY()+ mouseDragged.getSceneY()-dY);
-						ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX()-dX ,mouseDragged.getSceneY()-dY,1));	
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
+						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
+						ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX()-dX ,mouseDragged.getSceneY()-dY,0));	
+						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
 						ply.draw(canvas);
 					}
 					dX = mouseDragged.getSceneX();
@@ -251,9 +254,15 @@ public class MainWindow {
 				double deltaY = wheelScroll.getDeltaY();
 				if(deltaY < 0)
 					zoom = 0.95;
+				ply.setMatricePoint(ply.getMatricePoint().translation(-ply.getPointDuMilieu().getX(), -ply.getPointDuMilieu().getY(), 1));
 				ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
+
 				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));
+
+				ply.getPointDuMilieu().setX(ply.getPointDuMilieu().getX() * zoom);
+				ply.getPointDuMilieu().setY(ply.getPointDuMilieu().getY() * zoom);
 				ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
+				ply.setMatricePoint(ply.getMatricePoint().translation(ply.getPointDuMilieu().getX(), ply.getPointDuMilieu().getY(), 1));
 				ply.draw(canvas);
 
 			}
@@ -325,7 +334,7 @@ public class MainWindow {
 				aPlyReader.initPly(tmp.getAbsolutePath());
 				ply = aPlyReader.getPly(tmp.getAbsolutePath());
 				canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-				canvas.addEventHandler(ScrollEvent.SCROLL_STARTED, mousescrollEvent);
+				canvas.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
 				sliderX.valueProperty().addListener(sliderXListener);
 				sliderY.valueProperty().addListener(sliderYListener);
 				sliderZ.valueProperty().addListener(sliderZListener);
@@ -362,7 +371,7 @@ public class MainWindow {
 
 			}
 			canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-			canvas.addEventHandler(ScrollEvent.SCROLL_STARTED, mousescrollEvent);
+			canvas.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
 			sliderX.valueProperty().addListener(sliderXListener);
 			sliderY.valueProperty().addListener(sliderYListener);
 			sliderZ.valueProperty().addListener(sliderZListener);

@@ -51,7 +51,6 @@ public class PlyFile {
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
 	 */
 	public void draw(Canvas canvas)  {
-		//this.matricePoint = this.matricePoint.translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		gc.beginPath();
@@ -64,18 +63,17 @@ public class PlyFile {
 			}
 		}
 		gc.closePath();
-		//this.matricePoint = this.matricePoint.translation(canvas.getWidth()/2, canvas.getHeight()/2, 1);
 	}
 
+	/**
+	 * Dessine le ply à partir de ses points et de ses faces et permet d'adapter l'image au canvas en proportion, ainsi que retourner l'image
+	 * @param canvas Le canvas sur lequel le ply sera dessiné
+	 */
 	public void firstDraw(Canvas canvas) {
 		final double RAPPORT_MISE_A_L_ECHELLE = 0.60;
 		final double MISE_A_L_ECHELLE_HORIZONTALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
-		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
-		System.out.println(pointDuMilieu.getX() + " ; " + pointDuMilieu.getY());
-		System.out.println(this.matricePoint.toString());
-		this.matricePoint = this.matricePoint.translation(pointDuMilieu.getX(), -pointDuMilieu.getY(), 0);
-		System.out.println(this.matricePoint.toString());
-		//System.out.println(pointDuMilieu.getX() + " ; " + pointDuMilieu.getY());
+		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getHeight()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
+		this.matricePoint = this.matricePoint.translation(-pointDuMilieu.getX(), -pointDuMilieu.getY(), 0);
 		if(rapportHorizontal) {
 			this.matricePoint = this.matricePoint.multiplication( MISE_A_L_ECHELLE_HORIZONTALE);
 			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_HORIZONTALE);
@@ -86,17 +84,15 @@ public class PlyFile {
 			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_VERTICALE);
 			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_VERTICALE);
 		}
-	/*System.out.println("APRES MISE A L'ECHELLE\n " + this.matricePoint.toString());
+
 		this.matricePoint = this.matricePoint.rotation(Rotation.X, 180);
-	System.out.println("APRES ROTATION Y\n " + this.matricePoint.toString());
-		System.out.println(pointDuMilieu.getX() + " ; " + pointDuMilieu.getY());
-		this.matricePoint = this.matricePoint.translation(pointDuMilieu.getX(),  pointDuMilieu.getY(), 0);
-	System.out.println("APRES TRANSLATION DU POINT\n " + this.matricePoint.toString());
 		this.matricePoint = this.matricePoint.translation(canvas.getWidth()/2, canvas.getHeight()/2, 0);
-		System.out.println("APRES TRANSLATION AU MILIEU DU CANVAS\n " + this.matricePoint.toString());*/
 		draw(canvas);
 	}
 
+	/**
+	 * Permet d'initialiser l'attribut matrice une fois la hashmap de point complète.
+	 */
 	public void initMatrice() {
 		for(Point p : hashMapPoint.values()) {
 			this.tabPoint[0][p.getId()] = p.getX();
@@ -112,24 +108,12 @@ public class PlyFile {
 		return arrayListFace;
 	}
 
-	public void setArrayListFace(ArrayList<Face> arrayListFace) {
-		this.arrayListFace = arrayListFace;
-	}
-
 	public HashMap<Integer, Point> getHashMapPoint() {
 		return hashMapPoint;
 	}
 
-	public void setHashMapPoint(HashMap<Integer, Point> hashMapPoint) {
-		this.hashMapPoint = hashMapPoint;
-	}
-
 	public double[][] getTabPoint() {
 		return tabPoint;
-	}
-
-	public void setTabPoint(double[][] tabPoint) {
-		this.tabPoint = tabPoint;
 	}
 
 	public Matrice getMatricePoint() {
@@ -139,6 +123,7 @@ public class PlyFile {
 	public void setMatricePoint(Matrice matricePoint) {
 		this.matricePoint = matricePoint;
 	}
+	
 	public ErrorList getErrorList() {
 		return this.errorList;
 	}
