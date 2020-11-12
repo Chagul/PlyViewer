@@ -13,15 +13,11 @@ import java.util.regex.Matcher;
  *
  */
 public class PlyReader {
-
 	
+	private ObjectErrorControl oec;
+
 
 	private static Scanner sc;
-	private static double minX = 0;
-	private static double maxX = 0;
-	private static double minY = 0;
-	private static double maxY = 0;
-	private boolean dansPoint = true;
 	/**
 	 * Les patterns que nous retrouverons dans un fichier ply
 	 */
@@ -33,12 +29,11 @@ public class PlyReader {
 	private static final Pattern Y_POINT = Pattern.compile("\\s" + FLOAT + "\\s");
 	private static final Pattern Z_POINT = Pattern.compile("\\s" + FLOAT + "\\s$");
 	private static final Pattern NOMBRE_POINT_DANS_FACE = Pattern.compile("^?[0-9]+");
-	
+
 	/**
 	 * Les differents compteurs
 	 */
-	private static int cptPoint = 0;
-	private static int cptFace = 0;
+
 	private int nbPoint;
 	private int nbFace;
 	//constructor
@@ -50,26 +45,20 @@ public class PlyReader {
 	 * @throws FileNotFoundException Quand le chemin du fichier est incorrect
 	 */
 	public boolean initPly(String pathToPly) throws FileNotFoundException {
-		cptPoint = 0;
-		cptFace = 0;
-		nbPoint = 0;
-		dansPoint = true;
-		nbFace = 0;
+		oec = new ObjectErrorControl();
 		final String END_HEADER_STRING = "end_header";
 		final String VERTEX_STRING = "element vertex ";
 		final String FACE_STRING = "element face ";
-		
+
 		sc = new Scanner(new File(pathToPly));
 		boolean endHeader = false;
-		int cptLine = 0;
-
 		String tmpReader = "";
-
-
 		tmpReader = sc.nextLine();
-		if(!tmpReader.contains("ply") && cptLine == 0) return false;
+		oec.incrCptLineDeUn();
+		if(!tmpReader.contains("ply")) return false;
 		while(sc.hasNextLine() && !endHeader) {
 			tmpReader = sc.nextLine();
+			oec.incrCptLineDeUn();
 			if(tmpReader.contains(VERTEX_STRING)) 
 				nbPoint = Integer.parseInt(tmpReader.substring(VERTEX_STRING.length(), tmpReader.length()));
 
@@ -78,11 +67,13 @@ public class PlyReader {
 
 			if(tmpReader.equals(END_HEADER_STRING)) 
 				endHeader = true;
+
 		}
 		if(nbPoint==0 || nbFace==0)
 			return false;
 		return true;
 	}
+
 	/**
 	 * Lis les lignes correspondantes aux points et aux faces dans le ply et les créer
 	 * @return true si tout s'est bien passé
@@ -94,30 +85,39 @@ public class PlyReader {
 		PlyFile aPlyFile = new PlyFile(nbPoint);
 		String tmpReader = "";
 		while(sc.hasNextLine()) {
+			oec.incrCptLineDeUn();
 			tmpReader = sc.nextLine();
 			try {
 				analyseString(tmpReader,aPlyFile);	
 			}catch(CreationFormatPointException cfpe){
-				aPlyFile.getErrorList().getListPointErreur().add(tmpReader + "erreur dans le format du point ");
+				System.out.println(cfpe.getMessage());
+				aPlyFile.getErrorList().getListPointErreur().add(cfpe.getMessage());
 				continue;
 			}catch(CreationPointManquantException cpme) {
-				aPlyFile.getErrorList().getListPointErreur().add("Manque un point !");
+				System.out.println(cpme.getMessage());
+				aPlyFile.getErrorList().getListPointErreur().add(cpme.getMessage());
 				continue;
 			}catch(CreationFormatFaceException cffe) {
-				aPlyFile.getErrorList().getListFaceErreur().add(tmpReader + "erreur dans le format de la face");
+				System.out.println(cffe.getMessage());
+				aPlyFile.getErrorList().getListFaceErreur().add(cffe.getMessage());
+				continue;
+			}catch(CreationNombreFaceException cnfe) {
+				System.out.println(cnfe.getMessage());
+				aPlyFile.getErrorList().getListFaceErreur().add(cnfe.getMessage());
 				continue;
 			}
 		}
 		sc.close();
 		double rapport = 0;
 		boolean rapportHorizontal = false;
-		if(maxX - minX > maxY - minY) {
-			rapport = maxX -minX;
+		if(oec.getMaxX() - oec.getMinX() > oec.getMaxY() - oec.getMinY()) {
+			rapport = oec.getMaxX() - oec.getMinX();
 			rapportHorizontal = true;
 		}else
-			rapport = maxY - minY;
+			rapport = oec.getMaxY() - oec.getMinY();
 		aPlyFile.setRapportHorizontal(rapportHorizontal);
 		aPlyFile.setRapport(rapport);
+		aPlyFile.setPointDuMilieu(new Point(oec.getMinX()+ oec.getMaxX(), oec.getMinY() + oec.getMaxY(), 0));
 		aPlyFile.initMatrice();
 		return aPlyFile;
 	}
@@ -128,31 +128,40 @@ public class PlyReader {
 	 * @throws CreationFormatFaceException Si une face ne corresponds pas à une notation normale
 	 * @throws CreationFormatPointException Si un point ne corresponds pas à une notation normale
 	 * @throws CreationPointManquantException Si il manque des points quand on arrive à la lecture des faces
+	 * @throws CreationNombreFaceException  Si il manque des faces quand on arrive à la fin du fichier
 	 */
-	private void analyseString(String tmpReader,PlyFile aPlyFile) throws CreationFormatFaceException, CreationFormatPointException, CreationPointManquantException {
-		if(cptPoint == nbPoint) dansPoint = false;
-		if(Pattern.matches(PATTERN_POINT, tmpReader)) {
+	private void analyseString(String tmpReader,PlyFile aPlyFile) throws CreationFormatFaceException, CreationFormatPointException, CreationPointManquantException, CreationNombreFaceException {
+		if(oec.getCptPoint() == nbPoint) 
+			oec.setDansPoint(false);
+		if(oec.isDansPoint() && Pattern.matches(PATTERN_POINT, tmpReader)) {
 			creationPoint(tmpReader,aPlyFile.getHashMapPoint());			
-			cptPoint++;
-		}else if(dansPoint && !Pattern.matches(PATTERN_POINT, tmpReader)) {
+			oec.incrCptPointDeUn();
+		}else if(oec.isDansPoint() && !Pattern.matches(PATTERN_POINT, tmpReader) && !Pattern.matches(PATTERN_FACE,tmpReader)) {
 			creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
-			cptPoint++;
-			throw new CreationFormatPointException();
-		}else if(!dansPoint && cptPoint != nbPoint) {
-			while(cptPoint < nbPoint ) {
-			creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
-			cptPoint++;
+			oec.incrCptPointDeUn();
+			throw new CreationFormatPointException("Le format du point " + tmpReader + " n'est pas conforme ligne : " + oec.getCptLine());
+		}else if(oec.isDansPoint() && 	oec.getCptPoint()  < nbPoint && Pattern.matches(PATTERN_FACE,tmpReader) ) {
+			while(oec.getCptPoint() < nbPoint) {
+				creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
+				oec.incrCptPointDeUn();
+				oec.incrCptPointManquantDeUn();
 			}
-			throw new CreationPointManquantException();
-		}
-		
-		if(!dansPoint && Pattern.matches(PATTERN_FACE,tmpReader)) {
 			creationFace(tmpReader,aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
-			cptFace++;
-		}else if(!dansPoint && !Pattern.matches(PATTERN_POINT, tmpReader) && cptFace < nbFace) {
-			creationFace("3 0 0 0 ", aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
-			cptFace++;
-			throw new CreationFormatFaceException();
+			oec.incrCptFaceDeUn();
+			throw new CreationPointManquantException("Il manquait " + 	oec.getCptPointManquant() + " point(s) dans votre fichier ply");
+		}
+
+		if(!oec.isDansPoint() && Pattern.matches(PATTERN_FACE,tmpReader)) {
+			creationFace(tmpReader,aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
+			oec.incrCptFaceDeUn();
+		}
+		if(!sc.hasNextLine() && oec.getCptFace() < nbFace){
+			while(	oec.getCptFace() < nbFace) {
+				creationFace("3 0 0 0 ",aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
+				oec.incrCptFaceDeUn();
+				oec.incrCptFaceManquanteDeUn();
+			}
+			throw new CreationNombreFaceException("Il manquait " + 	oec.getCptFaceManquante() + " face(s) dans votre fichier ply");
 		}
 	}
 
@@ -168,20 +177,20 @@ public class PlyReader {
 		Matcher mz = Z_POINT.matcher(tmpReader);
 		if(mx.find() && my.find() && mz.find()) {
 			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
-			if(minX == 0 && maxX == 0 && minY == 0 && maxY == 0){
-				minX = tmp.getX();
-				maxX = tmp.getX();
-				minY = tmp.getY();
-				maxX = tmp.getY();
+			if(oec.getMinX() == 0 && oec.getMaxX() == 0 && oec.getMinY() == 0 && oec.getMaxY() == 0){
+				oec.setMinX(tmp.getX());
+				oec.setMaxX(tmp.getX());
+				oec.setMinY(tmp.getY());
+				oec.setMaxY(tmp.getY());
 			}else {
-				if(tmp.getX() < minX)
-					minX = tmp.getX();
-				if(tmp.getX() > maxX)
-					maxX = tmp.getX();
-				if(tmp.getY() < minY)
-					minY = tmp.getY();
-				if(tmp.getY() > maxY)
-					maxY = tmp.getY();
+				if(tmp.getX() < oec.getMinX())
+					oec.setMinX(tmp.getX());
+				if(tmp.getX() > oec.getMaxX())
+					oec.setMaxX(tmp.getX());
+				if(tmp.getY() < oec.getMinY())
+					oec.setMinY(tmp.getY());
+				if(tmp.getY() > oec.getMaxY())
+					oec.setMaxY(tmp.getY());
 			}
 			hashMapPoint.put(tmp.getId(),tmp);
 			return true;
@@ -192,21 +201,39 @@ public class PlyReader {
 	 * Creer une face avec les différents point qui la compose
 	 * @param tmpReader le string contenant les points de la face
 	 * @return 
+	 * @throws CreationFormatFaceException 
 	 */
-	public boolean creationFace(String tmpReader,ArrayList<Face> listFace, HashMap<Integer, Point> hashMapPoint) {
+	public boolean creationFace(String tmpReader,ArrayList<Face> listFace, HashMap<Integer, Point> hashMapPoint) throws CreationFormatFaceException {
 		Matcher pointMatch = POINT.matcher(tmpReader);
 		Matcher pointDansFace = NOMBRE_POINT_DANS_FACE.matcher(tmpReader);
 		int cpt = 0;
 		Face tmp = new Face();
-		if(!pointMatch.find() || !pointDansFace.find()) return false;
+
+		//Si on ne trouve pas une composante de la face, on creer une face triangulaire avec comme point le premier point de notre liste de point.
+		if(!pointMatch.find() || !pointDansFace.find()) {
+			while(cpt != 3) {
+				tmp.addPoint(hashMapPoint.get(0));
+				cpt++;
+			}
+			listFace.add(tmp);
+			throw new CreationFormatFaceException("Problème dans le format de la face " + tmpReader + " ligne : " + oec.getCptLine());
+		}
 
 		while(pointMatch.find()) {
 			tmp.addPoint(hashMapPoint.get(Integer.parseInt(pointMatch.group())));
 			cpt++;
 		}
-		if(cpt != Integer.parseInt(pointDansFace.group())) return false;
+
+		//Si il manque des points
+		if(cpt != Integer.parseInt(pointDansFace.group())) {
+			while(cpt != Integer.parseInt(pointDansFace.group())){
+				tmp.addPoint(hashMapPoint.get(0));
+				cpt++;
+			}
+			listFace.add(tmp);
+			throw new CreationFormatFaceException("Problème dans le format de la face " + tmpReader + " ligne : " + oec.getCptLine());
+		}
 		listFace.add(tmp);
 		return true;
 	}
-
 }

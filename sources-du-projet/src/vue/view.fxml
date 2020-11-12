@@ -7,6 +7,9 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.ToolBar?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
@@ -19,11 +22,61 @@
          <children>
             <ToolBar>
               <items>
-                <Button fx:id="buttonZoomPlus" mnemonicParsing="false" onAction="#buttonPressedZoomPlus" text="Zoom+" />
-                  <Button fx:id="buttonZoomMoins" mnemonicParsing="false" onAction="#buttonPressedZoomMoins" text="Zoom-" />
-                  <Button fx:id="buttonLissage" mnemonicParsing="false" onAction="#buttonPressedLissage" text="Lissage" />
-                  <Button fx:id="buttonOmbre" mnemonicParsing="false" onAction="#buttonPressedOmbre" text="Ombre portée" />
-                  <Button fx:id="buttonVueTranches" mnemonicParsing="false" onAction="#buttonPressedVueTranches" text="Vue en tranches" />
+                <Button fx:id="buttonZoomPlus" mnemonicParsing="false" onAction="#buttonPressedZoomPlus">
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../zoomPlus.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Zoom +" />
+                     </tooltip></Button>
+                  <Button fx:id="buttonZoomMoins" mnemonicParsing="false" onAction="#buttonPressedZoomMoins">
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../zoomMinus.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Zoom -" />
+                     </tooltip></Button>
+                  <Button fx:id="buttonLissage" mnemonicParsing="false" onAction="#buttonPressedLissage">
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../lissage.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Lissage" />
+                     </tooltip></Button>
+                  <Button fx:id="buttonOmbre" mnemonicParsing="false" onAction="#buttonPressedOmbre">
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../ombre.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Ombre portée" />
+                     </tooltip></Button>
+                  <Button fx:id="buttonVueTranches" mnemonicParsing="false" onAction="#buttonPressedVueTranches">
+                     <graphic>
+                        <ImageView accessibleHelp="test" fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../tranche.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Vue en tranche" />
+                     </tooltip></Button>
               </items>
             </ToolBar>
             <Label text="X :   ">
@@ -53,14 +106,54 @@
          </children>
       </HBox>
       <ListView id="recentlyOpened" fx:id="recentlyOpened" layoutX="1060.0" layoutY="374.0" prefHeight="288.0" prefWidth="200.0" />
-      <Text layoutX="1070.0" layoutY="366.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ouvert récemment  :" wrappingWidth="135.7294921875" />
+      <Text layoutX="1070.0" layoutY="364.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ouvert récemment  :" wrappingWidth="150.7294921875" />
       <Slider fx:id="sliderZoom" layoutX="11.0" layoutY="50.0" orientation="VERTICAL" prefHeight="604.0" prefWidth="16.0" />
-      <ToolBar>
+      <ToolBar prefHeight="48.0" prefWidth="346.0">
         <items>
-          <Button fx:id="importOpen" mnemonicParsing="false" onAction="#buttonPressedParcourirEtOuvrir" text="Open" />
-            <Button fx:id="parcourir" mnemonicParsing="false" onAction="#buttonPressedParcourir" text="Import" />
-            <Button fx:id="aboutUs" mnemonicParsing="false" onAction="#buttonPressedAboutUs" text="About Us" />
-            <Button fx:id="quitter" mnemonicParsing="false" onAction="#buttonPressedQuitter" text="Quitter" />
+          <Button fx:id="importOpen" mnemonicParsing="false" onAction="#buttonPressedParcourirEtOuvrir" prefHeight="36.0" prefWidth="42.0">
+               <graphic>
+                  <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../importOpen.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <tooltip>
+                  <Tooltip text="Parcourir et afficher" />
+               </tooltip></Button>
+            <Button fx:id="parcourir" mnemonicParsing="false" onAction="#buttonPressedParcourir">
+               <graphic>
+                  <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../import.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <tooltip>
+                  <Tooltip text="Parcourir" />
+               </tooltip></Button>
+            <Button fx:id="aboutUs" mnemonicParsing="false" onAction="#buttonPressedAboutUs">
+               <graphic>
+                  <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../info.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <tooltip>
+                  <Tooltip text="Infos" />
+               </tooltip></Button>
+            <Button fx:id="quitter" mnemonicParsing="false" onAction="#buttonPressedQuitter">
+               <graphic>
+                  <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../quitter.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+               <tooltip>
+                  <Tooltip text="Fermer" />
+               </tooltip></Button>
         </items>
       </ToolBar>
       <Text layoutX="1070.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fichiers importés :" wrappingWidth="135.7294921875" />

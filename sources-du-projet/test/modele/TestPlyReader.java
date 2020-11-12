@@ -72,18 +72,28 @@ public class TestPlyReader {
 		assertEquals(test, vache.getHashMapPoint().get(0));	
 	}
 	/**
-	 * Teste si la fonction creation face renvoies bien vrai pour la creation d'une quelconque face et faux sinon
+	 * Teste si la fonction creation face renvoies bien l'exception CreationFormatFaceException.
+	 * @throws CreationFormatFaceException si il y a un problème dans la face
+	 */
+	@Test(expected = CreationFormatFaceException.class)
+	public void testCreationFaceFonctionException() throws CreationFormatFaceException  {
+		HashMap<Integer, Point> hashMapTest = new HashMap<Integer,Point>();
+		ArrayList<Face> arrayListFaceTest = new ArrayList<Face>();
+		aPlyReader.creationFace("", arrayListFaceTest, hashMapTest);
+		aPlyReader.creationFace("1 5 7", arrayListFaceTest, hashMapTest);
+	}
+	/**
+	 * Teste si la fonction creation face renvoies bien vrai quand une face valide est lue et créée.
+	 * @throws CreationFormatFaceException
 	 */
 	@Test
-	public void testCreationFaceFonction()  {
+	public void testCreationFaceFonction() throws CreationFormatFaceException{
 		HashMap<Integer, Point> hashMapTest = new HashMap<Integer,Point>();
 		ArrayList<Face> arrayListFaceTest = new ArrayList<Face>();
 		String testFace = "3 0 1 2 ";
 		String testFace2 = "4 52 63 89 85";
 		assertTrue(aPlyReader.creationFace(testFace, arrayListFaceTest, hashMapTest));
 		assertTrue(aPlyReader.creationFace(testFace2, arrayListFaceTest, hashMapTest));
-		assertFalse(aPlyReader.creationFace("", arrayListFaceTest, hashMapTest));
-		assertFalse(aPlyReader.creationFace("1 5 7", arrayListFaceTest, hashMapTest));
 	}
 	
 	/**

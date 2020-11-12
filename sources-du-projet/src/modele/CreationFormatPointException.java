@@ -2,6 +2,10 @@ package modele;
 
 public class CreationFormatPointException extends Exception {
 
+	public CreationFormatPointException(String msg) {
+		super(msg);
+	}
+
 	/**
 	 * 
 	 */

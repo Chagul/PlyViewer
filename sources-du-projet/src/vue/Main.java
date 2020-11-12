@@ -13,9 +13,10 @@ public class Main extends Application {
 	
 	@Override
 	public void start(Stage primaryStage) throws Exception{
-		FXMLLoader loader = new FXMLLoader(getClass().getResource("../vue/view.fxml"));
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/vue/view.fxml"));
 		Parent root = loader.load();
 		MainWindow controller = loader.getController();
+		primaryStage.setResizable(false);
 		controller.setStage(primaryStage);
 		primaryStage.setTitle("3D Viewer");
 		primaryStage.setScene(new Scene(root, 1280, 717));

@@ -23,7 +23,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import modele.Outils;
 import modele.PlyFile;
 import modele.PlyReader;
 import modele.Rotation;
@@ -49,7 +48,10 @@ public class MainWindow {
 	PlyReader aPlyReader = new PlyReader();
 	EventHandler<MouseEvent> mouseDraggedEvent;
 	EventHandler<ScrollEvent> mousescrollEvent;
-	
+	ChangeListener<Number> sliderXListener;
+	ChangeListener<Number> sliderYListener;
+	ChangeListener<Number> sliderZListener;
+	ChangeListener<Number> sliderZoomListener;
 	/**Button afficher supprimé puisqu'on peut ouvrir en faisant un double clic
 	@FXML
 	Button afficher;
@@ -100,36 +102,6 @@ public class MainWindow {
 	public void initialize() throws IOException {
 		listLien = FXCollections.observableArrayList();
 		listRecentlyOpened = FXCollections.observableArrayList();
-		
-		
-		/**Remplacer le texte des bouttons et menus par des icones**/
-		/**Button Import**/
-		parcourir.setText("");
-		parcourir.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/import.png"));
-		
-		/**Button Import&Open**/
-		importOpen.setText("");
-		importOpen.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/importOpen.png"));
-		/**Button Quitter**/
-		quitter.setText("");
-		quitter.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/quitter.png"));
-		/**Button ZoomM et ZoomP**/
-		buttonZoomMoins.setText("");
-		buttonZoomMoins.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/zoomMinus.png"));
-		buttonZoomPlus.setText("");
-		buttonZoomPlus.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/zoomPlus.png"));
-		/**Button Ombre**/
-		buttonOmbre.setText("");
-		buttonOmbre.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/ombre.png"));
-		/**Button Tranches**/
-		buttonVueTranches.setText("");
-		buttonVueTranches.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/tranche.png"));
-		/**Button Lissage**/
-		buttonLissage.setText("");
-		buttonLissage.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/lissage.png"));
-		/**Button AboutUs**/
-		aboutUs.setText("");
-		aboutUs.setGraphic(Outils.fileToImg("sources-du-projet/ressources/icones/info.png"));
 
 		listViewFiles.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
 			@Override
@@ -217,7 +189,7 @@ public class MainWindow {
 				 *  Deux clic en même temps = translation
 				 */
 				if(mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-					ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX(),mouseDragged.getSceneY(),1));	
+					ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX()-dX ,mouseDragged.getSceneY()-dY,1));	
 					ply.draw(canvas);
 				}
 				dX = mouseDragged.getSceneX();
@@ -244,31 +216,31 @@ public class MainWindow {
 		/**
 		 * On lie les sliders avec les fonctions de matrices qui leur correspondent
 		 */
-		sliderX.valueProperty().addListener(new ChangeListener<Number>() {
+		sliderXListener = new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));	
 				ply.draw(canvas);
 			}		
-		});
+		};
 
-		sliderY.valueProperty().addListener(new ChangeListener<Number>() {
+		sliderYListener = new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 
 				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, (double)newValue-(double)oldValue));	
 				ply.draw(canvas);
 			}		
-		});
+		};
 
-		sliderZ.valueProperty().addListener(new ChangeListener<Number>() {
+		sliderZListener = new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, (double)newValue-(double)oldValue));	
 				ply.draw(canvas);
 			}		
-		});
-		sliderZoom.valueProperty().addListener(new ChangeListener<Number>() {
+		};
+		sliderZoomListener = new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 				double zoom = 1.05;
@@ -277,7 +249,7 @@ public class MainWindow {
 				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
 				ply.draw(canvas);
 			}		
-		});
+		};
 
 	}
 
@@ -329,16 +301,26 @@ public class MainWindow {
 	 * @throws CreationFaceException si il y a un problème à la création d'une face
 	 */
 	public void buttonPressedAfficher(){
+		//WindowError error = new WindowError();
 		try {
 			aPlyReader.initPly(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
 			ply = aPlyReader.getPly(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
 		}catch(FileNotFoundException fileException) {
 			fileException.printStackTrace();
 		}finally {
-			/*if(!ply.getErrorList().isEmpty())
-				new Stage();*/
+			if(!ply.getErrorList().isEmpty()) {
+				/*error.setResizable(false);
+				error.initModality(Modality.APPLICATION_MODAL);
+				error.show();*/
+				System.out.println(ply.getErrorList());
+
+		}
 			canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
 			canvas.setOnScroll(mousescrollEvent);
+			sliderX.valueProperty().addListener(sliderXListener);
+			sliderY.valueProperty().addListener(sliderYListener);
+			sliderZ.valueProperty().addListener(sliderZListener);
+			sliderZoom.valueProperty().addListener(sliderZoomListener);
 			ply.firstDraw(canvas);
 			if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
 				listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
@@ -357,18 +339,22 @@ public class MainWindow {
 	 * Zoom+ depuis le bouton.
 	 */
 	public void buttonPressedZoomPlus() {
+		if(this.ply != null) {
 		double zoom = 1.05;
 		ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
 		ply.draw(canvas);
+		}
 	}
 	
 	/**
 	 * Zoom- depuis le button.
 	 */
 	public void buttonPressedZoomMoins() {
+		if(this.ply != null) {
 		double zoom = 0.95;
 		ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
 		ply.draw(canvas);
+		}
 	}
 	
 	/**

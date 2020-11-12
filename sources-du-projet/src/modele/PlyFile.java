@@ -19,24 +19,7 @@ public class PlyFile {
 	private double rapport;
 	private ErrorList errorList;
 	public boolean rapportHorizontal;
-
-	public PlyFile(ArrayList<Face> arrayListFace, HashMap<Integer, Point> hashMapPoint,ErrorList errorList, double rapport, boolean rapportHorizontal) {
-		
-		this.arrayListFace = new ArrayList<Face>(arrayListFace);
-		this.tabPoint = new double[4][hashMapPoint.size()];
-		this.hashMapPoint = hashMapPoint;
-		for(Point p : hashMapPoint.values()) {
-			this.tabPoint[0][p.getId()] = p.getX();
-			this.tabPoint[1][p.getId()] = p.getY();
-			this.tabPoint[2][p.getId()] = p.getZ();
-			this.tabPoint[3][p.getId()] = 1;
-		}
-		this.rapport = rapport;
-		this.matricePoint = new Matrice(this.tabPoint);
-		this.errorList = errorList;
-		this.rapportHorizontal = rapportHorizontal;
-
-	}
+	private Point pointDuMilieu;
 	
 	public PlyFile(int nbPoint) {
 		this.arrayListFace = new ArrayList<Face>();
@@ -57,16 +40,22 @@ public class PlyFile {
 	public void setErrorList(ErrorList errorList) {
 		this.errorList = errorList;
 	}
+	
+	public void setPointDuMilieu(Point aPoint) {
+		this.pointDuMilieu = aPoint;
+	}
 
 	/**
 	 * Dessine un ply à partir de ses points et de ses faces
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
 	 */
 	public void draw(Canvas canvas)  {
-		
+		double coordonneePointDuMilieuX = this.pointDuMilieu.getX()*(canvas.getWidth()/(this.rapport)*0.60) + canvas.getWidth()/2;
+		double coordonneePointDuMilieuY = this.pointDuMilieu.getY()*(canvas.getHeight()/(this.rapport)*0.60) + canvas.getHeight()/2;
 		GraphicsContext gc = canvas.getGraphicsContext2D();
+		gc.translate(-coordonneePointDuMilieuX,-coordonneePointDuMilieuY);;
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-		gc.translate(canvas.getWidth()*0.5, canvas.getHeight()*0.90);
+		gc.translate(coordonneePointDuMilieuX,coordonneePointDuMilieuY);;
 		gc.beginPath();
 		for (Face face : arrayListFace) {
 			for(int i = 0; i < face.getListPoint().size(); i++) {
@@ -74,16 +63,19 @@ public class PlyFile {
 					gc.strokeLine(matricePoint.getM()[0][face.getListPoint().get(i).getId()], matricePoint.getM()[1][face.getListPoint().get(i).getId()], matricePoint.getM()[0][face.getListPoint().get(i+1).getId()],matricePoint.getM()[1][face.getListPoint().get(i+1).getId()] );
 				else
 					gc.strokeLine(matricePoint.getM()[0][face.getListPoint().get(i).getId()], matricePoint.getM()[1][face.getListPoint().get(i).getId()], matricePoint.getM()[0][face.getListPoint().get(0).getId()],matricePoint.getM()[1][face.getListPoint().get(0).getId()] );
-			}
+				}
 		}
 		gc.closePath();
-		gc.translate(-canvas.getWidth()*0.5, -canvas.getHeight()*0.90);
+		//gc.translate(canvas.getWidth()*0.5, canvas.getHeight()*0.80);
 	}
 	public void firstDraw(Canvas canvas) {
 		if(rapportHorizontal)
-			this.matricePoint = this.matricePoint.multiplication(-(canvas.getWidth()/(this.rapport)*0.75));
+			this.matricePoint = this.matricePoint.multiplication(-(canvas.getWidth()/(this.rapport)*0.60));
 		else 
-			this.matricePoint = this.matricePoint.multiplication(-(canvas.getHeight()/(this.rapport)*0.75));
+			this.matricePoint = this.matricePoint.multiplication(-(canvas.getHeight()/(this.rapport)*0.60));	
+		double coordonneePointDuMilieuX = this.pointDuMilieu.getX()*(canvas.getWidth()/(this.rapport)*0.60) + canvas.getWidth()/2;
+		double coordonneePointDuMilieuY = this.pointDuMilieu.getY()*(canvas.getHeight()/(this.rapport)*0.60) + canvas.getHeight()/2;
+		canvas.getGraphicsContext2D().translate(coordonneePointDuMilieuX,coordonneePointDuMilieuY);;
 		draw(canvas);
 	}
 
