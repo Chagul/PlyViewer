@@ -30,6 +30,7 @@ import javafx.util.Callback;
 import modele.PlyFile;
 import modele.PlyReader;
 import modele.Rotation;
+import vue.WindowError;
 /**
  * Controller Principal
  * @author planckea kharmacm
@@ -129,8 +130,8 @@ public class MainWindow {
 									}finally {
 										/*if(!ply.getErrorList().isEmpty())
 				            				new Stage();*/
-										canvas.addEventHandler(MouseEvent.MOUSE_DRAGGED, mouseDraggedEvent );
-										canvas.setOnScroll(mousescrollEvent);
+										canvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent );
+						                canvas.addEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
 										ply.firstDraw(canvas);
 										if(!listRecentlyOpened.contains(value))
 											listRecentlyOpened.add(value);
@@ -210,15 +211,11 @@ public class MainWindow {
 					/**
 					 * Clic gauche = rotation X et Y
 					 */
-					/*System.out.println(!isDragged && mouseDragged.isDragDetect());
-					System.out.println(isDragged && !mouseDragged.isDragDetect());
-					System.out.println();*/
 					if(dansFenetre && mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
 						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
 						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, rotationX));
 						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
 						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
-						//System.out.println(ply.getMatricePoint());
 						ply.draw(canvas);
 					}
 					/**
@@ -254,15 +251,17 @@ public class MainWindow {
 				double deltaY = wheelScroll.getDeltaY();
 				if(deltaY < 0)
 					zoom = 0.95;
-				ply.setMatricePoint(ply.getMatricePoint().translation(-ply.getPointDuMilieu().getX(), -ply.getPointDuMilieu().getY(), 1));
-				ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 1));
+				ply.setMatricePoint(ply.getMatricePoint().translation(-ply.getPointDuMilieu().getX(), -ply.getPointDuMilieu().getY(), 0));
+				ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
 
 				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));
 
 				ply.getPointDuMilieu().setX(ply.getPointDuMilieu().getX() * zoom);
 				ply.getPointDuMilieu().setY(ply.getPointDuMilieu().getY() * zoom);
-				ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 1));
-				ply.setMatricePoint(ply.getMatricePoint().translation(ply.getPointDuMilieu().getX(), ply.getPointDuMilieu().getY(), 1));
+				
+				
+				ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
+				ply.setMatricePoint(ply.getMatricePoint().translation(ply.getPointDuMilieu().getX(), ply.getPointDuMilieu().getY(), 0));
 				ply.draw(canvas);
 
 			}
@@ -323,6 +322,7 @@ public class MainWindow {
 	}
 
 	public void buttonPressedParcourirEtOuvrir() throws IOException {
+		WindowError error = new WindowError();
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
@@ -344,7 +344,12 @@ public class MainWindow {
 					listRecentlyOpened.add(tmp);
 			}catch(FileNotFoundException fileException) {
 				fileException.printStackTrace();
-			}
+			}/*finally {
+				if(!ply.getErrorList().isEmpty()) {
+					error.setErrorList(ply.getErrorList());
+					error.start();
+				}
+			}*/
 		}
 	}
 
@@ -360,16 +365,6 @@ public class MainWindow {
 		try {
 			aPlyReader.initPly(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
 			ply = aPlyReader.getPly(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
-		}catch(FileNotFoundException fileException) {
-			fileException.printStackTrace();
-		}finally {
-			if(!ply.getErrorList().isEmpty()) {
-				/*error.setResizable(false);
-				error.initModality(Modality.APPLICATION_MODAL);
-				error.show();*/
-				System.out.println(ply.getErrorList());
-
-			}
 			canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
 			canvas.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
 			sliderX.valueProperty().addListener(sliderXListener);
@@ -379,7 +374,17 @@ public class MainWindow {
 			ply.firstDraw(canvas);
 			if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
 				listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
+		}catch(FileNotFoundException fileException) {
+			fileException.printStackTrace();
 		}
+		/*}finally {
+			
+			if(!ply.getErrorList().isEmpty()) {
+				error.setErrorList(ply.getErrorList());
+				error.start();
+
+			}*/
+			
 
 	}
 

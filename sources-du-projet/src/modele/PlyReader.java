@@ -179,7 +179,7 @@ public class PlyReader {
 		Matcher mz = Z_POINT.matcher(tmpReader);
 		if(mx.find() && my.find() && mz.find()) {
 			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
-			System.out.println(tmp);
+			//System.out.println(tmp);
 			if(oec.getMinX() == 0 && oec.getMaxX() == 0 && oec.getMinY() == 0 && oec.getMaxY() == 0){
 				oec.setMinX(tmp.getX());
 				oec.setMaxX(tmp.getX());
@@ -219,6 +219,7 @@ public class PlyReader {
 				cpt++;
 			}
 			listFace.add(tmp);
+			//System.out.println(tmp);
 			throw new CreationFormatFaceException("Problème dans le format de la face " + tmpReader + " ligne : " + oec.getCptLine());
 		}
 
@@ -234,9 +235,11 @@ public class PlyReader {
 				cpt++;
 			}
 			listFace.add(tmp);
+			//System.out.println(tmp);
 			throw new CreationFormatFaceException("Problème dans le format de la face " + tmpReader + " ligne : " + oec.getCptLine());
 		}
 		listFace.add(tmp);
+		//System.out.println("Face : " + tmp);
 		return true;
 	}
 }

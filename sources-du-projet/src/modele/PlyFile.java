@@ -70,6 +70,7 @@ public class PlyFile {
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
 	 */
 	public void firstDraw(Canvas canvas) {
+		System.out.println("Votre modèle comporte " + this.getArrayListFace().size() + " faces et " + this.hashMapPoint.size() + " points.");
 		final double RAPPORT_MISE_A_L_ECHELLE = 0.60;
 		final double MISE_A_L_ECHELLE_HORIZONTALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
 		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getHeight()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
