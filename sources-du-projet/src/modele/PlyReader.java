@@ -3,7 +3,6 @@ package modele;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Scanner;
 import java.util.regex.Pattern;
 import java.util.regex.Matcher;
@@ -61,11 +60,9 @@ public class PlyReader {
 			oec.incrCptLineDeUn();
 			if(tmpReader.contains(VERTEX_STRING)) {
 				nbPoint = Integer.parseInt(tmpReader.substring(VERTEX_STRING.length(), tmpReader.length()));
-				System.out.println("La figure est composée de " + nbPoint + " points");
 			}
 			if(tmpReader.contains(FACE_STRING)) {
 				nbFace = Integer.parseInt(tmpReader.substring(FACE_STRING.length(), tmpReader.length()));
-				System.out.println("La figure est composée de " + nbFace + " faces");
 			}
 			if(tmpReader.equals(END_HEADER_STRING)) 
 				endHeader = true;
@@ -82,9 +79,9 @@ public class PlyReader {
 	 * @throws CreationPointException Quand il y a une erreur de format dans un point
 	 * @throws CreationFaceException Quand il y a une erreur de format dans une face
 	 */
-	public PlyFile getPly(String pathToPly) {
+	public Model3D getPly(String pathToPly) {
 		Point.resetNAuto();
-		PlyFile aPlyFile = new PlyFile(nbPoint);
+		Model3D aPlyFile = new Model3D(nbPoint);
 		String tmpReader = "";
 		while(sc.hasNextLine()) {
 			oec.incrCptLineDeUn();
@@ -121,6 +118,7 @@ public class PlyReader {
 		aPlyFile.setRapport(rapport);
 		aPlyFile.setPointDuMilieu(new Point((oec.getMinX() + oec.getMaxX())/2, (oec.getMinY() + oec.getMaxY())/2, 0));
 		aPlyFile.initMatrice();
+
 		return aPlyFile;
 	}
 	/**
@@ -132,34 +130,34 @@ public class PlyReader {
 	 * @throws CreationPointManquantException Si il manque des points quand on arrive à la lecture des faces
 	 * @throws CreationNombreFaceException  Si il manque des faces quand on arrive à la fin du fichier
 	 */
-	private void analyseString(String tmpReader,PlyFile aPlyFile) throws CreationFormatFaceException, CreationFormatPointException, CreationPointManquantException, CreationNombreFaceException {
+	private void analyseString(String tmpReader,Model3D aPlyFile) throws CreationFormatFaceException, CreationFormatPointException, CreationPointManquantException, CreationNombreFaceException {
 		if(oec.getCptPoint() == nbPoint) 
 			oec.setDansPoint(false);
 		if(oec.isDansPoint() && Pattern.matches(PATTERN_POINT, tmpReader)) {
-			creationPoint(tmpReader,aPlyFile.getHashMapPoint());			
+			creationPoint(tmpReader,aPlyFile.getTabPoint());			
 			oec.incrCptPointDeUn();
 		}else if(oec.isDansPoint() && !Pattern.matches(PATTERN_POINT, tmpReader) && !Pattern.matches(PATTERN_FACE,tmpReader)) {
-			creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
+			creationPoint("0 0 0 ",aPlyFile.getTabPoint());
 			oec.incrCptPointDeUn();
 			throw new CreationFormatPointException("Le format du point " + tmpReader + " n'est pas conforme ligne : " + oec.getCptLine());
 		}else if(oec.isDansPoint() && 	oec.getCptPoint()  < nbPoint && Pattern.matches(PATTERN_FACE,tmpReader) ) {
 			while(oec.getCptPoint() < nbPoint) {
-				creationPoint("0 0 0 ",aPlyFile.getHashMapPoint());
+				creationPoint("0 0 0 ",aPlyFile.getTabPoint());
 				oec.incrCptPointDeUn();
 				oec.incrCptPointManquantDeUn();
 			}
-			creationFace(tmpReader,aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
+			creationFace(tmpReader,aPlyFile.getArrayListFace(), aPlyFile.getTabPoint());
 			oec.incrCptFaceDeUn();
 			throw new CreationPointManquantException("Il manquait " + 	oec.getCptPointManquant() + " point(s) dans votre fichier ply");
 		}
 
 		if(!oec.isDansPoint() && Pattern.matches(PATTERN_FACE,tmpReader)) {
-			creationFace(tmpReader,aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
+			creationFace(tmpReader,aPlyFile.getArrayListFace(), aPlyFile.getTabPoint());
 			oec.incrCptFaceDeUn();
 		}
 		if(!sc.hasNextLine() && oec.getCptFace() < nbFace){
 			while(	oec.getCptFace() < nbFace) {
-				creationFace("3 0 0 0 ",aPlyFile.getArrayListFace(), aPlyFile.getHashMapPoint());
+				creationFace("3 0 0 0 ",aPlyFile.getArrayListFace(), aPlyFile.getTabPoint());
 				oec.incrCptFaceDeUn();
 				oec.incrCptFaceManquanteDeUn();
 			}
@@ -173,7 +171,7 @@ public class PlyReader {
 	 * @param hashMapPoint la hashmap dans laquelle on ajouteras le point
 	 * @return Vrai si on trouve bien les x points (1er nombre du string) faux sinon
 	 */
-	public boolean creationPoint(String tmpReader, HashMap<Integer,Point> hashMapPoint) {
+	public boolean creationPoint(String tmpReader, Point[] tabPoint) {
 		Matcher mx = X_POINT.matcher(tmpReader);
 		Matcher my = Y_POINT.matcher(tmpReader);
 		Matcher mz = Z_POINT.matcher(tmpReader);
@@ -195,7 +193,7 @@ public class PlyReader {
 				if(tmp.getY() > oec.getMaxY())
 					oec.setMaxY(tmp.getY());
 			}
-			hashMapPoint.put(tmp.getId(),tmp);
+			tabPoint[tmp.getId()] = tmp;
 			return true;
 		}
 		return false;
@@ -206,7 +204,7 @@ public class PlyReader {
 	 * @return 
 	 * @throws CreationFormatFaceException 
 	 */
-	public boolean creationFace(String tmpReader,ArrayList<Face> listFace, HashMap<Integer, Point> hashMapPoint) throws CreationFormatFaceException {
+	public boolean creationFace(String tmpReader,ArrayList<Face> listFace, Point[] tabPoint) throws CreationFormatFaceException {
 		Matcher pointMatch = POINT.matcher(tmpReader);
 		Matcher pointDansFace = NOMBRE_POINT_DANS_FACE.matcher(tmpReader);
 		int cpt = 0;
@@ -215,7 +213,7 @@ public class PlyReader {
 		//Si on ne trouve pas une composante de la face, on creer une face triangulaire avec comme point le premier point de notre liste de point.
 		if(!pointMatch.find() || !pointDansFace.find()) {
 			while(cpt != 3) {
-				tmp.addPoint(hashMapPoint.get(0));
+				tmp.addPoint(tabPoint[0]);
 				cpt++;
 			}
 			listFace.add(tmp);
@@ -224,14 +222,14 @@ public class PlyReader {
 		}
 
 		while(pointMatch.find()) {
-			tmp.addPoint(hashMapPoint.get(Integer.parseInt(pointMatch.group())));
+			tmp.addPoint(tabPoint[Integer.parseInt(pointMatch.group())]);
 			cpt++;
 		}
 
 		//Si il manque des points
 		if(cpt != Integer.parseInt(pointDansFace.group())) {
 			while(cpt != Integer.parseInt(pointDansFace.group())){
-				tmp.addPoint(hashMapPoint.get(0));
+				tmp.addPoint(tabPoint[0]);
 				cpt++;
 			}
 			listFace.add(tmp);

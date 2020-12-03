@@ -2,35 +2,17 @@ package modele;
 
 import java.util.ArrayList;
 
-public class Face {
-	private Point p1;
-	private Point p2;
-	private Point p3;
+public class Face implements Comparable {
 	private ArrayList<Point> listPoint;
 	
 	public Face(Point p1, Point p2, Point p3) {
 		this.listPoint = new ArrayList<Point>();
-		this.p1 = p1;
-		this.p2 = p2;
-		this.p3 = p3;
 	}
 
 	public Face() {
 		this.listPoint = new ArrayList<Point>();
 	}
 
-	public Point getP1() {
-		return p1;
-	}
-
-	public Point getP2() {
-		return p2;
-	}
-
-	public Point getP3() {
-		return p3;
-	}
-	
 	public ArrayList<Point> getListPoint() {
 		return this.listPoint;
 	}
@@ -70,6 +52,12 @@ public class Face {
 		cpt++;
 	}
 		return true;
+	}
+
+	@Override
+	public int compareTo(Object arg0) {
+		// TODO Auto-generated method stub
+		return 0;
 	}
 	 
 	

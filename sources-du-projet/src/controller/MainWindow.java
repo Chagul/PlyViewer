@@ -27,16 +27,18 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import modele.PlyFile;
+import modele.Model3D;
+import modele.Observable;
+import modele.Observateur;
 import modele.PlyReader;
 import modele.Rotation;
-import vue.WindowError;
+//import vue.WindowError;
 /**
  * Controller Principal
  * @author planckea kharmacm
  * @version 09/11/2020
  */
-public class MainWindow {
+public class MainWindow implements Observateur{
 
 	/**
 	 * 
@@ -49,7 +51,7 @@ public class MainWindow {
 	Stage stage;
 	ObservableList<File> listLien;
 	ObservableList<File> listRecentlyOpened;
-	PlyFile ply;
+	Model3D ply;
 	PlyReader aPlyReader = new PlyReader();
 	EventHandler<MouseEvent> mouseDraggedEvent;
 	EventHandler<ScrollEvent> mousescrollEvent;
@@ -272,8 +274,9 @@ public class MainWindow {
 		sliderXListener = new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
+			/*	ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));	
+				ply.draw(canvas);*/
+				canvas.scaleXProperty().setValue((double)newValue/180.0);
 			}		
 		};
 
@@ -322,7 +325,7 @@ public class MainWindow {
 	}
 
 	public void buttonPressedParcourirEtOuvrir() throws IOException {
-		WindowError error = new WindowError();
+		//WindowError error = new WindowError();
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
@@ -427,7 +430,7 @@ public class MainWindow {
 	 * Button ombre (soon).
 	 */
 	public void buttonPressedOmbre() {
-
+		//ply.drawFaces(canvas);
 	}
 
 	/**
@@ -443,6 +446,15 @@ public class MainWindow {
 	public void buttonPressedQuitter() {
 		Platform.exit();
 		System.exit(1);
+	}
+
+	@Override
+	public void actualiser(Observable o) {
+		if(o instanceof Model3D) {
+			Model3D m = (Model3D) o;
+			m.draw(canvas);
+		}
+		
 	}
 
 }
