@@ -21,6 +21,7 @@ import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.Slider;
+import javafx.scene.control.TabPane;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -62,6 +63,9 @@ public class MainWindow {
 	Button afficher;
 	 **/
 
+	@FXML
+	TabPane onglets;
+	
 	@FXML
 	Canvas canvas;
 
@@ -133,6 +137,7 @@ public class MainWindow {
 										canvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent );
 						                canvas.addEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
 										ply.firstDraw(canvas);
+										onglets.getTabs().get(onglets.getTabs().size()-1).setText(value.getName().substring(0, value.getName().length()-4));  //Modifie le titre de l'onglet.
 										if(!listRecentlyOpened.contains(value))
 											listRecentlyOpened.add(value);
 									}                       
@@ -303,6 +308,8 @@ public class MainWindow {
 				ply.draw(canvas);
 			}		
 		};
+		
+		onglets.getTabs().get(0).setText("1");
 
 	}
 
@@ -340,6 +347,7 @@ public class MainWindow {
 				sliderZ.valueProperty().addListener(sliderZListener);
 				sliderZoom.valueProperty().addListener(sliderZoomListener);
 				ply.firstDraw(canvas);
+				onglets.getTabs().get(onglets.getTabs().size()-1).setText(tmp.getName()); //Modifie le titre de l'onglet.
 				if(!listRecentlyOpened.contains(tmp))
 					listRecentlyOpened.add(tmp);
 			}catch(FileNotFoundException fileException) {
@@ -363,8 +371,9 @@ public class MainWindow {
 	public void buttonPressedAfficher(){
 		//WindowError error = new WindowError();
 		try {
-			aPlyReader.initPly(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
-			ply = aPlyReader.getPly(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
+			File tmp = listViewFiles.getSelectionModel().getSelectedItem();
+			aPlyReader.initPly(tmp.getAbsolutePath());
+			ply = aPlyReader.getPly(tmp.getAbsolutePath());
 			canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
 			canvas.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
 			sliderX.valueProperty().addListener(sliderXListener);
@@ -372,8 +381,9 @@ public class MainWindow {
 			sliderZ.valueProperty().addListener(sliderZListener);
 			sliderZoom.valueProperty().addListener(sliderZoomListener);
 			ply.firstDraw(canvas);
-			if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
-				listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
+			onglets.getTabs().get(onglets.getTabs().size()-1).setText(tmp.getName()); //Modifie le titre de l'onglet.
+			if(!listRecentlyOpened.contains(tmp))
+				listRecentlyOpened.add(tmp);
 		}catch(FileNotFoundException fileException) {
 			fileException.printStackTrace();
 		}

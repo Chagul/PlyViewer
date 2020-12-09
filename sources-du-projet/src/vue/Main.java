@@ -19,7 +19,7 @@ public class Main extends Application {
 		primaryStage.setResizable(false);
 		controller.setStage(primaryStage);
 		primaryStage.setTitle("3D Viewer");
-		primaryStage.setScene(new Scene(root, 1280, 717));
+		primaryStage.setScene(new Scene(root, 1500, 700));
 		primaryStage.show();
 	}
 
