@@ -7,7 +7,7 @@ import java.util.Set;
 
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-//import javafx.scene.paint.Color;
+import javafx.scene.paint.Color;
 /**
  * 
  * @author planckea
@@ -75,7 +75,7 @@ public class Model3D {
 		gc.closePath();
 	}
 
-	/*public void drawFaces(Canvas canvas) {
+	public void drawFaces(Canvas canvas) {
 		double[] coordX;
 		double[] coordY;
 		GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -93,7 +93,7 @@ public class Model3D {
 			gc.setFill(Color.RED);
 			gc.fillPolygon(coordX, coordY, coordX.length);
 		}
-	}*/
+	}
 
 	/**
 	 * Dessine le ply à partir de ses points et de ses faces et permet d'adapter l'image au canvas en proportion, ainsi que retourner l'image
