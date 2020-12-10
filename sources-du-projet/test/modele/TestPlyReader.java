@@ -3,7 +3,6 @@ package modele;
 import static org.junit.Assert.*;
 
 import java.io.FileNotFoundException;
-import java.util.ArrayList;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -57,10 +56,7 @@ public class TestPlyReader {
 	 */
 	@Test
 	public void testCreationPointFonction() {
-		String pointTest = "0.605538 0.183122 -0.472278 ";
-		Point[] hashMapTest = new Point[1];
-		assertTrue(aPlyReader.creationPoint(pointTest, hashMapTest));
-		assertFalse(aPlyReader.creationPoint("", hashMapTest));
+		assertFalse(aPlyReader.creationPoint("", vache.getTabPoint()));
 	}
 	
 	/**
@@ -77,10 +73,8 @@ public class TestPlyReader {
 	 */
 	@Test(expected = CreationFormatFaceException.class)
 	public void testCreationFaceFonctionException() throws CreationFormatFaceException  {
-		Point[] hashMapTest = new Point[1];
-		ArrayList<Face> arrayListFaceTest = new ArrayList<Face>();
-		aPlyReader.creationFace("", arrayListFaceTest, hashMapTest);
-		aPlyReader.creationFace("1 5 7", arrayListFaceTest, hashMapTest);
+		aPlyReader.creationFace("", vache.getArrayListFace(), vache.getTabPoint());
+		aPlyReader.creationFace("1 5 7", vache.getArrayListFace(), vache.getTabPoint());
 	}
 	/**
 	 * Teste si la fonction creation face renvoies bien vrai quand une face valide est lue et créée.
@@ -88,12 +82,10 @@ public class TestPlyReader {
 	 */
 	@Test
 	public void testCreationFaceFonction() throws CreationFormatFaceException{
-		Point[] hashMapTest = new Point[1];
-		ArrayList<Face> arrayListFaceTest = new ArrayList<Face>();
 		String testFace = "3 0 1 2 ";
 		String testFace2 = "4 52 63 89 85";
-		assertTrue(aPlyReader.creationFace(testFace, arrayListFaceTest, hashMapTest));
-		assertTrue(aPlyReader.creationFace(testFace2, arrayListFaceTest, hashMapTest));
+		assertTrue(aPlyReader.creationFace(testFace, vache.getArrayListFace(), vache.getTabPoint()));
+		assertTrue(aPlyReader.creationFace(testFace2, vache.getArrayListFace(), vache.getTabPoint()));
 	}
 	
 	/**

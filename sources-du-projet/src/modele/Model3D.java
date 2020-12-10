@@ -3,6 +3,7 @@ package modele;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Random;
 import java.util.Set;
 
 import javafx.scene.canvas.Canvas;
@@ -13,7 +14,7 @@ import javafx.scene.paint.Color;
  * @author planckea
  *
  */
-public class Model3D {
+public class Model3D implements Observable{
 
 	private ArrayList<Face> arrayListFace;
 	private Point[] tabPoint;
@@ -22,6 +23,7 @@ public class Model3D {
 	private ErrorList errorList;
 	public boolean rapportHorizontal;
 	private Point pointDuMilieu;
+	private Observateur observateurCanvas;
 
 	public Model3D(int nbPoint) {
 		this.arrayListFace = new ArrayList<Face>();
@@ -75,7 +77,7 @@ public class Model3D {
 		gc.closePath();
 	}
 
-	public void drawFaces(Canvas canvas) {
+	public void drawFaces(Canvas canvas, boolean trait) {
 		double[] coordX;
 		double[] coordY;
 		GraphicsContext gc = canvas.getGraphicsContext2D();
@@ -86,11 +88,14 @@ public class Model3D {
 			coordX = new double[face.getListPoint().size()];
 			coordY = new double[face.getListPoint().size()];
 			for(int i = 0; i < face.getListPoint().size(); i++) {
-				coordX[i] = face.getListPoint().get(i).getX();
-				coordY[i] = face.getListPoint().get(i).getY();
+				coordX[i] = matricePoint.getM()[0][face.getListPoint().get(i).getId()];
+				coordY[i] = matricePoint.getM()[1][face.getListPoint().get(i).getId()];
 			}
-			gc.strokePolygon(coordX, coordY, coordX.length);
-			gc.setFill(Color.RED);
+			if(trait)
+				gc.strokePolygon(coordX, coordY, coordX.length);
+			Random rng = new Random();
+			//gc.setFill(Color.rgb(face.getRgbColor()[0], face.getRgbColor()[1], face.getRgbColor()[2]));
+			gc.setFill(Color.color(rng.nextDouble(), rng.nextDouble(), rng.nextDouble()));
 			gc.fillPolygon(coordX, coordY, coordX.length);
 		}
 	}
@@ -149,6 +154,7 @@ public class Model3D {
 
 	public void setMatricePoint(Matrice matricePoint) {
 		this.matricePoint = matricePoint;
+		observateurCanvas.actualiser();
 	}
 
 	public ErrorList getErrorList() {
@@ -157,5 +163,27 @@ public class Model3D {
 
 	public Point getPointDuMilieu() {
 		return this.pointDuMilieu;
+	}
+
+	@Override
+	public void ajouterObservateur(Observateur o) {
+		observateurCanvas = o;
+		
+	}
+
+	@Override
+	public void supprimerObservateur(Observateur o) {
+		observateurCanvas = null;
+		
+	}
+
+	@Override
+	public void notifierObservateurs(Observateur o) {
+		observateurCanvas.actualiser();
+		
+	}
+	
+	public Observateur getObservateurCanvas() {
+		return observateurCanvas;
 	}
 }

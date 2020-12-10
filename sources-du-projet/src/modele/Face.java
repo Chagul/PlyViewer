@@ -2,15 +2,18 @@ package modele;
 
 import java.util.ArrayList;
 
-public class Face implements Comparable {
+public class Face implements Comparable<Face> {
 	private ArrayList<Point> listPoint;
+	private int[] rgbColor;
 	
 	public Face(Point p1, Point p2, Point p3) {
 		this.listPoint = new ArrayList<Point>();
+		rgbColor = new int[3];
 	}
 
 	public Face() {
 		this.listPoint = new ArrayList<Point>();
+		rgbColor = new int[3];
 	}
 
 	public ArrayList<Point> getListPoint() {
@@ -55,10 +58,27 @@ public class Face implements Comparable {
 	}
 
 	@Override
-	public int compareTo(Object arg0) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int compareTo(Face other) {
+		int moyZThis = 0;
+		int cptPoint = 0;
+		int moyZOther = 0;
+		for(Point p : listPoint) {
+			moyZThis += p.getZ();
+			cptPoint++;
+		}
+		moyZThis = moyZThis / cptPoint;
+		cptPoint = 0;
+		for(Point p : other.getListPoint()) {
+			moyZThis += p.getZ();
+			cptPoint++;
+		}
+		moyZOther = moyZOther / cptPoint;
+		return moyZThis - moyZOther;
 	}
 	 
+	
+	public int[] getRgbColor() {
+		return rgbColor;
+	}
 	
 }

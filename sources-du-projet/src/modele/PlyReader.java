@@ -22,11 +22,11 @@ public class PlyReader {
 	 */
 	private static final String FLOAT = "-?[0-9]+((\\.[0-9]+)?(e(\\+|-)?[0-9]+)?)" ;
 	private static final String PATTERN_POINT = "^(\\s)*" + FLOAT + "\\s+" + FLOAT + "\\s+" + FLOAT + "(\\s)*$" ;
-	private static final String PATTERN_FACE = "^( ?[0-9]+ ?)* ?$";
+	private static final String PATTERN_FACE = "^\\s*( ?[0-9]+ ?)*.*$";
 	private static final Pattern POINT = Pattern.compile("[0-9]+");
-	private static final Pattern X_POINT = Pattern.compile("^-?" + FLOAT + "\\s");
-	private static final Pattern Y_POINT = Pattern.compile("\\s" + FLOAT + "\\s");
-	private static final Pattern Z_POINT = Pattern.compile("\\s" + FLOAT + "\\s$");
+	private static final Pattern X_POINT = Pattern.compile("^-?(\\s)*" + FLOAT + "\\s+");
+	private static final Pattern Y_POINT = Pattern.compile("\\s+" + FLOAT + "\\s+");
+	private static final Pattern Z_POINT = Pattern.compile("\\s+" + FLOAT + "\\s*$");
 	private static final Pattern NOMBRE_POINT_DANS_FACE = Pattern.compile("^?[0-9]+");
 
 	/**
@@ -35,8 +35,11 @@ public class PlyReader {
 
 	private int nbPoint;
 	private int nbFace;
+	
+	
 	//constructor
 	public PlyReader() {
+		
 	}
 	/**
 	 * Lis le header du fichier et verifie qu'il est valide
@@ -118,7 +121,6 @@ public class PlyReader {
 		aPlyFile.setRapport(rapport);
 		aPlyFile.setPointDuMilieu(new Point((oec.getMinX() + oec.getMaxX())/2, (oec.getMinY() + oec.getMaxY())/2, 0));
 		aPlyFile.initMatrice();
-
 		return aPlyFile;
 	}
 	/**
@@ -208,8 +210,8 @@ public class PlyReader {
 		Matcher pointMatch = POINT.matcher(tmpReader);
 		Matcher pointDansFace = NOMBRE_POINT_DANS_FACE.matcher(tmpReader);
 		int cpt = 0;
+		int nbPoint = 0;
 		Face tmp = new Face();
-
 		//Si on ne trouve pas une composante de la face, on creer une face triangulaire avec comme point le premier point de notre liste de point.
 		if(!pointMatch.find() || !pointDansFace.find()) {
 			while(cpt != 3) {
@@ -217,11 +219,10 @@ public class PlyReader {
 				cpt++;
 			}
 			listFace.add(tmp);
-			//System.out.println(tmp);
 			throw new CreationFormatFaceException("Problème dans le format de la face " + tmpReader + " ligne : " + oec.getCptLine());
 		}
-
-		while(pointMatch.find()) {
+		nbPoint = Integer.parseInt(pointDansFace.group());
+		while(pointMatch.find() && cpt != nbPoint) {
 			tmp.addPoint(tabPoint[Integer.parseInt(pointMatch.group())]);
 			cpt++;
 		}
@@ -233,11 +234,15 @@ public class PlyReader {
 				cpt++;
 			}
 			listFace.add(tmp);
-			//System.out.println(tmp);
 			throw new CreationFormatFaceException("Problème dans le format de la face " + tmpReader + " ligne : " + oec.getCptLine());
+		}else {
+			cpt = 0;
+			while(pointMatch.find()) {
+				tmp.getRgbColor()[cpt] = Integer.parseInt(pointMatch.group());
+				cpt++;
+			}
 		}
 		listFace.add(tmp);
-		//System.out.println("Face : " + tmp);
 		return true;
 	}
 }

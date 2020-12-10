@@ -28,7 +28,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import modele.Model3D;
-import modele.Observable;
 import modele.Observateur;
 import modele.PlyReader;
 import modele.Rotation;
@@ -38,7 +37,7 @@ import modele.Rotation;
  * @author planckea kharmacm
  * @version 09/11/2020
  */
-public class MainWindow implements Observateur{
+public class MainWindow implements Observateur {
 
 	/**
 	 * 
@@ -59,10 +58,8 @@ public class MainWindow implements Observateur{
 	ChangeListener<Number> sliderYListener;
 	ChangeListener<Number> sliderZListener;
 	ChangeListener<Number> sliderZoomListener;
-	/**Button afficher supprimé puisqu'on peut ouvrir en faisant un double clic
-	@FXML
-	Button afficher;
-	 **/
+	boolean faces = false;
+	boolean trait = false;
 
 	@FXML
 	Canvas canvas;
@@ -127,19 +124,21 @@ public class MainWindow implements Observateur{
 									try {
 										aPlyReader.initPly(value.getAbsolutePath());
 										ply = aPlyReader.getPly(value.getAbsolutePath());
+										ply.ajouterObservateur((Observateur) MainWindow.this);
 									}catch(FileNotFoundException fileException) {
 										fileException.printStackTrace();
 									}finally {
 										/*if(!ply.getErrorList().isEmpty())
 				            				new Stage();*/
 										canvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent );
-						                canvas.addEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
+										canvas.addEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
 										ply.firstDraw(canvas);
+										actualiser();
 										if(!listRecentlyOpened.contains(value))
 											listRecentlyOpened.add(value);
 									}                       
 								}
-								
+
 								if(mouseClickedEvent.getButton().equals(MouseButton.SECONDARY)) {
 									ContextMenu popUp = new ContextMenu();
 									MenuItem stopReading = new MenuItem("Fermer");
@@ -149,7 +148,7 @@ public class MainWindow implements Observateur{
 										listLien.remove(value);
 										ply = null;
 										canvas.removeEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-						                canvas.removeEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
+										canvas.removeEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
 										sliderX.valueProperty().removeListener(sliderXListener);
 										sliderY.valueProperty().removeListener(sliderYListener);
 										sliderZ.valueProperty().removeListener(sliderZListener);
@@ -209,38 +208,35 @@ public class MainWindow implements Observateur{
 				}
 				if(mouseDragged.getEventType().equals(MouseEvent.MOUSE_ENTERED))
 					dansFenetre = true;
-				
-					/**
-					 * Clic gauche = rotation X et Y
-					 */
-					if(dansFenetre && mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
-						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, rotationX));
-						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
-						ply.draw(canvas);
-					}
-					/**
-					 * Clic droit = rotation Z
-					 */
-					if(dansFenetre && !mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
-						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
-						ply.draw(canvas);
-					}
-					/**
-					 *  Deux clic en même temps = translation
-					 */
-					if(dansFenetre && mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
-						ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX()-dX ,mouseDragged.getSceneY()-dY,0));	
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
-						ply.draw(canvas);
-					}
-					dX = mouseDragged.getSceneX();
-					dY = mouseDragged.getSceneY();
+
+				/**
+				 * Clic gauche = rotation X et Y
+				 */
+				if(dansFenetre && mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
+					ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
+					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, rotationX));
+					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
+					ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
 				}
+				/**
+				 * Clic droit = rotation Z
+				 */
+				if(dansFenetre && !mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
+					ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
+					ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));
+					ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
+				}
+				/**
+				 *  Deux clic en même temps = translation
+				 */
+				if(dansFenetre && mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
+					ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
+					ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX()-dX ,mouseDragged.getSceneY()-dY,0));	
+					ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
+				}
+				dX = mouseDragged.getSceneX();
+				dY = mouseDragged.getSceneY();
+			}
 		};
 
 		/**
@@ -260,11 +256,10 @@ public class MainWindow implements Observateur{
 
 				ply.getPointDuMilieu().setX(ply.getPointDuMilieu().getX() * zoom);
 				ply.getPointDuMilieu().setY(ply.getPointDuMilieu().getY() * zoom);
-				
-				
+
+
 				ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
 				ply.setMatricePoint(ply.getMatricePoint().translation(ply.getPointDuMilieu().getX(), ply.getPointDuMilieu().getY(), 0));
-				ply.draw(canvas);
 
 			}
 		};
@@ -274,7 +269,7 @@ public class MainWindow implements Observateur{
 		sliderXListener = new ChangeListener<Number>() {
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-			/*	ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));	
+				/*	ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));	
 				ply.draw(canvas);*/
 				canvas.scaleXProperty().setValue((double)newValue/180.0);
 			}		
@@ -285,7 +280,6 @@ public class MainWindow implements Observateur{
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 
 				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
 			}		
 		};
 
@@ -293,7 +287,6 @@ public class MainWindow implements Observateur{
 			@Override
 			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
 				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
 			}		
 		};
 		sliderZoomListener = new ChangeListener<Number>() {
@@ -303,7 +296,6 @@ public class MainWindow implements Observateur{
 				if((double) oldValue > (double)newValue)
 					zoom = 0.95;
 				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-				ply.draw(canvas);
 			}		
 		};
 
@@ -336,6 +328,7 @@ public class MainWindow implements Observateur{
 			try {
 				aPlyReader.initPly(tmp.getAbsolutePath());
 				ply = aPlyReader.getPly(tmp.getAbsolutePath());
+				ply.ajouterObservateur((Observateur) this);
 				canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
 				canvas.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
 				sliderX.valueProperty().addListener(sliderXListener);
@@ -343,6 +336,7 @@ public class MainWindow implements Observateur{
 				sliderZ.valueProperty().addListener(sliderZListener);
 				sliderZoom.valueProperty().addListener(sliderZoomListener);
 				ply.firstDraw(canvas);
+				actualiser();
 				if(!listRecentlyOpened.contains(tmp))
 					listRecentlyOpened.add(tmp);
 			}catch(FileNotFoundException fileException) {
@@ -381,13 +375,13 @@ public class MainWindow implements Observateur{
 			fileException.printStackTrace();
 		}
 		/*}finally {
-			
+
 			if(!ply.getErrorList().isEmpty()) {
 				error.setErrorList(ply.getErrorList());
 				error.start();
 
 			}*/
-			
+
 
 	}
 
@@ -405,7 +399,6 @@ public class MainWindow implements Observateur{
 		if(this.ply != null) {
 			double zoom = 1.05;
 			ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-			ply.draw(canvas);
 		}
 	}
 
@@ -416,7 +409,6 @@ public class MainWindow implements Observateur{
 		if(this.ply != null) {
 			double zoom = 0.95;
 			ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-			ply.draw(canvas);
 		}
 	}
 
@@ -424,13 +416,23 @@ public class MainWindow implements Observateur{
 	 * Button lissage (soon).
 	 */
 	public void buttonPressedLissage() {
+		if(!trait)
+			trait = true;
+		else
+			trait = false;
 
+		actualiser();
 	}
 	/**
 	 * Button ombre (soon).
 	 */
 	public void buttonPressedOmbre() {
-		//ply.drawFaces(canvas);
+		if(!faces)
+			faces = true;
+		else
+			faces = false;
+
+		actualiser();
 	}
 
 	/**
@@ -449,12 +451,12 @@ public class MainWindow implements Observateur{
 	}
 
 	@Override
-	public void actualiser(Observable o) {
-		if(o instanceof Model3D) {
-			Model3D m = (Model3D) o;
-			m.draw(canvas);
-		}
-		
+	public void actualiser() {
+		if(faces)
+			ply.drawFaces(canvas, trait);
+		else if(!faces) 
+			ply.draw(canvas);
+
 	}
 
 }
