@@ -18,14 +18,6 @@ public class Main extends Application {
 		FXMLLoader loader = new FXMLLoader(getClass().getResource("/vue/view.fxml"));
 		Parent root = loader.load();
 
-		/*
-		FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/vue/view2.fxml"));
-		Canvas root2 = (Canvas) loader2.load();
-
-		FXMLLoader loader3 = new FXMLLoader(getClass().getResource("/vue/view2.fxml"));
-
-		Canvas newCanvas = (Canvas) loader3.load();
-		*/
 
 		MainWindow controller = loader.getController();
 		primaryStage.setResizable(false);
