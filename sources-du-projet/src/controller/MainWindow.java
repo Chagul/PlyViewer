@@ -13,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.control.*;
@@ -46,6 +47,7 @@ public class MainWindow {
 	Stage stage;
 	ObservableList<File> listLien;
 	ObservableList<File> listRecentlyOpened;
+	Canvas canvasModele;
 	PlyFile ply;
 	PlyReader aPlyReader = new PlyReader();
 	EventHandler<MouseEvent> mouseDraggedEvent;
@@ -112,8 +114,9 @@ public class MainWindow {
 	public void initialize() throws IOException {
 		nbOngletActifs = 0;
 		localOnglet = new Tab();
-		localOnglet.setId("$" + ongletBase.getId());
-		
+		//localOnglet.setId("$" + ongletBase.getId());
+		FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/vue/view2.fxml"));
+		canvasModele = (Canvas) loader2.load();
 		
 		listLien = FXCollections.observableArrayList();
 		listRecentlyOpened = FXCollections.observableArrayList();
@@ -137,8 +140,12 @@ public class MainWindow {
 										ply = aPlyReader.getPly(value.getAbsolutePath());
 									}catch(FileNotFoundException fileException) {
 										fileException.printStackTrace();
-									}finally {
+									} finally {
 										Canvas newCanvas = new Canvas();
+										newCanvas.setHeight(570);
+										newCanvas.setWidth(1160);
+										newCanvas.setLayoutX(-1.0);
+
 										newCanvas.setId("c" + nbOngletActifs);
 
 										/*if(!ply.getErrorList().isEmpty())
@@ -150,7 +157,7 @@ public class MainWindow {
 						                //tmp.setId("$" + ongletBase.getId());
 						                tmp.setContent(newCanvas);
 						                onglets.getTabs().add(tmp);
-										ply.firstDraw(newCanvas);
+										ply.firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
 										onglets.getTabs().get(nbOngletActifs-1).setText(value.getName().substring(0, value.getName().length()-4));  //Modifie le titre de l'onglet.
 										if(!listRecentlyOpened.contains(value))
 											listRecentlyOpened.add(value);
