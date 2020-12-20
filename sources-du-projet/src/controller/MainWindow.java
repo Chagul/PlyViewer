@@ -50,7 +50,7 @@ public class MainWindow {
 	Stage stage;
 	ObservableList<File> listLien;
 	ObservableList<File> listRecentlyOpened;
-	Canvas canvasModele;
+	//Canvas canvasModele; /*Non utilisé*/
 	PlyFile ply;
 	PlyReader aPlyReader = new PlyReader();
 	//EventHandler<MouseEvent> mouseDraggedEvent; /*A été remplacé par une fonction*/
@@ -116,18 +116,36 @@ public class MainWindow {
 	 * @throws IOException
 	 */
 	public void initialize() throws IOException {
-		FXMLLoader loader2 = new FXMLLoader(getClass().getResource("/vue/view2.fxml"));
-		canvasModele = (Canvas) loader2.load();
 
+		//Permettre la fermeture des onglets pour lesquels Closable est à true.
 		onglets.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
 
+
+		//Liste des objets PlyFile
 		listOfPlyFiles = new ArrayList<>();
+
+		//Compteur des nombre d'onglest actifs
 		nbOngletActifs = 0;
 
+		//Listes observables
 		listLien = FXCollections.observableArrayList();
 		listRecentlyOpened = FXCollections.observableArrayList();
 
-		listViewFiles.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
+		//Listes ListView
+		listViewFiles.setCellFactory(listViewFilesFactory());
+		recentlyOpened.setCellFactory(recentlyOpenedFactory());
+
+		//Ajoute les Objets ObservableList à leurs ListeView respectifs.
+		listViewFiles.setItems(listLien);
+		recentlyOpened.setItems(listRecentlyOpened);
+	}
+
+	/**
+	 * Gerer les propriétés des cellules de la liste des fichiers listViewFiles
+	 * @return Callback
+	 */
+	public Callback<ListView<File>, ListCell<File>> listViewFilesFactory() {
+		Callback<ListView<File>, ListCell<File>> res = new Callback<ListView<File>, ListCell<File>>() {
 			@Override
 			public ListCell<File> call(ListView<File> param) {
 				return new ListCell<File>() {
@@ -135,72 +153,26 @@ public class MainWindow {
 					protected void updateItem(File value, boolean empty) {
 
 						super.updateItem(value, empty);
+
 						if (empty || value == null || value.getName() == null)
 							setText(null);
 						else {
 							setText(value.getName());
-							setOnMouseClicked(mouseClickedEvent -> {
-								if (mouseClickedEvent.getButton().equals(MouseButton.PRIMARY) && mouseClickedEvent.getClickCount() == 2) {
-									try {
-										ply = null;
-										aPlyReader.initPly(value.getAbsolutePath());
-										ply = aPlyReader.getPly(value.getAbsolutePath());
-										listOfPlyFiles.add(ply);
-									}catch(FileNotFoundException fileException) {
-										fileException.printStackTrace();
-									} finally {
-										Canvas newCanvas = new Canvas();
-										newCanvas.setHeight(570);
-										newCanvas.setWidth(1160);
-										newCanvas.setLayoutX(-1.0);
-										newCanvas.setId("c" + nbOngletActifs);
-										newCanvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent() );
-										newCanvas.addEventHandler(ScrollEvent.SCROLL_STARTED,mouseScrollEvent());
-
-
-						                Tab tmp = new Tab(value.getName().substring(0, value.getName().length()-4));
-										tmp.setClosable(true);
-										tmp.setOnCloseRequest(fermetureOnglet());
-						                tmp.setContent(newCanvas);
-
-						                onglets.getTabs().add(tmp);
-
-										listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
-
-										if(!listRecentlyOpened.contains(value))
-											listRecentlyOpened.add(value);
-										nbOngletActifs++;
-									}                       
-								}
-								
-								if(mouseClickedEvent.getButton().equals(MouseButton.SECONDARY)) {
-									ContextMenu popUp = new ContextMenu();
-									MenuItem stopReading = new MenuItem("Fermer");
-									stopReading.setOnAction((ActionEvent e) -> {
-										Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
-										PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-										GraphicsContext gc = selected.getGraphicsContext2D();
-										gc.clearRect(0, 0, selected.getWidth(), selected.getHeight());
-										listLien.remove(value);
-										plySelected = null;
-										selected.removeEventHandler(MouseEvent.ANY,mouseDraggedEvent());
-						                selected.removeEventHandler(ScrollEvent.SCROLL_STARTED,mouseScrollEvent());
-										sliderX.valueProperty().removeListener(sliderXListener());
-										sliderY.valueProperty().removeListener(sliderYListener());
-										sliderZ.valueProperty().removeListener(sliderZListener());
-										sliderZoom.valueProperty().removeListener(sliderZoomListener());
-									});
-									popUp.getItems().add(stopReading);
-									setContextMenu(popUp);
-								}
-							});
-						}	
+							setOnMouseClicked(mouseClickedEvent(value));
+						}
 					}
 				};
 			}
-		});
+		};
+		return res;
+	}
 
-		recentlyOpened.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
+	/**
+	 * Gerer les propriétés des cellules de la liste des fichiers recentlyOpened
+	 * @return Callback
+	 */
+	public Callback<ListView<File>, ListCell<File>> recentlyOpenedFactory() {
+		Callback<ListView<File>, ListCell<File>> res = new Callback<ListView<File>, ListCell<File>>() {
 			@Override
 			public ListCell<File> call(ListView<File> param) {
 				return new ListCell<File>() {
@@ -215,9 +187,58 @@ public class MainWindow {
 							setText(value.getName());
 					}};
 			}
-		});		
-		listViewFiles.setItems(listLien);
-		recentlyOpened.setItems(listRecentlyOpened);
+		};
+		return res;
+	}
+
+	/**
+	 * Méthode gerant les evenemnts de souris sur les cellules d'une liste.
+	 * @param value
+	 * 		Le fichier contenu dans la cellule.
+	 * @return EventHandler
+	 */
+	public EventHandler<MouseEvent> mouseClickedEvent(File value) {
+
+
+		EventHandler<MouseEvent> res = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseClickedEvent) {
+
+				if (mouseClickedEvent.getButton().equals(MouseButton.PRIMARY) && mouseClickedEvent.getClickCount() == 2) {
+					try {
+						ply = null;
+						aPlyReader.initPly(value.getAbsolutePath());
+						ply = aPlyReader.getPly(value.getAbsolutePath());
+						listOfPlyFiles.add(ply);
+					} catch (FileNotFoundException fileException) {
+						fileException.printStackTrace();
+					} finally {
+						Canvas newCanvas = new Canvas();
+						newCanvas.setHeight(570);
+						newCanvas.setWidth(1160);
+						newCanvas.setLayoutX(-1.0);
+						newCanvas.setId("c" + nbOngletActifs);
+						newCanvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent());
+						newCanvas.addEventHandler(ScrollEvent.SCROLL_STARTED, mouseScrollEvent());
+
+
+						Tab tmp = new Tab(value.getName().substring(0, value.getName().length() - 4));
+						tmp.setClosable(true);
+						tmp.setOnCloseRequest(fermetureOnglet());
+						tmp.setContent(newCanvas);
+
+						onglets.getTabs().add(tmp);
+
+						listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
+
+						if (!listRecentlyOpened.contains(value))
+							listRecentlyOpened.add(value);
+						nbOngletActifs++;
+					}
+				}
+			}
+		};
+		return res;
 	}
 
 	/**
