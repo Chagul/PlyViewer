@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
@@ -14,100 +14,11 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainWindow">
+<AnchorPane prefHeight="700.0" prefWidth="1450.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainWindow">
    <children>
-      <ListView fx:id="listViewFiles" layoutX="1060.0" layoutY="35.0" prefHeight="312.0" prefWidth="200.0" />
-      <Canvas fx:id="canvas" height="604.0" layoutX="36.0" layoutY="55.0" width="1016.0" />
-      <HBox alignment="CENTER_LEFT" fillHeight="false" layoutY="669.0" maxWidth="-Infinity" prefHeight="39.0" prefWidth="1292.0">
-         <children>
-            <ToolBar>
-              <items>
-                <Button fx:id="buttonZoomPlus" mnemonicParsing="false" onAction="#buttonPressedZoomPlus">
-                     <graphic>
-                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../zoomPlus.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Zoom +" />
-                     </tooltip></Button>
-                  <Button fx:id="buttonZoomMoins" mnemonicParsing="false" onAction="#buttonPressedZoomMoins">
-                     <graphic>
-                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../zoomMinus.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Zoom -" />
-                     </tooltip></Button>
-                  <Button fx:id="buttonLissage" mnemonicParsing="false" onAction="#buttonPressedLissage">
-                     <graphic>
-                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../lissage.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Lissage" />
-                     </tooltip></Button>
-                  <Button fx:id="buttonOmbre" mnemonicParsing="false" onAction="#buttonPressedOmbre">
-                     <graphic>
-                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../ombre.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Ombre portée" />
-                     </tooltip></Button>
-                  <Button fx:id="buttonVueTranches" mnemonicParsing="false" onAction="#buttonPressedVueTranches">
-                     <graphic>
-                        <ImageView accessibleHelp="test" fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../tranche.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Vue en tranche" />
-                     </tooltip></Button>
-              </items>
-            </ToolBar>
-            <Label text="X :   ">
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin></Label>
-            <Slider fx:id="sliderX" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin></Slider>
-            <Label text="Y :   ">
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin></Label>
-            <Slider fx:id="sliderY" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin></Slider>
-            <Label text="Z :   ">
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin></Label>
-            <Slider fx:id="sliderZ" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin></Slider>
-         </children>
-      </HBox>
-      <ListView id="recentlyOpened" fx:id="recentlyOpened" layoutX="1060.0" layoutY="374.0" prefHeight="288.0" prefWidth="200.0" />
-      <Text layoutX="1070.0" layoutY="364.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ouvert récemment  :" wrappingWidth="150.7294921875" />
-      <Slider fx:id="sliderZoom" layoutX="11.0" layoutY="50.0" orientation="VERTICAL" prefHeight="604.0" prefWidth="16.0" />
+      <ListView fx:id="listViewFiles" layoutX="1233.0" layoutY="37.0" prefHeight="312.0" prefWidth="200.0" />
+      <ListView id="recentlyOpened" fx:id="recentlyOpened" layoutX="1231.0" layoutY="376.0" prefHeight="288.0" prefWidth="200.0" />
+      <Text layoutX="1241.0" layoutY="366.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ouvert récemment  :" wrappingWidth="150.7294921875" />
       <ToolBar prefHeight="48.0" prefWidth="346.0">
         <items>
           <Button fx:id="importOpen" mnemonicParsing="false" onAction="#buttonPressedParcourirEtOuvrir" prefHeight="36.0" prefWidth="42.0">
@@ -156,6 +67,107 @@
                </tooltip></Button>
         </items>
       </ToolBar>
-      <Text layoutX="1070.0" layoutY="27.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fichiers importés :" wrappingWidth="135.7294921875" />
+      <Text layoutX="1241.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fichiers importés :" wrappingWidth="135.7294921875" />
+      <TabPane fx:id="onglets" layoutX="26.0" layoutY="48.0" prefHeight="604.0" prefWidth="1192.0" tabClosingPolicy="UNAVAILABLE">
+      </TabPane>
+      <HBox alignment="CENTER_LEFT" fillHeight="false" layoutY="653.0" maxWidth="1219.0" prefHeight="48.0" prefWidth="1219.0">
+         <children>
+            <ToolBar>
+              <items>
+                <Button fx:id="buttonZoomPlus" mnemonicParsing="false" onAction="#buttonPressedZoomPlus">
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../zoomPlus.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Zoom +" />
+                     </tooltip>
+                  </Button>
+                  <Button fx:id="buttonZoomMoins" mnemonicParsing="false" onAction="#buttonPressedZoomMoins">
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../zoomMinus.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Zoom -" />
+                     </tooltip>
+                  </Button>
+                  <Button fx:id="buttonLissage" mnemonicParsing="false" onAction="#buttonPressedLissage">
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../lissage.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Lissage" />
+                     </tooltip>
+                  </Button>
+                  <Button fx:id="buttonOmbre" mnemonicParsing="false" onAction="#buttonPressedOmbre">
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@..//ombre.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Ombre portée" />
+                     </tooltip>
+                  </Button>
+                  <Button fx:id="buttonVueTranches" mnemonicParsing="false" onAction="#buttonPressedVueTranches">
+                     <graphic>
+                        <ImageView accessibleHelp="test" fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../tranche.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                     <tooltip>
+                        <Tooltip text="Vue en tranche" />
+                     </tooltip>
+                  </Button>
+              </items>
+            </ToolBar>
+            <Label text="X :   ">
+               <HBox.margin>
+                  <Insets left="15.0" />
+               </HBox.margin>
+            </Label>
+            <Slider fx:id="sliderX" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
+               <HBox.margin>
+                  <Insets left="10.0" />
+               </HBox.margin>
+            </Slider>
+            <Label text="Y :   ">
+               <HBox.margin>
+                  <Insets left="15.0" />
+               </HBox.margin>
+            </Label>
+            <Slider fx:id="sliderY" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
+               <HBox.margin>
+                  <Insets left="10.0" />
+               </HBox.margin>
+            </Slider>
+            <Label text="Z :   ">
+               <HBox.margin>
+                  <Insets left="15.0" />
+               </HBox.margin>
+            </Label>
+            <Slider fx:id="sliderZ" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
+               <HBox.margin>
+                  <Insets left="10.0" />
+               </HBox.margin>
+            </Slider>
+         </children>
+      </HBox>
+      <Slider fx:id="sliderZoom" layoutX="4.0" layoutY="115.0" orientation="VERTICAL" prefHeight="514.0" prefWidth="16.0" />
    </children>
 </AnchorPane>

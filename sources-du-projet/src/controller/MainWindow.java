@@ -4,6 +4,7 @@ package controller;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
@@ -11,16 +12,13 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Button;
-import javafx.scene.control.ContextMenu;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ListView;
-import javafx.scene.control.MenuItem;
-import javafx.scene.control.Slider;
+import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -46,24 +44,37 @@ public class MainWindow {
 		this.stage = stage;
 	}
 
+	ArrayList<PlyFile> listOfPlyFiles;
+	int nbOngletActifs;
+
 	Stage stage;
 	ObservableList<File> listLien;
 	ObservableList<File> listRecentlyOpened;
+	//Canvas canvasModele; /*Non utilisé*/
 	PlyFile ply;
 	PlyReader aPlyReader = new PlyReader();
-	EventHandler<MouseEvent> mouseDraggedEvent;
-	EventHandler<ScrollEvent> mousescrollEvent;
-	ChangeListener<Number> sliderXListener;
-	ChangeListener<Number> sliderYListener;
-	ChangeListener<Number> sliderZListener;
-	ChangeListener<Number> sliderZoomListener;
+	//EventHandler<MouseEvent> mouseDraggedEvent; /*A été remplacé par une fonction*/
+	//EventHandler<ScrollEvent> mousescrollEvent; /*A été remplacé par une fonction*/
+	//ChangeListener<Number> sliderXListener; /*A été remplacé par une fonction*/
+	//ChangeListener<Number> sliderYListener; /*A été remplacé par une fonction*/
+	//ChangeListener<Number> sliderZListener; /*A été remplacé par une fonction*/
+	//ChangeListener<Number> sliderZoomListener; /*A été remplacé par une fonction*/
 	/**Button afficher supprimé puisqu'on peut ouvrir en faisant un double clic
 	@FXML
 	Button afficher;
 	 **/
 
+	/*
+	@FXML
+	Tab ongletBase;
+*/
+	@FXML
+	TabPane onglets;
+
+	/*
 	@FXML
 	Canvas canvas;
+	 */
 
 	@FXML
 	ListView<File> listViewFiles;
@@ -105,10 +116,36 @@ public class MainWindow {
 	 * @throws IOException
 	 */
 	public void initialize() throws IOException {
+
+		//Permettre la fermeture des onglets pour lesquels Closable est à true.
+		onglets.setTabClosingPolicy(TabPane.TabClosingPolicy.ALL_TABS);
+
+
+		//Liste des objets PlyFile
+		listOfPlyFiles = new ArrayList<>();
+
+		//Compteur des nombre d'onglest actifs
+		nbOngletActifs = 0;
+
+		//Listes observables
 		listLien = FXCollections.observableArrayList();
 		listRecentlyOpened = FXCollections.observableArrayList();
 
-		listViewFiles.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
+		//Listes ListView
+		listViewFiles.setCellFactory(listViewFilesFactory());
+		recentlyOpened.setCellFactory(recentlyOpenedFactory());
+
+		//Ajoute les Objets ObservableList à leurs ListeView respectifs.
+		listViewFiles.setItems(listLien);
+		recentlyOpened.setItems(listRecentlyOpened);
+	}
+
+	/**
+	 * Gerer les propriétés des cellules de la liste des fichiers listViewFiles
+	 * @return Callback
+	 */
+	public Callback<ListView<File>, ListCell<File>> listViewFilesFactory() {
+		Callback<ListView<File>, ListCell<File>> res = new Callback<ListView<File>, ListCell<File>>() {
 			@Override
 			public ListCell<File> call(ListView<File> param) {
 				return new ListCell<File>() {
@@ -116,54 +153,26 @@ public class MainWindow {
 					protected void updateItem(File value, boolean empty) {
 
 						super.updateItem(value, empty);
+
 						if (empty || value == null || value.getName() == null)
 							setText(null);
 						else {
 							setText(value.getName());
-							setOnMouseClicked(mouseClickedEvent -> {
-								if (mouseClickedEvent.getButton().equals(MouseButton.PRIMARY) && mouseClickedEvent.getClickCount() == 2) {
-									try {
-										aPlyReader.initPly(value.getAbsolutePath());
-										ply = aPlyReader.getPly(value.getAbsolutePath());
-									}catch(FileNotFoundException fileException) {
-										fileException.printStackTrace();
-									}finally {
-										/*if(!ply.getErrorList().isEmpty())
-				            				new Stage();*/
-										canvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent );
-						                canvas.addEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
-										ply.firstDraw(canvas);
-										if(!listRecentlyOpened.contains(value))
-											listRecentlyOpened.add(value);
-									}                       
-								}
-								
-								if(mouseClickedEvent.getButton().equals(MouseButton.SECONDARY)) {
-									ContextMenu popUp = new ContextMenu();
-									MenuItem stopReading = new MenuItem("Fermer");
-									stopReading.setOnAction((ActionEvent e) -> {
-										GraphicsContext gc = canvas.getGraphicsContext2D();
-										gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
-										listLien.remove(value);
-										ply = null;
-										canvas.removeEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-						                canvas.removeEventHandler(ScrollEvent.SCROLL_STARTED,mousescrollEvent);
-										sliderX.valueProperty().removeListener(sliderXListener);
-										sliderY.valueProperty().removeListener(sliderYListener);
-										sliderZ.valueProperty().removeListener(sliderZListener);
-										sliderZoom.valueProperty().removeListener(sliderZoomListener);
-									});
-									popUp.getItems().add(stopReading);
-									setContextMenu(popUp);
-								}
-							});
-						}	
+							setOnMouseClicked(mouseClickedEvent(value));
+						}
 					}
 				};
 			}
-		});
+		};
+		return res;
+	}
 
-		recentlyOpened.setCellFactory(new Callback<ListView<File>, ListCell<File>>() {
+	/**
+	 * Gerer les propriétés des cellules de la liste des fichiers recentlyOpened
+	 * @return Callback
+	 */
+	public Callback<ListView<File>, ListCell<File>> recentlyOpenedFactory() {
+		Callback<ListView<File>, ListCell<File>> res = new Callback<ListView<File>, ListCell<File>>() {
 			@Override
 			public ListCell<File> call(ListView<File> param) {
 				return new ListCell<File>() {
@@ -178,12 +187,139 @@ public class MainWindow {
 							setText(value.getName());
 					}};
 			}
-		});		
-		listViewFiles.setItems(listLien);
-		recentlyOpened.setItems(listRecentlyOpened);
+		};
+		return res;
+	}
+
+	/**
+	 * Méthode gerant les evenemnts de souris sur les cellules d'une liste.
+	 * @param value
+	 * 		Le fichier contenu dans la cellule.
+	 * @return EventHandler
+	 */
+	public EventHandler<MouseEvent> mouseClickedEvent(File value) {
 
 
-		mouseDraggedEvent = new EventHandler<MouseEvent>() {
+		EventHandler<MouseEvent> res = new EventHandler<MouseEvent>() {
+			@Override
+			public void handle(MouseEvent mouseClickedEvent) {
+
+				if (mouseClickedEvent.getButton().equals(MouseButton.PRIMARY) && mouseClickedEvent.getClickCount() == 2) {
+					try {
+						ply = null;
+						aPlyReader.initPly(value.getAbsolutePath());
+						ply = aPlyReader.getPly(value.getAbsolutePath());
+						listOfPlyFiles.add(ply);
+					} catch (FileNotFoundException fileException) {
+						fileException.printStackTrace();
+					} finally {
+						Canvas newCanvas = new Canvas();
+						newCanvas.setHeight(570);
+						newCanvas.setWidth(1160);
+						newCanvas.setLayoutX(-1.0);
+						newCanvas.setId("c" + nbOngletActifs);
+						newCanvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent());
+						newCanvas.addEventHandler(ScrollEvent.SCROLL_STARTED, mouseScrollEvent());
+
+
+						Tab tmp = new Tab(value.getName().substring(0, value.getName().length() - 4));
+						tmp.setClosable(true);
+						tmp.setOnCloseRequest(fermetureOnglet());
+						tmp.setContent(newCanvas);
+
+						onglets.getTabs().add(tmp);
+
+						listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
+
+						if (!listRecentlyOpened.contains(value))
+							listRecentlyOpened.add(value);
+						nbOngletActifs++;
+					}
+				}
+			}
+		};
+		return res;
+	}
+
+	/**
+	 * Gerer les conséquences de fermer un onglet
+	 * @return EventHandler
+	 */
+	public EventHandler<Event> fermetureOnglet() {
+		EventHandler<Event> res = new EventHandler<Event>() {
+			@Override
+			public void handle(Event event) {
+				Tab selectedTab = onglets.getSelectionModel().getSelectedItem();
+				int idxOfClosedTab = onglets.getSelectionModel().getSelectedIndex();
+
+				listOfPlyFiles.remove(idxOfClosedTab);
+				onglets.getTabs().remove(selectedTab);
+			}
+		};
+		return res;
+	}
+
+	/**
+	 * On lie les sliders avec les fonctions de matrices qui leur correspondent
+	 */
+	public ChangeListener<Number> sliderXListener() {
+		ChangeListener<Number> res = new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
+				Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
+				PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));
+				plySelected.draw(selected);
+			}
+		};
+		return res;
+	}
+	public ChangeListener<Number> sliderYListener() {
+		ChangeListener<Number> res = new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
+				PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Y, (double)newValue-(double)oldValue));
+				plySelected.draw(selected);
+			}
+		};
+		return res;
+	}
+	public ChangeListener<Number> sliderZListener() {
+		ChangeListener<Number> res = new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
+				PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Z, (double)newValue-(double)oldValue));
+				plySelected.draw(selected);
+			}
+		};
+		return res;
+	}
+	public ChangeListener<Number> sliderZoomListener() {
+		ChangeListener<Number> res = new ChangeListener<Number>() {
+			@Override
+			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
+				Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
+				PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+				double zoom = 1.05;
+				if((double) oldValue > (double)newValue)
+					zoom = 0.95;
+				plySelected.setMatricePoint(plySelected.getMatricePoint().multiplication(zoom));
+				plySelected.draw(selected);
+			}
+		};
+		return res;
+	}
+
+	/**
+	 * L'évènement de glisser la souris avec les réactions en conséquence.
+	 * @return EventHandler
+	 */
+	public EventHandler<MouseEvent> mouseDraggedEvent() {
+		EventHandler<MouseEvent> res = new EventHandler<MouseEvent>() {
 			double dX;
 			double dY;
 			double rotationX;
@@ -192,118 +328,92 @@ public class MainWindow {
 			boolean dansFenetre = true;
 			@Override
 			public void handle(MouseEvent mouseDragged) {
-				if(!isDragged && mouseDragged.isDragDetect()) {
+				if (!isDragged && mouseDragged.isDragDetect()) {
 					isDragged = true;
 					dX = mouseDragged.getSceneX();
 					dY = mouseDragged.getSceneY();
 				}
-				if(isDragged && !mouseDragged.isDragDetect())
+				if (isDragged && !mouseDragged.isDragDetect())
 					isDragged = false;
 
-				rotationX = (mouseDragged.getSceneX()-dX);
-				rotationY = (mouseDragged.getSceneY()-dY);
-				if(mouseDragged.getEventType().equals(MouseEvent.MOUSE_EXITED)) {
+				rotationX = (mouseDragged.getSceneX() - dX);
+				rotationY = (mouseDragged.getSceneY() - dY);
+				if (mouseDragged.getEventType().equals(MouseEvent.MOUSE_EXITED)) {
 					dansFenetre = false;
 				}
-				if(mouseDragged.getEventType().equals(MouseEvent.MOUSE_ENTERED))
+				if (mouseDragged.getEventType().equals(MouseEvent.MOUSE_ENTERED))
 					dansFenetre = true;
-				
-					/**
-					 * Clic gauche = rotation X et Y
-					 */
-					if(dansFenetre && mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown() ) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
-						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, rotationX));
-						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, rotationY));
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
-						ply.draw(canvas);
-					}
-					/**
-					 * Clic droit = rotation Z
-					 */
-					if(dansFenetre && !mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
-						ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, rotationX));
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
-						ply.draw(canvas);
-					}
-					/**
-					 *  Deux clic en même temps = translation
-					 */
-					if(dansFenetre && mouseDragged.isPrimaryButtonDown()  && mouseDragged.isSecondaryButtonDown()) {
-						ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
-						ply.setMatricePoint(ply.getMatricePoint().translation(mouseDragged.getSceneX()-dX ,mouseDragged.getSceneY()-dY,0));	
-						ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
-						ply.draw(canvas);
-					}
-					dX = mouseDragged.getSceneX();
-					dY = mouseDragged.getSceneY();
-				}
-		};
 
-		/**
-		 * Scroll souris = zoom ou dézoom selon le sens
-		 */
-		mousescrollEvent = new EventHandler<ScrollEvent>() {
+				/**
+				 * Clic gauche = rotation X et Y
+				 */
+				if (dansFenetre && mouseDragged.isPrimaryButtonDown() && !mouseDragged.isSecondaryButtonDown()) {
+					Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
+					PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+					plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
+					plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Y, rotationX));
+					plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.X, rotationY));
+					plySelected.setMatricePoint(plySelected.getMatricePoint().translation(selected.getWidth() / 2, selected.getHeight() / 2, 0));
+					plySelected.draw(selected);
+				}
+				/**
+				 * Clic droit = rotation Z
+				 */
+				if (dansFenetre && !mouseDragged.isPrimaryButtonDown() && mouseDragged.isSecondaryButtonDown()) {
+					Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
+					PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+					plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
+					plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Z, rotationX));
+					plySelected.setMatricePoint(plySelected.getMatricePoint().translation(selected.getWidth() / 2, selected.getHeight() / 2, 0));
+					plySelected.draw(selected);
+				}
+				/**
+				 *  Deux clic en même temps = translation
+				 */
+				if (dansFenetre && mouseDragged.isPrimaryButtonDown() && mouseDragged.isSecondaryButtonDown()) {
+					Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
+					PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+					plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
+					plySelected.setMatricePoint(plySelected.getMatricePoint().translation(mouseDragged.getSceneX() - dX, mouseDragged.getSceneY() - dY, 0));
+					plySelected.setMatricePoint(plySelected.getMatricePoint().translation(selected.getWidth() / 2, selected.getHeight() / 2, 0));
+					plySelected.draw(selected);
+				}
+				dX = mouseDragged.getSceneX();
+				dY = mouseDragged.getSceneY();
+			}
+		};
+		return res;
+	}
+
+
+	/**
+	 * Scroll souris = zoom ou dézoom selon le sens
+	 */
+	public EventHandler<ScrollEvent> mouseScrollEvent() {
+		EventHandler<ScrollEvent> res = new EventHandler<ScrollEvent>() {
 			@Override
 			public void handle(ScrollEvent wheelScroll) {
+				PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+				Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 				double zoom = 1.05;
 				double deltaY = wheelScroll.getDeltaY();
 				if(deltaY < 0)
 					zoom = 0.95;
-				ply.setMatricePoint(ply.getMatricePoint().translation(-ply.getPointDuMilieu().getX(), -ply.getPointDuMilieu().getY(), 0));
-				ply.setMatricePoint(ply.getMatricePoint().translation(-canvas.getWidth()/2, -canvas.getHeight()/2, 0));
+				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-plySelected.getPointDuMilieu().getX(), -plySelected.getPointDuMilieu().getY(), 0));
+				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-selected.getWidth()/2, -selected.getHeight()/2, 0));
 
-				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));
+				plySelected.setMatricePoint(plySelected.getMatricePoint().multiplication(zoom));
 
-				ply.getPointDuMilieu().setX(ply.getPointDuMilieu().getX() * zoom);
-				ply.getPointDuMilieu().setY(ply.getPointDuMilieu().getY() * zoom);
-				
-				
-				ply.setMatricePoint(ply.getMatricePoint().translation(canvas.getWidth()/2, canvas.getHeight()/2, 0));
-				ply.setMatricePoint(ply.getMatricePoint().translation(ply.getPointDuMilieu().getX(), ply.getPointDuMilieu().getY(), 0));
-				ply.draw(canvas);
+				plySelected.getPointDuMilieu().setX(plySelected.getPointDuMilieu().getX() * zoom);
+				plySelected.getPointDuMilieu().setY(plySelected.getPointDuMilieu().getY() * zoom);
 
+
+				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(selected.getWidth()/2, selected.getHeight()/2, 0));
+				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(plySelected.getPointDuMilieu().getX(), plySelected.getPointDuMilieu().getY(), 0));
+				plySelected.draw(selected);
 			}
 		};
-		/**
-		 * On lie les sliders avec les fonctions de matrices qui leur correspondent
-		 */
-		sliderXListener = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
-			}		
-		};
-
-		sliderYListener = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-
-				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Y, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
-			}		
-		};
-
-		sliderZListener = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				ply.setMatricePoint(ply.getMatricePoint().rotation(Rotation.Z, (double)newValue-(double)oldValue));	
-				ply.draw(canvas);
-			}		
-		};
-		sliderZoomListener = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				double zoom = 1.05;
-				if((double) oldValue > (double)newValue)
-					zoom = 0.95;
-				ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-				ply.draw(canvas);
-			}		
-		};
-
+		return res;
 	}
 
 	/**
@@ -331,25 +441,46 @@ public class MainWindow {
 			listLien.add(tmp);
 
 			try {
+				//Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 				aPlyReader.initPly(tmp.getAbsolutePath());
 				ply = aPlyReader.getPly(tmp.getAbsolutePath());
-				canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-				canvas.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
-				sliderX.valueProperty().addListener(sliderXListener);
-				sliderY.valueProperty().addListener(sliderYListener);
-				sliderZ.valueProperty().addListener(sliderZListener);
-				sliderZoom.valueProperty().addListener(sliderZoomListener);
-				ply.firstDraw(canvas);
+				listOfPlyFiles.add(ply);
+				ply = null;
+
+				//selected.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
+				//selected.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
+
+				sliderX.valueProperty().addListener(sliderXListener());
+				sliderY.valueProperty().addListener(sliderYListener());
+				sliderZ.valueProperty().addListener(sliderZListener());
+				sliderZoom.valueProperty().addListener(sliderZoomListener());
+
+				Canvas newCanvas = new Canvas();
+				newCanvas.setHeight(570);
+				newCanvas.setWidth(1160);
+				newCanvas.setLayoutX(-1.0);
+				newCanvas.setId("c" + nbOngletActifs);
+				newCanvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent());
+				newCanvas.addEventHandler(ScrollEvent.SCROLL_STARTED,mouseScrollEvent());
+
+
+				Tab tmpTab = new Tab(tmp.getName().substring(0, tmp.getName().length()-4)); //Modifie le titre de l'onglet.);
+				tmpTab.setClosable(true);
+				tmpTab.setOnCloseRequest(fermetureOnglet());
+				tmpTab.setContent(newCanvas);
+
+				onglets.getTabs().add(tmpTab);
+				onglets.getTabs().get(nbOngletActifs).setText(tmp.getName().substring(0, tmp.getName().length()-4));  //Modifie le titre de l'onglet.
+
+				listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
+				//ply.firstDraw(selected);
+
 				if(!listRecentlyOpened.contains(tmp))
 					listRecentlyOpened.add(tmp);
+				nbOngletActifs++;
 			}catch(FileNotFoundException fileException) {
 				fileException.printStackTrace();
-			}/*finally {
-				if(!ply.getErrorList().isEmpty()) {
-					error.setErrorList(ply.getErrorList());
-					error.start();
-				}
-			}*/
+			}
 		}
 	}
 
@@ -363,29 +494,23 @@ public class MainWindow {
 	public void buttonPressedAfficher(){
 		//WindowError error = new WindowError();
 		try {
-			aPlyReader.initPly(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
-			ply = aPlyReader.getPly(listViewFiles.getSelectionModel().getSelectedItem().getAbsolutePath());
-			canvas.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-			canvas.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
-			sliderX.valueProperty().addListener(sliderXListener);
-			sliderY.valueProperty().addListener(sliderYListener);
-			sliderZ.valueProperty().addListener(sliderZListener);
-			sliderZoom.valueProperty().addListener(sliderZoomListener);
-			ply.firstDraw(canvas);
-			if(!listRecentlyOpened.contains(listViewFiles.getSelectionModel().getSelectedItem()))
-				listRecentlyOpened.add(listViewFiles.getSelectionModel().getSelectedItem());
+			Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
+			File tmp = listViewFiles.getSelectionModel().getSelectedItem();
+			aPlyReader.initPly(tmp.getAbsolutePath());
+			ply = aPlyReader.getPly(tmp.getAbsolutePath());
+			selected.addEventHandler(MouseEvent.ANY,mouseDraggedEvent());
+			selected.addEventHandler(ScrollEvent.ANY, mouseScrollEvent());
+			sliderX.valueProperty().addListener(sliderXListener());
+			sliderY.valueProperty().addListener(sliderYListener());
+			sliderZ.valueProperty().addListener(sliderZListener());
+			sliderZoom.valueProperty().addListener(sliderZoomListener());
+			ply.firstDraw(selected);
+			onglets.getTabs().get(onglets.getTabs().size()-1).setText(tmp.getName()); //Modifie le titre de l'onglet.
+			if(!listRecentlyOpened.contains(tmp))
+				listRecentlyOpened.add(tmp);
 		}catch(FileNotFoundException fileException) {
 			fileException.printStackTrace();
 		}
-		/*}finally {
-			
-			if(!ply.getErrorList().isEmpty()) {
-				error.setErrorList(ply.getErrorList());
-				error.start();
-
-			}*/
-			
-
 	}
 
 	/**
@@ -399,10 +524,12 @@ public class MainWindow {
 	 * Zoom+ depuis le bouton.
 	 */
 	public void buttonPressedZoomPlus() {
-		if(this.ply != null) {
+		PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+		if(plySelected != null) {
+			Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 			double zoom = 1.05;
-			ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-			ply.draw(canvas);
+			plySelected.setMatricePoint(plySelected.getMatricePoint().multiplication(zoom));
+			plySelected.draw(selected);
 		}
 	}
 
@@ -410,10 +537,12 @@ public class MainWindow {
 	 * Zoom- depuis le button.
 	 */
 	public void buttonPressedZoomMoins() {
-		if(this.ply != null) {
+		PlyFile plySelected = (PlyFile) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+		if(plySelected != null) {
+			Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 			double zoom = 0.95;
-			ply.setMatricePoint(ply.getMatricePoint().multiplication(zoom));	
-			ply.draw(canvas);
+			plySelected.setMatricePoint(plySelected.getMatricePoint().multiplication(zoom));
+			plySelected.draw(selected);
 		}
 	}
 
