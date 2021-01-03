@@ -2,35 +2,20 @@ package modele;
 
 import java.util.ArrayList;
 
-public class Face {
-	private Point p1;
-	private Point p2;
-	private Point p3;
+public class Face implements Comparable<Face> {
 	private ArrayList<Point> listPoint;
+	private int[] rgbColor;
 	
 	public Face(Point p1, Point p2, Point p3) {
 		this.listPoint = new ArrayList<Point>();
-		this.p1 = p1;
-		this.p2 = p2;
-		this.p3 = p3;
+		rgbColor = new int[3];
 	}
 
 	public Face() {
 		this.listPoint = new ArrayList<Point>();
+		rgbColor = new int[3];
 	}
 
-	public Point getP1() {
-		return p1;
-	}
-
-	public Point getP2() {
-		return p2;
-	}
-
-	public Point getP3() {
-		return p3;
-	}
-	
 	public ArrayList<Point> getListPoint() {
 		return this.listPoint;
 	}
@@ -71,6 +56,29 @@ public class Face {
 	}
 		return true;
 	}
+
+	@Override
+	public int compareTo(Face other) {
+		int moyZThis = 0;
+		int cptPoint = 0;
+		int moyZOther = 0;
+		for(Point p : listPoint) {
+			moyZThis += p.getZ();
+			cptPoint++;
+		}
+		moyZThis = moyZThis / cptPoint;
+		cptPoint = 0;
+		for(Point p : other.getListPoint()) {
+			moyZThis += p.getZ();
+			cptPoint++;
+		}
+		moyZOther = moyZOther / cptPoint;
+		return moyZThis - moyZOther;
+	}
 	 
+	
+	public int[] getRgbColor() {
+		return rgbColor;
+	}
 	
 }
