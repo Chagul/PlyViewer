@@ -22,6 +22,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import modele.AutoTurn;
 import modele.Model3D;
 import modele.Observateur;
 import modele.PlyReader;
@@ -538,7 +539,19 @@ public class MainWindow implements Observateur{
 	 * Button vue tranches (soon).
 	 */
 	public void buttonPressedVueTranches() {
-
+		Thread thr = new Thread(new Runnable() {
+			Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+			@Override
+			public void run() {
+				try {
+					while (true) {
+						plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.X, 10));
+					}
+				}finally {
+					System.out.println("stop");
+				}
+			}
+		});
 	}
 
 	/**

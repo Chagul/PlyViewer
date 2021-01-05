@@ -2,8 +2,8 @@ package modele;
 
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Random;
 import java.util.Set;
 
 import javafx.scene.canvas.Canvas;
@@ -80,22 +80,41 @@ public class Model3D implements Observable{
 	public void drawFaces(Canvas canvas, boolean trait) {
 		double[] coordX;
 		double[] coordY;
+		double[] coordZ;
+		Vecteur vecteurLumiere = new Vecteur(1, 1, 0);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		gc.beginPath();
-		//arrayListFace.sort(c);
+		arrayListFace.sort(new Comparator<Face>() {
+
+			@Override
+			public int compare(Face arg0, Face arg1) {
+				arg0.compareTo(arg1);
+				return 0;
+			}
+		});
 		for (Face face : arrayListFace) {
+
 			coordX = new double[face.getListPoint().size()];
 			coordY = new double[face.getListPoint().size()];
+			coordZ = new double[face.getListPoint().size()];
 			for(int i = 0; i < face.getListPoint().size(); i++) {
 				coordX[i] = matricePoint.getM()[0][face.getListPoint().get(i).getId()];
 				coordY[i] = matricePoint.getM()[1][face.getListPoint().get(i).getId()];
+				coordZ[i] = matricePoint.getM()[2][face.getListPoint().get(i).getId()];
 			}
-			if(trait)
+			if(trait) {
 				gc.strokePolygon(coordX, coordY, coordX.length);
-			Random rng = new Random();
-			//gc.setFill(Color.rgb(face.getRgbColor()[0], face.getRgbColor()[1], face.getRgbColor()[2]));
-			gc.setFill(Color.color(rng.nextDouble(), rng.nextDouble(), rng.nextDouble()));
+			}
+			Vecteur vecteurFace1 = new Vecteur(coordX[1]-coordX[0], coordY[1]-coordY[0], coordZ[1] - coordZ[0]);
+			Vecteur vecteurFace2 = new Vecteur(coordX[coordX.length-1]-coordX[0], coordY[coordY.length-1]-coordY[0], coordZ[coordZ.length-1] - coordZ[0]);
+			Vecteur vecteurNormal = vecteurFace1.produitVectoriel(vecteurFace2);
+			double coeffLumineux = (Math.cos((vecteurLumiere.Normalisation()).produitScalaire(vecteurNormal.Normalisation())));
+			if( coeffLumineux >= 0) {
+				gc.setFill(Color.rgb((int)(face.getRgbColor()[0]*coeffLumineux), (int)(face.getRgbColor()[1]*coeffLumineux), (int)(face.getRgbColor()[2]*coeffLumineux)));
+			}
+			else
+				gc.setFill(Color.rgb(face.getRgbColor()[0], face.getRgbColor()[1], (face.getRgbColor()[2])));
 			gc.fillPolygon(coordX, coordY, coordX.length);
 		}
 	}

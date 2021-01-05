@@ -3,34 +3,16 @@ package modele;
 import java.util.ArrayList;
 
 public class Face implements Comparable<Face> {
+	
 	private ArrayList<Point> listPoint;
 	private int[] rgbColor;
-	
-	public Face(Point p1, Point p2, Point p3) {
-		this.listPoint = new ArrayList<Point>();
-		rgbColor = new int[3];
-	}
 
 	public Face() {
 		this.listPoint = new ArrayList<Point>();
 		rgbColor = new int[3];
-	}
-
-	public ArrayList<Point> getListPoint() {
-		return this.listPoint;
-	}
-
-	public void addPoint(Point p) {
-		this.listPoint.add(p);
-	}
-	
-	@Override
-	public String toString() {
-		String tmp  = "";
-		for (Point point : listPoint) {
-			tmp += point;
-		}
-		return tmp;
+		rgbColor[0] = 255;
+		rgbColor[1] = 255;
+		rgbColor[2] = 255;
 	}
 	/**
 	 * Deux faces sont considérées comme égales si tout les points qui les composents sont égaux
@@ -57,7 +39,11 @@ public class Face implements Comparable<Face> {
 		return true;
 	}
 
+
 	@Override
+	/**
+	 * Compare deux faces par rapport à leur point Z afin de pouvoir les trier
+	 */
 	public int compareTo(Face other) {
 		int moyZThis = 0;
 		int cptPoint = 0;
@@ -76,6 +62,22 @@ public class Face implements Comparable<Face> {
 		return moyZThis - moyZOther;
 	}
 	 
+	public ArrayList<Point> getListPoint() {
+		return this.listPoint;
+	}
+
+	public void addPoint(Point p) {
+		this.listPoint.add(p);
+	}
+	
+	@Override
+	public String toString() {
+		String tmp  = "";
+		for (Point point : listPoint) {
+			tmp += point;
+		}
+		return tmp;
+	}
 	
 	public int[] getRgbColor() {
 		return rgbColor;
