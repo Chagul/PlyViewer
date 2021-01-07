@@ -45,9 +45,9 @@ public class Face implements Comparable<Face> {
 	 * Compare deux faces par rapport à leur point Z afin de pouvoir les trier
 	 */
 	public int compareTo(Face other) {
-		double moyZThis = 0;
+		double moyZThis = 0.0;
 		int cptPoint = 0;
-		double moyZOther = 0;
+		double moyZOther = 0.0;
 		for(Point p : listPoint) {
 			moyZThis += p.getZ();
 			cptPoint++;
@@ -70,8 +70,11 @@ public class Face implements Comparable<Face> {
 			moyZOther += p.getZ();
 			cptPoint++;
 		}
-		//System.out.println("this moyZ" + moyZThis);
-		//System.out.println("Other moyZ" + moyZOther);
+		moyZOther = moyZOther/cptPoint;
+		System.out.println("this moyZ " + moyZThis);
+		System.out.println("Other moyZ " + moyZOther);
+		System.out.println(this);
+		System.out.println(other);
 		if(moyZThis < moyZOther)
 			return -1;
 		else if(moyZThis > moyZOther)
