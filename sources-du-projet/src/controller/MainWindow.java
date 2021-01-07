@@ -22,7 +22,6 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import modele.AutoTurn;
 import modele.Model3D;
 import modele.Observateur;
 import modele.PlyReader;
@@ -48,8 +47,6 @@ public class MainWindow implements Observateur{
 	Stage stage;
 	ObservableList<File> listLien;
 	ObservableList<File> listRecentlyOpened;
-	boolean faces = false;
-	boolean trait = false;
 	Model3D ply;
 	PlyReader aPlyReader = new PlyReader();
 	@FXML
@@ -515,10 +512,11 @@ public class MainWindow implements Observateur{
 	 * Button lissage (soon).
 	 */
 	public void buttonPressedLissage() {
-		if(!trait)
-			trait = true;
+		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+		if(!plySelected.isTraitDessine())
+			plySelected.setTraitDessine(true);
 		else
-			trait = false;
+			plySelected.setTraitDessine(false);
 
 		actualiser();
 
@@ -527,10 +525,11 @@ public class MainWindow implements Observateur{
 	 * Button ombre (soon).
 	 */
 	public void buttonPressedOmbre() {
-		if(!faces)
-			faces = true;
+		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+		if(!plySelected.isFaceDessine())
+			plySelected.setFaceDessine(true);
 		else
-			faces = false;
+			plySelected.setFaceDessine(false);
 
 		actualiser();
 	}
@@ -565,9 +564,9 @@ public class MainWindow implements Observateur{
 	@Override
 	public void actualiser() {
 		Model3D selectedPly = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-		if(faces)
-			selectedPly.drawFaces((Canvas) onglets.getSelectionModel().getSelectedItem().getContent(), trait);
-		else if(!faces) 
+		if(selectedPly.isFaceDessine())
+			selectedPly.drawFaces((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
+		else 
 			selectedPly.draw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
 
 

@@ -45,21 +45,39 @@ public class Face implements Comparable<Face> {
 	 * Compare deux faces par rapport à leur point Z afin de pouvoir les trier
 	 */
 	public int compareTo(Face other) {
-		int moyZThis = 0;
+		double moyZThis = 0;
 		int cptPoint = 0;
-		int moyZOther = 0;
+		double moyZOther = 0;
 		for(Point p : listPoint) {
 			moyZThis += p.getZ();
 			cptPoint++;
 		}
+		/*Vecteur vecteurFace1A = new Vecteur(this.listPoint.get(1).getX()-this.listPoint.get(0).getX(), this.listPoint.get(1).getY()-this.listPoint.get(0).getY(), this.listPoint.get(1).getZ()-this.listPoint.get(0).getZ());
+		Vecteur vecteurFace1B = new Vecteur(this.listPoint.get(this.listPoint.size()-1).getX()-this.listPoint.get(0).getX(), this.listPoint.get(this.listPoint.size()-1).getY()-this.listPoint.get(0).getY(), this.listPoint.get(this.listPoint.size()-1).getZ()-this.listPoint.get(0).getZ());
+		Vecteur vecteurFace2A = new Vecteur(other.listPoint.get(1).getX()-other.listPoint.get(0).getX(), other.listPoint.get(1).getY()-other.listPoint.get(0).getY(), other.listPoint.get(1).getZ()-other.listPoint.get(0).getZ());
+		Vecteur vecteurFace2B = new Vecteur(other.listPoint.get(other.listPoint.size()-1).getX()-other.listPoint.get(0).getX(), other.listPoint.get(other.listPoint.size()-1).getY()-other.listPoint.get(0).getY(), other.listPoint.get(other.listPoint.size()-1).getZ()-other.listPoint.get(0).getZ());
+		Vecteur vecteurNormal1 = vecteurFace1A.produitVectoriel(vecteurFace1B);
+		Vecteur vecteurNormal2 = vecteurFace2A.produitVectoriel(vecteurFace2B);
+		if(vecteurNormal1.getZ() * vecteurNormal2.getZ() < 0) {
+			if(vecteurNormal1.getZ() < 0)
+				return 1;
+			else
+				return -1;
+		}*/
 		moyZThis = moyZThis / cptPoint;
 		cptPoint = 0;
 		for(Point p : other.getListPoint()) {
-			moyZThis += p.getZ();
+			moyZOther += p.getZ();
 			cptPoint++;
 		}
-		moyZOther = moyZOther / cptPoint;
-		return moyZThis - moyZOther;
+		//System.out.println("this moyZ" + moyZThis);
+		//System.out.println("Other moyZ" + moyZOther);
+		if(moyZThis < moyZOther)
+			return -1;
+		else if(moyZThis > moyZOther)
+			return 1;
+		else
+			return 0;
 	}
 	 
 	public ArrayList<Point> getListPoint() {

@@ -24,6 +24,8 @@ public class Model3D implements Observable{
 	public boolean rapportHorizontal;
 	private Point pointDuMilieu;
 	private Observateur observateurCanvas;
+	private boolean traitDessine;
+	private boolean faceDessine;
 
 	public Model3D(int nbPoint) {
 		this.arrayListFace = new ArrayList<Face>();
@@ -31,6 +33,8 @@ public class Model3D implements Observable{
 		ArrayList<String> listPointErreur = new ArrayList<String>();
 		ArrayList<String> listFaceErreur = new ArrayList<String>();
 		this.errorList = new ErrorList(listPointErreur, listFaceErreur);
+		this.setTraitDessine(false);
+		this.setFaceDessine(false);
 	}
 
 	public void setRapport(double rapport) {
@@ -77,11 +81,12 @@ public class Model3D implements Observable{
 		gc.closePath();
 	}
 
-	public void drawFaces(Canvas canvas, boolean trait) {
+	public void drawFaces(Canvas canvas) {
 		double[] coordX;
 		double[] coordY;
 		double[] coordZ;
-		Vecteur vecteurLumiere = new Vecteur(1, 1, 0);
+		//System.out.println(this.arrayListFace);
+		Vecteur vecteurLumiere = new Vecteur(0, 0, -1);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		gc.beginPath();
@@ -89,10 +94,13 @@ public class Model3D implements Observable{
 
 			@Override
 			public int compare(Face arg0, Face arg1) {
-				arg0.compareTo(arg1);
-				return 0;
+				//System.out.println(arg0);
+				//System.out.println(arg1);
+				//System.out.println(arg0.compareTo(arg1));
+				return arg0.compareTo(arg1);
 			}
 		});
+		//System.out.println(this.arrayListFace);
 		for (Face face : arrayListFace) {
 
 			coordX = new double[face.getListPoint().size()];
@@ -103,7 +111,11 @@ public class Model3D implements Observable{
 				coordY[i] = matricePoint.getM()[1][face.getListPoint().get(i).getId()];
 				coordZ[i] = matricePoint.getM()[2][face.getListPoint().get(i).getId()];
 			}
-			if(trait) {
+			double moyZ = 0;
+			for(int i = 0; i < coordZ.length; ++i)
+				moyZ += coordZ[i];
+			System.out.println("z moy face dessinnée = " + moyZ);
+			if(this.traitDessine) {
 				gc.strokePolygon(coordX, coordY, coordX.length);
 			}
 			Vecteur vecteurFace1 = new Vecteur(coordX[1]-coordX[0], coordY[1]-coordY[0], coordZ[1] - coordZ[0]);
@@ -117,6 +129,7 @@ public class Model3D implements Observable{
 				gc.setFill(Color.rgb(face.getRgbColor()[0], face.getRgbColor()[1], (face.getRgbColor()[2])));
 			gc.fillPolygon(coordX, coordY, coordX.length);
 		}
+		System.out.println("===================");
 	}
 
 	/**
@@ -204,5 +217,21 @@ public class Model3D implements Observable{
 	
 	public Observateur getObservateurCanvas() {
 		return observateurCanvas;
+	}
+
+	public boolean isTraitDessine() {
+		return traitDessine;
+	}
+
+	public void setTraitDessine(boolean traitDessine) {
+		this.traitDessine = traitDessine;
+	}
+
+	public boolean isFaceDessine() {
+		return faceDessine;
+	}
+
+	public void setFaceDessine(boolean faceDessine) {
+		this.faceDessine = faceDessine;
 	}
 }
