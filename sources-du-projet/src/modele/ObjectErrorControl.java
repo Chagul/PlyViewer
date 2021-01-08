@@ -11,6 +11,8 @@ public class ObjectErrorControl {
 	private double maxX;
 	private double minY;
 	private double maxY;
+	private double minZ;
+	private double maxZ;
 	private boolean dansPoint;
 
 	public ObjectErrorControl() {
@@ -19,10 +21,12 @@ public class ObjectErrorControl {
 		cptLine = 0;
 		cptPointManquant = 0;
 		cptFaceManquante = 0;
-		minX = 0;
-		maxX = 0;
-		minY = 0;
-		maxY = 0;
+		minX = 0.0;
+		maxX = 0.0;
+		minY = 0.0;
+		maxY = 0.0;
+		minZ = 0.0;
+		maxZ = 0.0;
 		dansPoint = true;
 	}
 	
@@ -104,5 +108,21 @@ public class ObjectErrorControl {
 
 	public void setMaxY(double maxY) {
 		this.maxY = maxY;
+	}
+	
+	public double getMinZ() {
+		return minZ;
+	}
+
+	public void setMinZ(double minZ) {
+		this.minZ = minZ;
+	}
+
+	public double getMaxZ() {
+		return maxZ;
+	}
+
+	public void setMaxZ(double maxZ) {
+		this.maxZ = maxZ;
 	}
 }

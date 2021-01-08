@@ -25,4 +25,15 @@ public class ErrorList {
 	public ArrayList<String> getListFaceErreur() {
 		return this.errorFace;
 	}
+	
+	@Override
+	public String toString() {
+		String stringBuilder = "";
+		for(String s : errorPoint)
+			stringBuilder += s + "\n";
+		stringBuilder += "\n";
+		for(String s : errorFace)
+			stringBuilder += s + "\n";
+		return stringBuilder;
+	}
 }

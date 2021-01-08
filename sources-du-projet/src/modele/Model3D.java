@@ -73,10 +73,7 @@ public class Model3D implements Observable{
 				else
 					ptB = face.getListPoint().get(0).getId();
 				tracees.add(new CouplePoint(ptA, ptB));
-				gc.strokeLine(matricePoint.getM()[0][ptA], 
-						matricePoint.getM()[1][ptA], 
-						matricePoint.getM()[0][ptB],
-						matricePoint.getM()[1][ptB] );
+				gc.strokeLine(matricePoint.getM()[0][ptA], matricePoint.getM()[1][ptA], matricePoint.getM()[0][ptB], matricePoint.getM()[1][ptB]);
 			}
 		}
 		gc.closePath();
@@ -86,22 +83,11 @@ public class Model3D implements Observable{
 		double[] coordX;
 		double[] coordY;
 		double[] coordZ;
-		//System.out.println(this.arrayListFace);
 		Vecteur vecteurLumiere = new Vecteur(0, 0, -1);
 		GraphicsContext gc = canvas.getGraphicsContext2D();
 		gc.clearRect(0, 0, canvas.getWidth(), canvas.getHeight());
 		gc.beginPath();
-		arrayListFace.sort(new Comparator<Face>() {
-
-			@Override
-			public int compare(Face arg0, Face arg1) {
-				//System.out.println(arg0);
-				//System.out.println(arg1);
-				//System.out.println(arg0.compareTo(arg1));
-				return arg0.compareTo(arg1);
-			}
-		});
-		//System.out.println(this.arrayListFace);
+		Collections.sort(arrayListFace);
 		for (Face face : arrayListFace) {
 
 			coordX = new double[face.getListPoint().size()];
@@ -109,13 +95,12 @@ public class Model3D implements Observable{
 			coordZ = new double[face.getListPoint().size()];
 			for(int i = 0; i < face.getListPoint().size(); i++) {
 				coordX[i] = matricePoint.getM()[0][face.getListPoint().get(i).getId()];
+				face.getListPoint().get(i).setX(coordX[i]);
 				coordY[i] = matricePoint.getM()[1][face.getListPoint().get(i).getId()];
+				face.getListPoint().get(i).setY(coordY[i]);
 				coordZ[i] = matricePoint.getM()[2][face.getListPoint().get(i).getId()];
+				face.getListPoint().get(i).setZ(coordZ[i]);
 			}
-			double moyZ = 0;
-			for(int i = 0; i < coordZ.length; ++i)
-				moyZ += coordZ[i];
-			System.out.println("z moy face dessinnée = " + moyZ);
 			if(this.traitDessine) {
 				gc.strokePolygon(coordX, coordY, coordX.length);
 			}
@@ -123,14 +108,13 @@ public class Model3D implements Observable{
 			Vecteur vecteurFace2 = new Vecteur(coordX[coordX.length-1]-coordX[0], coordY[coordY.length-1]-coordY[0], coordZ[coordZ.length-1] - coordZ[0]);
 			Vecteur vecteurNormal = vecteurFace1.produitVectoriel(vecteurFace2);
 			double coeffLumineux = (Math.cos((vecteurLumiere.Normalisation()).produitScalaire(vecteurNormal.Normalisation())));
-			if( coeffLumineux >= 0) {
+			if( coeffLumineux >= 0) 
 				gc.setFill(Color.rgb((int)(face.getRgbColor()[0]*coeffLumineux), (int)(face.getRgbColor()[1]*coeffLumineux), (int)(face.getRgbColor()[2]*coeffLumineux)));
-			}
+			
 			else
 				gc.setFill(Color.rgb(face.getRgbColor()[0], face.getRgbColor()[1], (face.getRgbColor()[2])));
 			gc.fillPolygon(coordX, coordY, coordX.length);
 		}
-		System.out.println("===================");
 	}
 
 	/**
@@ -138,20 +122,22 @@ public class Model3D implements Observable{
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
 	 */
 	public void firstDraw(Canvas canvas) {
-		System.out.println("Votre modèle comporte " + this.getArrayListFace().size() + " faces et " + this.tabPoint.length + " points.");
+		//System.out.println("Votre modèle comporte " + this.getArrayListFace().size() + " faces et " + this.tabPoint.length + " points.");
 		final double RAPPORT_MISE_A_L_ECHELLE = 0.60;
 		final double MISE_A_L_ECHELLE_HORIZONTALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
 		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getHeight()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
-		this.matricePoint = this.matricePoint.translation(-pointDuMilieu.getX(), -pointDuMilieu.getY(), 0);
+		this.matricePoint = this.matricePoint.translation(-pointDuMilieu.getX(), -pointDuMilieu.getY(), -pointDuMilieu.getZ());
 		if(rapportHorizontal) {
 			this.matricePoint = this.matricePoint.multiplication( MISE_A_L_ECHELLE_HORIZONTALE);
 			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_HORIZONTALE);
 			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_HORIZONTALE);
+			this.pointDuMilieu.setZ(pointDuMilieu.getZ() * MISE_A_L_ECHELLE_HORIZONTALE);
 		}
 		else {
 			this.matricePoint = this.matricePoint.multiplication(MISE_A_L_ECHELLE_VERTICALE);
 			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_VERTICALE);
 			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_VERTICALE);
+			this.pointDuMilieu.setZ(pointDuMilieu.getZ() * MISE_A_L_ECHELLE_VERTICALE);
 		}
 
 		this.matricePoint = this.matricePoint.rotation(Rotation.X, 180);
@@ -235,4 +221,5 @@ public class Model3D implements Observable{
 	public void setFaceDessine(boolean faceDessine) {
 		this.faceDessine = faceDessine;
 	}
+
 }

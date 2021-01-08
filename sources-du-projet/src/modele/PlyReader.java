@@ -22,7 +22,7 @@ public class PlyReader {
 	 */
 	private static final String FLOAT = "-?[0-9]+((\\.[0-9]+)?(e(\\+|-)?[0-9]+)?)" ;
 	private static final String PATTERN_POINT = "^(\\s)*" + FLOAT + "\\s+" + FLOAT + "\\s+" + FLOAT + "(\\s)*$" ;
-	private static final String PATTERN_FACE = "^\\s*( ?[0-9]+ ?)*.*$";
+	private static final String PATTERN_FACE = "^\\s*( ?[0-9]+ ?)*\\s*(([0-9]+\\s*){3})?(\\s)*$";
 	private static final Pattern POINT = Pattern.compile("[0-9]+");
 	private static final Pattern X_POINT = Pattern.compile("^-?(\\s)*" + FLOAT + "\\s+");
 	private static final Pattern Y_POINT = Pattern.compile("\\s+" + FLOAT + "\\s+");
@@ -119,7 +119,7 @@ public class PlyReader {
 			rapport = oec.getMaxY() - oec.getMinY();
 		aPlyFile.setRapportHorizontal(rapportHorizontal);
 		aPlyFile.setRapport(rapport);
-		aPlyFile.setPointDuMilieu(new Point((oec.getMinX() + oec.getMaxX())/2, (oec.getMinY() + oec.getMaxY())/2, 0));
+		aPlyFile.setPointDuMilieu(new Point((oec.getMinX() + oec.getMaxX())/2, (oec.getMinY() + oec.getMaxY())/2, (oec.getMinZ()+ oec.getMaxZ()) / 2));
 		aPlyFile.initMatrice();
 		return aPlyFile;
 	}
@@ -180,11 +180,13 @@ public class PlyReader {
 		if(mx.find() && my.find() && mz.find()) {
 			Point tmp = new Point(Double.parseDouble(mx.group()), Double.parseDouble(my.group()), Double.parseDouble(mz.group()));
 			//System.out.println(tmp);
-			if(oec.getMinX() == 0 && oec.getMaxX() == 0 && oec.getMinY() == 0 && oec.getMaxY() == 0){
+			if(oec.getMinX() == 0 && oec.getMaxX() == 0 && oec.getMinY() == 0 && oec.getMaxY() == 0 && oec.getMinZ() == 0 && oec.getMaxZ() == 0){
 				oec.setMinX(tmp.getX());
 				oec.setMaxX(tmp.getX());
 				oec.setMinY(tmp.getY());
 				oec.setMaxY(tmp.getY());
+				oec.setMinZ(tmp.getZ());
+				oec.setMaxX(tmp.getZ());
 			}else {
 				if(tmp.getX() < oec.getMinX())
 					oec.setMinX(tmp.getX());
@@ -194,6 +196,10 @@ public class PlyReader {
 					oec.setMinY(tmp.getY());
 				if(tmp.getY() > oec.getMaxY())
 					oec.setMaxY(tmp.getY());
+				if(tmp.getZ() < oec.getMinZ())
+					oec.setMinZ(tmp.getZ());
+				if(tmp.getZ() > oec.getMaxZ())
+					oec.setMaxZ(tmp.getZ());
 			}
 			tabPoint[tmp.getId()] = tmp;
 			return true;
@@ -209,6 +215,7 @@ public class PlyReader {
 	public boolean creationFace(String tmpReader,ArrayList<Face> listFace, Point[] tabPoint) throws CreationFormatFaceException {
 		Matcher pointMatch = POINT.matcher(tmpReader);
 		Matcher pointDansFace = NOMBRE_POINT_DANS_FACE.matcher(tmpReader);
+		final int NOMBRE_COULEUR = 3;
 		int cpt = 0;
 		int nbPoint = 0;
 		Face tmp = new Face();
@@ -237,7 +244,7 @@ public class PlyReader {
 			throw new CreationFormatFaceException("Problème dans le format de la face " + tmpReader + " ligne : " + oec.getCptLine());
 		}else {
 			cpt = 0;
-			while(pointMatch.find()) {
+			while(pointMatch.find() && cpt < NOMBRE_COULEUR) {
 				tmp.getRgbColor()[cpt] = Integer.parseInt(pointMatch.group());
 				cpt++;
 			}

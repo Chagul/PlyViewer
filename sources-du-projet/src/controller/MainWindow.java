@@ -26,6 +26,7 @@ import modele.Model3D;
 import modele.Observateur;
 import modele.PlyReader;
 import modele.Rotation;
+import vue.WindowError;
 /**
  * Controller Principal
  * @author planckea kharmacm
@@ -38,13 +39,13 @@ public class MainWindow implements Observateur{
 	 * @param stage
 	 */
 	public void setStage(Stage stage) {
-		this.stage = stage;
+		MainWindow.stage = stage;
 	}
 
 	ArrayList<Model3D> listOfPlyFiles;
 	int nbOngletActifs;
 
-	Stage stage;
+	public static Stage stage;
 	ObservableList<File> listLien;
 	ObservableList<File> listRecentlyOpened;
 	Model3D ply;
@@ -398,7 +399,6 @@ public class MainWindow implements Observateur{
 	}
 
 	public void buttonPressedParcourirEtOuvrir() throws IOException {
-		//WindowError error = new WindowError(); /* NOn utilisé pour l'instant*/
 		FileChooser fileChooser = new FileChooser();
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("PLYFILE", "*.ply"));
 		File tmp = fileChooser.showOpenDialog(stage);
@@ -407,15 +407,17 @@ public class MainWindow implements Observateur{
 			listLien.add(tmp);
 
 			try {
-				//Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 				aPlyReader.initPly(tmp.getAbsolutePath());
 				ply = aPlyReader.getPly(tmp.getAbsolutePath());
+				if(!ply.getErrorList().isEmpty()) {
+					WindowError errorWindow = new WindowError();
+					WindowError.errorList = ply.getErrorList();
+					errorWindow.start();
+				}
+
 				ply.ajouterObservateur((Observateur) MainWindow.this);
 				listOfPlyFiles.add(ply);
 				ply = null;
-
-				//selected.addEventHandler(MouseEvent.ANY,mouseDraggedEvent );
-				//selected.addEventHandler(ScrollEvent.ANY, mousescrollEvent);
 
 				sliderX.valueProperty().addListener(sliderXListener());
 				sliderY.valueProperty().addListener(sliderYListener());
@@ -439,8 +441,7 @@ public class MainWindow implements Observateur{
 				onglets.getTabs().get(nbOngletActifs).setText(tmp.getName().substring(0, tmp.getName().length()-4));  //Modifie le titre de l'onglet.
 
 				listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
-				//ply.firstDraw(selected);
-
+				
 				if(!listRecentlyOpened.contains(tmp))
 					listRecentlyOpened.add(tmp);
 				nbOngletActifs++;

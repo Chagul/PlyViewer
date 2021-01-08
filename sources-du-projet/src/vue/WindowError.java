@@ -1,8 +1,11 @@
 package vue;
 
+import java.io.IOException;
+
+import controller.MainWindow;
+import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.layout.Pane;
-import javafx.scene.text.Text;
+import javafx.scene.layout.AnchorPane;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import modele.ErrorList;
@@ -14,25 +17,18 @@ import modele.ErrorList;
  *
  */
 public class WindowError{
-	ErrorList errorList;
-	public void setErrorList(ErrorList anErrorList) {
-		this.errorList = anErrorList;
-	}
+	static public ErrorList errorList;
+	static public Scene scene;
+	static public Stage stage;
 	
-	public WindowError() {
-		
-	}
-	public void start() {
-		Stage stage = new Stage();
-		Pane pane = new Pane();
-		Text listError = new Text(errorList.toString());
-		listError.setX(10);
-		listError.setY(10);
-		pane.getChildren().add(listError);
-		stage.setResizable(false);
+	public void start() throws IOException {
+		FXMLLoader loader = new FXMLLoader(getClass().getResource("/vue/viewErrorWindow.fxml"));
+		AnchorPane root = (AnchorPane) loader.load();
+		stage = new Stage();
+		scene = new Scene(root);
+		stage.setScene(scene);
 		stage.initModality(Modality.APPLICATION_MODAL);
-		stage.setTitle("Erreur");
-		stage.setScene(new Scene(new Pane(), 400, 400));
+		stage.initOwner(MainWindow.stage);
 		stage.show();
 	}
 }
