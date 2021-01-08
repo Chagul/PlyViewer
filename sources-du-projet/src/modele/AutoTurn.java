@@ -20,7 +20,6 @@ public class AutoTurn implements Runnable{
 	@Override
 	public void run() {
 		while(running) {
-			System.out.println("runnig");
 			this.modele.setMatricePoint(this.modele.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
 			this.modele.setMatricePoint(this.modele.getMatricePoint().rotation(Rotation.X, 1));
 			this.modele.setMatricePoint(this.modele.getMatricePoint().rotation(Rotation.Y, 1));
