@@ -23,10 +23,18 @@ public class Main extends Application {
 		primaryStage.setTitle("3D Viewer");
 		primaryStage.setScene(new Scene(root, 1450, 700));
 		primaryStage.show();
+		
 	}
 
 	public static void main(String[] args) {
 		launch(args);
+	}
+	@Override
+	public void stop() throws InterruptedException {
+		if(MainWindow.thr.isAlive()) {
+			MainWindow.autoturn.stop();
+			MainWindow.thr.join();
+		}
 	}
 }
 

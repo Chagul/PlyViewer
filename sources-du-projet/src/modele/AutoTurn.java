@@ -4,30 +4,33 @@ import javafx.scene.canvas.Canvas;
 
 public class AutoTurn implements Runnable{
 
-	private boolean running = true;
+	private volatile boolean running = true;
 	private Model3D modele = null;
 	private Canvas selected = null;
 	
-	public void start(Model3D aModel, Canvas aCanvas) {
-		this.modele = aModel;
-		this.selected = aCanvas;
-		run();
+	public AutoTurn(Model3D model3d, Canvas canvasSelected) {
+		this.modele = model3d;
+		this.selected = canvasSelected;
 	}
+		
+	public void stop() {
+		this.running = false;
+	}
+
 	@Override
 	public void run() {
 		while(running) {
+			System.out.println("runnig");
+			this.modele.setMatricePoint(this.modele.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
 			this.modele.setMatricePoint(this.modele.getMatricePoint().rotation(Rotation.X, 1));
-		}try {
-			Thread.sleep(500);
-		}catch(InterruptedException ie) {
-			ie.printStackTrace();
+			this.modele.setMatricePoint(this.modele.getMatricePoint().rotation(Rotation.Y, 1));
+			this.modele.setMatricePoint(this.modele.getMatricePoint().translation(selected.getWidth() / 2, selected.getHeight() / 2, 0));
+			try {
+				Thread.sleep(500);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
 		
-	}
-
-	public void stop() {
-		this.running = false;
-		this.modele = null;
-		this.selected = null;
 	}
 }

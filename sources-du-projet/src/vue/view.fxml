@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
@@ -74,100 +71,45 @@
          <children>
             <ToolBar>
               <items>
-                <Button fx:id="buttonZoomPlus" mnemonicParsing="false" onAction="#buttonPressedZoomPlus">
+                  <Button fx:id="buttonTrait" disable="true" mnemonicParsing="false" onAction="#buttonPressedTraits">
                      <graphic>
                         <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../zoomPlus.png" />
+                              <Image url="@../Ligne.png" />
                            </image>
                         </ImageView>
                      </graphic>
                      <tooltip>
-                        <Tooltip text="Zoom +" />
+                        <Tooltip text="Affiche les lignes" />
                      </tooltip>
                   </Button>
-                  <Button fx:id="buttonZoomMoins" mnemonicParsing="false" onAction="#buttonPressedZoomMoins">
+                  <Button fx:id="buttonLumiere" disable="true" mnemonicParsing="false" onAction="#buttonPressedFaces">
                      <graphic>
                         <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../zoomMinus.png" />
+                              <Image url="@..//lumiere.png" />
                            </image>
                         </ImageView>
                      </graphic>
                      <tooltip>
-                        <Tooltip text="Zoom -" />
+                        <Tooltip text="Eclairage" />
                      </tooltip>
                   </Button>
-                  <Button fx:id="buttonLissage" mnemonicParsing="false" onAction="#buttonPressedLissage">
-                     <graphic>
-                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@../lissage.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Lissage" />
-                     </tooltip>
-                  </Button>
-                  <Button fx:id="buttonOmbre" mnemonicParsing="false" onAction="#buttonPressedOmbre">
-                     <graphic>
-                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
-                           <image>
-                              <Image url="@..//ombre.png" />
-                           </image>
-                        </ImageView>
-                     </graphic>
-                     <tooltip>
-                        <Tooltip text="Ombre portée" />
-                     </tooltip>
-                  </Button>
-                  <Button fx:id="buttonVueTranches" mnemonicParsing="false" onAction="#buttonPressedVueTranches">
+                  <Button fx:id="buttonAutoTurn" disable="true" mnemonicParsing="false" onAction="#buttonPressedAutoTurn">
                      <graphic>
                         <ImageView accessibleHelp="test" fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
                            <image>
-                              <Image url="@../tranche.png" />
+                              <Image url="@..//flecheTournante.png" />
                            </image>
                         </ImageView>
                      </graphic>
                      <tooltip>
-                        <Tooltip text="Vue en tranche" />
+                        <Tooltip text="Rotation automatique" />
                      </tooltip>
                   </Button>
               </items>
             </ToolBar>
-            <Label text="X :   ">
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-            </Label>
-            <Slider fx:id="sliderX" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </Slider>
-            <Label text="Y :   ">
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-            </Label>
-            <Slider fx:id="sliderY" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </Slider>
-            <Label text="Z :   ">
-               <HBox.margin>
-                  <Insets left="15.0" />
-               </HBox.margin>
-            </Label>
-            <Slider fx:id="sliderZ" majorTickUnit="90.0" max="360.0" prefHeight="15.0" prefWidth="250.0" showTickLabels="true" showTickMarks="true">
-               <HBox.margin>
-                  <Insets left="10.0" />
-               </HBox.margin>
-            </Slider>
          </children>
       </HBox>
-      <Slider fx:id="sliderZoom" layoutX="4.0" layoutY="115.0" orientation="VERTICAL" prefHeight="514.0" prefWidth="16.0" />
    </children>
 </AnchorPane>

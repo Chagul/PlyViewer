@@ -7,8 +7,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.Event;
@@ -22,6 +20,7 @@ import javafx.scene.input.ScrollEvent;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import modele.AutoTurn;
 import modele.Model3D;
 import modele.Observateur;
 import modele.PlyReader;
@@ -44,6 +43,9 @@ public class MainWindow implements Observateur{
 
 	ArrayList<Model3D> listOfPlyFiles;
 	int nbOngletActifs;
+	boolean isTurning = false;
+	public static Thread thr = null;
+	public static AutoTurn autoturn = null;
 
 	public static Stage stage;
 	ObservableList<File> listLien;
@@ -65,28 +67,15 @@ public class MainWindow implements Observateur{
 	@FXML
 	Button aboutUs;
 
-	@FXML 
-	Button buttonZoomPlus;
 	@FXML
-	Button buttonZoomMoins;
+	Button buttonTrait;
 	@FXML
-	Button buttonLissage;
+	Button buttonLumiere;
 	@FXML
-	Button buttonOmbre;
-	@FXML
-	Button buttonVueTranches;
+	Button buttonAutoTurn;
 
 	@FXML
 	Button quitter;
-
-	@FXML
-	Slider sliderX;
-	@FXML 
-	Slider sliderY;
-	@FXML
-	Slider sliderZ;
-	@FXML
-	Slider sliderZoom;
 
 	/**
 	 * Peuple les listView avant l'affichage de la fenetre, initialise les eventHandler
@@ -238,54 +227,6 @@ public class MainWindow implements Observateur{
 	}
 
 	/**
-	 * On lie les sliders avec les fonctions de matrices qui leur correspondent
-	 */
-	public ChangeListener<Number> sliderXListener() {
-		ChangeListener<Number> res = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> observable, Number oldValue, Number newValue) {
-				Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.X, (double)newValue-(double)oldValue));
-
-			}
-		};
-		return res;
-	}
-	public ChangeListener<Number> sliderYListener() {
-		ChangeListener<Number> res = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Y, (double)newValue-(double)oldValue));
-			}
-		};
-		return res;
-	}
-	public ChangeListener<Number> sliderZListener() {
-		ChangeListener<Number> res = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Z, (double)newValue-(double)oldValue));
-			}
-		};
-		return res;
-	}
-	public ChangeListener<Number> sliderZoomListener() {
-		ChangeListener<Number> res = new ChangeListener<Number>() {
-			@Override
-			public void changed(ObservableValue<? extends Number> arg0, Number oldValue, Number newValue) {
-				Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-				double zoom = 1.05;
-				if((double) oldValue > (double)newValue)
-					zoom = 0.95;
-				plySelected.setMatricePoint(plySelected.getMatricePoint().multiplication(zoom));
-			}
-		};
-		return res;
-	}
-
-	/**
 	 * L'évènement de glisser la souris avec les réactions en conséquence.
 	 * @return EventHandler
 	 */
@@ -418,12 +359,6 @@ public class MainWindow implements Observateur{
 				ply.ajouterObservateur((Observateur) MainWindow.this);
 				listOfPlyFiles.add(ply);
 				ply = null;
-
-				sliderX.valueProperty().addListener(sliderXListener());
-				sliderY.valueProperty().addListener(sliderYListener());
-				sliderZ.valueProperty().addListener(sliderZListener());
-				sliderZoom.valueProperty().addListener(sliderZoomListener());
-
 				Canvas newCanvas = new Canvas();
 				newCanvas.setHeight(570);
 				newCanvas.setWidth(1160);
@@ -441,10 +376,13 @@ public class MainWindow implements Observateur{
 				onglets.getTabs().get(nbOngletActifs).setText(tmp.getName().substring(0, tmp.getName().length()-4));  //Modifie le titre de l'onglet.
 
 				listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
-				
+
 				if(!listRecentlyOpened.contains(tmp))
 					listRecentlyOpened.add(tmp);
 				nbOngletActifs++;
+				this.buttonAutoTurn.setDisable(false);
+				this.buttonLumiere.setDisable(false);
+				this.buttonTrait.setDisable(false);
 			}catch(FileNotFoundException fileException) {
 				fileException.printStackTrace();
 			}
@@ -459,7 +397,6 @@ public class MainWindow implements Observateur{
 	 * @throws CreationFaceException si il y a un problème à la création d'une face
 	 */
 	public void buttonPressedAfficher(){
-		//WindowError error = new WindowError();
 		try {
 			Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 			File tmp = listViewFiles.getSelectionModel().getSelectedItem();
@@ -467,10 +404,6 @@ public class MainWindow implements Observateur{
 			ply = aPlyReader.getPly(tmp.getAbsolutePath());
 			selected.addEventHandler(MouseEvent.ANY,mouseDraggedEvent());
 			selected.addEventHandler(ScrollEvent.ANY, mouseScrollEvent());
-			sliderX.valueProperty().addListener(sliderXListener());
-			sliderY.valueProperty().addListener(sliderYListener());
-			sliderZ.valueProperty().addListener(sliderZListener());
-			sliderZoom.valueProperty().addListener(sliderZoomListener());
 			ply.firstDraw(selected);
 			onglets.getTabs().get(onglets.getTabs().size()-1).setText(tmp.getName()); //Modifie le titre de l'onglet.
 			if(!listRecentlyOpened.contains(tmp))
@@ -488,31 +421,9 @@ public class MainWindow implements Observateur{
 	}
 
 	/**
-	 * Zoom+ depuis le bouton.
-	 */
-	public void buttonPressedZoomPlus() {
-		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-		if(plySelected != null) {
-			double zoom = 1.05;
-			plySelected.setMatricePoint(plySelected.getMatricePoint().multiplication(zoom));
-		}
-	}
-
-	/**
-	 * Zoom- depuis le button.
-	 */
-	public void buttonPressedZoomMoins() {
-		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-		if(plySelected != null) {
-			double zoom = 0.95;
-			plySelected.setMatricePoint(plySelected.getMatricePoint().multiplication(zoom));
-		}
-	}
-
-	/**
 	 * Button lissage (soon).
 	 */
-	public void buttonPressedLissage() {
+	public void buttonPressedTraits() {
 		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
 		if(!plySelected.isTraitDessine())
 			plySelected.setTraitDessine(true);
@@ -525,7 +436,7 @@ public class MainWindow implements Observateur{
 	/**
 	 * Button ombre (soon).
 	 */
-	public void buttonPressedOmbre() {
+	public void buttonPressedFaces() {
 		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
 		if(!plySelected.isFaceDessine())
 			plySelected.setFaceDessine(true);
@@ -538,20 +449,15 @@ public class MainWindow implements Observateur{
 	/**
 	 * Button vue tranches (soon).
 	 */
-	public void buttonPressedVueTranches() {
-		Thread thr = new Thread(new Runnable() {
-			Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-			@Override
-			public void run() {
-				try {
-					while (true) {
-						plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.X, 10));
-					}
-				}finally {
-					System.out.println("stop");
-				}
-			}
-		});
+	public void buttonPressedAutoTurn() {
+		if(!isTurning) {
+			autoturn = new AutoTurn( (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex()),(Canvas) onglets.getSelectionModel().getSelectedItem().getContent() );
+			thr = new Thread(autoturn);
+			thr.start();
+		}else {
+			autoturn.stop();
+		}
+		isTurning = !isTurning;
 	}
 
 	/**
@@ -572,5 +478,6 @@ public class MainWindow implements Observateur{
 
 
 	}
+
 
 }
