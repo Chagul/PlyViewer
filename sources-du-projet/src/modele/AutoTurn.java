@@ -1,7 +1,15 @@
 package modele;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
+import javafx.util.Duration;
 
+/**
+ * Deprecated
+ * @author aurelien
+ *
+ */
 public class AutoTurn implements Runnable{
 
 	private volatile boolean running = true;
@@ -19,7 +27,18 @@ public class AutoTurn implements Runnable{
 
 	@Override
 	public void run() {
-		while(running) {
+		Timeline rotation;
+		KeyFrame beggining = new KeyFrame(Duration.seconds(0));
+		KeyFrame end = new KeyFrame(Duration.millis(500), event ->{
+			this.modele.setMatricePoint(this.modele.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
+			this.modele.setMatricePoint(this.modele.getMatricePoint().rotation(Rotation.X, 1));
+			this.modele.setMatricePoint(this.modele.getMatricePoint().rotation(Rotation.Y, 1));
+			this.modele.setMatricePoint(this.modele.getMatricePoint().translation(selected.getWidth() / 2, selected.getHeight() / 2, 0));
+		});
+		rotation = new Timeline(beggining, end);
+		rotation.setCycleCount(Timeline.INDEFINITE);
+		
+		/*while(running) {
 			this.modele.setMatricePoint(this.modele.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
 			this.modele.setMatricePoint(this.modele.getMatricePoint().rotation(Rotation.X, 1));
 			this.modele.setMatricePoint(this.modele.getMatricePoint().rotation(Rotation.Y, 1));
@@ -28,8 +47,7 @@ public class AutoTurn implements Runnable{
 				Thread.sleep(500);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
-			}
-		}
+			}*/
 		
 	}
 }

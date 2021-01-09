@@ -12,7 +12,7 @@ import java.util.regex.Matcher;
  *
  */
 public class PlyReader {
-	
+
 	private ObjectErrorControl oec;
 
 
@@ -29,17 +29,19 @@ public class PlyReader {
 	private static final Pattern Z_POINT = Pattern.compile("\\s+" + FLOAT + "\\s*$");
 	private static final Pattern NOMBRE_POINT_DANS_FACE = Pattern.compile("^?[0-9]+");
 
+
 	/**
 	 * Les differents compteurs
 	 */
 
 	private int nbPoint;
 	private int nbFace;
-	
-	
+	private String author;
+	private String description;
+
 	//constructor
 	public PlyReader() {
-		
+
 	}
 	/**
 	 * Lis le header du fichier et verifie qu'il est valide
@@ -51,6 +53,8 @@ public class PlyReader {
 		final String END_HEADER_STRING = "end_header";
 		final String VERTEX_STRING = "element vertex ";
 		final String FACE_STRING = "element face ";
+		final String AUTHOR_STRING = "comment made by ";
+		final String DESCRIPTION_STRING = "comment ";
 
 		sc = new Scanner(new File(pathToPly));
 		boolean endHeader = false;
@@ -67,6 +71,11 @@ public class PlyReader {
 			if(tmpReader.contains(FACE_STRING)) {
 				nbFace = Integer.parseInt(tmpReader.substring(FACE_STRING.length(), tmpReader.length()));
 			}
+			if(tmpReader.contains(AUTHOR_STRING))
+				author = tmpReader.substring(AUTHOR_STRING.length(), tmpReader.length());
+			if(tmpReader.contains(DESCRIPTION_STRING) && !tmpReader.contains(AUTHOR_STRING))
+				description = tmpReader.substring(DESCRIPTION_STRING.length(), tmpReader.length());
+
 			if(tmpReader.equals(END_HEADER_STRING)) 
 				endHeader = true;
 
@@ -121,6 +130,10 @@ public class PlyReader {
 		aPlyFile.setRapport(rapport);
 		aPlyFile.setPointDuMilieu(new Point((oec.getMinX() + oec.getMaxX())/2, (oec.getMinY() + oec.getMaxY())/2, (oec.getMinZ()+ oec.getMaxZ()) / 2));
 		aPlyFile.initMatrice();
+		if(author != null)
+			aPlyFile.setAuthor(author);
+		if(description != null)
+			aPlyFile.setDescription(description);
 		return aPlyFile;
 	}
 	/**

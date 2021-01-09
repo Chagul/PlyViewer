@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -23,14 +25,12 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import javafx.util.Callback;
-import modele.AutoTurn;
+import javafx.util.Duration;
 import modele.Model3D;
 import modele.Observateur;
 import modele.PlyReader;
 import modele.Rotation;
 import vue.WindowError;
-
-import javax.swing.event.ChangeEvent;
 
 /**
  * Controller Principal
@@ -46,12 +46,10 @@ public class MainWindow implements Observateur{
 	public void setStage(Stage stage) {
 		MainWindow.stage = stage;
 	}
-
+	Timeline rotation;
 	ArrayList<Model3D> listOfPlyFiles;
 	int nbOngletActifs;
 	boolean isTurning = false;
-	public static Thread thr = null;
-	public static AutoTurn autoturn = null;
 
 	public static Stage stage;
 	ObservableList<File> listLien;
@@ -513,12 +511,21 @@ public class MainWindow implements Observateur{
 	 * Button vue tranches (soon).
 	 */
 	public void buttonPressedAutoTurn() {
+		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+		Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 		if(!isTurning) {
-			autoturn = new AutoTurn( (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex()),(Canvas) onglets.getSelectionModel().getSelectedItem().getContent() );
-			thr = new Thread(autoturn);
-			thr.start();
+			KeyFrame beggining = new KeyFrame(Duration.seconds(0));
+			KeyFrame end = new KeyFrame(Duration.millis(100), event ->{
+				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
+				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.X, 1));
+				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Y, 1));
+				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(selected.getWidth() / 2, selected.getHeight() / 2, 0));
+			});
+			rotation = new Timeline(beggining, end);
+			rotation.setCycleCount(Timeline.INDEFINITE);
+			rotation.play();
 		}else {
-			autoturn.stop();
+			rotation.stop();
 		}
 		isTurning = !isTurning;
 	}

@@ -29,12 +29,5 @@ public class Main extends Application {
 	public static void main(String[] args) {
 		launch(args);
 	}
-	@Override
-	public void stop() throws InterruptedException {
-		if(MainWindow.thr.isAlive()) {
-			MainWindow.autoturn.stop();
-			MainWindow.thr.join();
-		}
-	}
 }
 

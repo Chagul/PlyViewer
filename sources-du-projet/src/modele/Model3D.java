@@ -26,8 +26,12 @@ public class Model3D implements Observable{
 	private Observateur observateurCanvas;
 	private boolean traitDessine;
 	private boolean faceDessine;
+	private String author;
+	private String description;
 
 	public Model3D(int nbPoint) {
+		this.author = "non spécifié";
+		this.description = "non spécifié";
 		this.arrayListFace = new ArrayList<Face>();
 		this.tabPoint = new Point[nbPoint];
 		ArrayList<String> listPointErreur = new ArrayList<String>();
@@ -36,23 +40,50 @@ public class Model3D implements Observable{
 		this.setTraitDessine(false);
 		this.setFaceDessine(false);
 	}
+	
 
-	public void setRapport(double rapport) {
-		this.rapport = rapport;
+	/**
+	 * Permet d'initialiser l'attribut matrice une fois la hashmap de point complète.
+	 */
+	public void initMatrice() {
+		double[][] tabPointPourMatrice = new double[4][tabPoint.length];
+		for(Point p : tabPoint) {
+			tabPointPourMatrice[0][p.getId()] = p.getX();
+			tabPointPourMatrice[1][p.getId()] = p.getY();
+			tabPointPourMatrice[2][p.getId()] = p.getZ();
+			tabPointPourMatrice[3][p.getId()] = 1;
+		}
+		this.matricePoint = new Matrice(tabPointPourMatrice);
 	}
 
-	public void setRapportHorizontal(boolean rapportHorizontal) {
-		this.rapportHorizontal = rapportHorizontal;
-	}
+	/**
+	 * Dessine le ply à partir de ses points et de ses faces et permet d'adapter l'image au canvas en proportion, ainsi que retourner l'image
+	 * @param canvas Le canvas sur lequel le ply sera dessiné
+	 */
+	public void firstDraw(Canvas canvas) {
+		//System.out.println("Votre modèle comporte " + this.getArrayListFace().size() + " faces et " + this.tabPoint.length + " points.");
+		final double RAPPORT_MISE_A_L_ECHELLE = 0.60;
+		final double MISE_A_L_ECHELLE_HORIZONTALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
+		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getHeight()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
+		this.matricePoint = this.matricePoint.translation(-pointDuMilieu.getX(), -pointDuMilieu.getY(), -pointDuMilieu.getZ());
+		if(rapportHorizontal) {
+			this.matricePoint = this.matricePoint.multiplication( MISE_A_L_ECHELLE_HORIZONTALE);
+			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_HORIZONTALE);
+			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_HORIZONTALE);
+			this.pointDuMilieu.setZ(pointDuMilieu.getZ() * MISE_A_L_ECHELLE_HORIZONTALE);
+		}
+		else {
+			this.matricePoint = this.matricePoint.multiplication(MISE_A_L_ECHELLE_VERTICALE);
+			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_VERTICALE);
+			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_VERTICALE);
+			this.pointDuMilieu.setZ(pointDuMilieu.getZ() * MISE_A_L_ECHELLE_VERTICALE);
+		}
 
-	public void setErrorList(ErrorList errorList) {
-		this.errorList = errorList;
+		this.matricePoint = this.matricePoint.rotation(Rotation.X, 180);
+		this.matricePoint = this.matricePoint.translation(canvas.getWidth()/2, canvas.getHeight()/2, 0);
+		draw(canvas);
 	}
-
-	public void setPointDuMilieu(Point aPoint) {
-		this.pointDuMilieu = aPoint;
-	}
-
+	
 	/**
 	 * Dessine un ply à partir de ses points et de ses faces
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
@@ -78,6 +109,10 @@ public class Model3D implements Observable{
 		gc.closePath();
 	}
 
+	/**
+	 * 
+	 * @param canvas
+	 */
 	public void drawFaces(Canvas canvas) {
 		double[] coordX;
 		double[] coordY;
@@ -116,47 +151,8 @@ public class Model3D implements Observable{
 		}
 	}
 
-	/**
-	 * Dessine le ply à partir de ses points et de ses faces et permet d'adapter l'image au canvas en proportion, ainsi que retourner l'image
-	 * @param canvas Le canvas sur lequel le ply sera dessiné
-	 */
-	public void firstDraw(Canvas canvas) {
-		//System.out.println("Votre modèle comporte " + this.getArrayListFace().size() + " faces et " + this.tabPoint.length + " points.");
-		final double RAPPORT_MISE_A_L_ECHELLE = 0.60;
-		final double MISE_A_L_ECHELLE_HORIZONTALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
-		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getHeight()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
-		this.matricePoint = this.matricePoint.translation(-pointDuMilieu.getX(), -pointDuMilieu.getY(), -pointDuMilieu.getZ());
-		if(rapportHorizontal) {
-			this.matricePoint = this.matricePoint.multiplication( MISE_A_L_ECHELLE_HORIZONTALE);
-			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_HORIZONTALE);
-			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_HORIZONTALE);
-			this.pointDuMilieu.setZ(pointDuMilieu.getZ() * MISE_A_L_ECHELLE_HORIZONTALE);
-		}
-		else {
-			this.matricePoint = this.matricePoint.multiplication(MISE_A_L_ECHELLE_VERTICALE);
-			this.pointDuMilieu.setX(pointDuMilieu.getX() * MISE_A_L_ECHELLE_VERTICALE);
-			this.pointDuMilieu.setY(pointDuMilieu.getY() * MISE_A_L_ECHELLE_VERTICALE);
-			this.pointDuMilieu.setZ(pointDuMilieu.getZ() * MISE_A_L_ECHELLE_VERTICALE);
-		}
 
-		this.matricePoint = this.matricePoint.rotation(Rotation.X, 180);
-		this.matricePoint = this.matricePoint.translation(canvas.getWidth()/2, canvas.getHeight()/2, 0);
-		draw(canvas);
-	}
 
-	/**
-	 * Permet d'initialiser l'attribut matrice une fois la hashmap de point complète.
-	 */
-	public void initMatrice() {
-		double[][] tabPointPourMatrice = new double[4][tabPoint.length];
-		for(Point p : tabPoint) {
-			tabPointPourMatrice[0][p.getId()] = p.getX();
-			tabPointPourMatrice[1][p.getId()] = p.getY();
-			tabPointPourMatrice[2][p.getId()] = p.getZ();
-			tabPointPourMatrice[3][p.getId()] = 1;
-		}
-		this.matricePoint = new Matrice(tabPointPourMatrice);
-	}
 
 	public ArrayList<Face> getArrayListFace() {
 		return arrayListFace;
@@ -170,9 +166,13 @@ public class Model3D implements Observable{
 
 	public int getNbPoints() { return this.getTabPoint().length; }
 
-	public String getDescription() { return "Non précisé"; }
+	public String getDescription() { 
+		return description; 
+		}
 
-	public String getAuteur() { return "Non précisé"; }
+	public String getAuteur() { 
+		return author;
+		}
 
 	public Matrice getMatricePoint() {
 		return matricePoint;
@@ -227,6 +227,30 @@ public class Model3D implements Observable{
 
 	public void setFaceDessine(boolean faceDessine) {
 		this.faceDessine = faceDessine;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
+	public void setRapport(double rapport) {
+		this.rapport = rapport;
+	}
+
+	public void setRapportHorizontal(boolean rapportHorizontal) {
+		this.rapportHorizontal = rapportHorizontal;
+	}
+
+	public void setErrorList(ErrorList errorList) {
+		this.errorList = errorList;
+	}
+
+	public void setPointDuMilieu(Point aPoint) {
+		this.pointDuMilieu = aPoint;
 	}
 
 }
