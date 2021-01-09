@@ -52,6 +52,7 @@ public class MainWindow implements Observateur{
 
 	public static Stage stage;
 	ObservableList<File> listLien;
+	ArrayList<File> fichiersEnLecture;
 
 	Model3D ply;
 	PlyReader aPlyReader = new PlyReader();
@@ -123,6 +124,8 @@ public class MainWindow implements Observateur{
 		//Listes observables
 		listLien = FXCollections.observableArrayList();
 
+		//La liste des fichiers en Lecture
+		fichiersEnLecture = new ArrayList<>();
 
 		//Listes ListView
 		listViewFiles.setCellFactory(listViewFilesFactory());
@@ -244,34 +247,9 @@ public class MainWindow implements Observateur{
 
 				if (mouseClickedEvent.getButton().equals(MouseButton.PRIMARY) && mouseClickedEvent.getClickCount() == 2) {
 					try {
-						ply = null;
-						aPlyReader.initPly(value.getAbsolutePath());
-						ply = aPlyReader.getPly(value.getAbsolutePath());
-						ply.ajouterObservateur((Observateur) MainWindow.this);
-						listOfPlyFiles.add(ply);
-					} catch (FileNotFoundException fileException) {
-						fileException.printStackTrace();
-					} finally {
-						Canvas newCanvas = new Canvas();
-						newCanvas.setHeight(570);
-						newCanvas.setWidth(1160);
-						newCanvas.setLayoutX(-1.0);
-						newCanvas.setId("c" + nbOngletActifs);
-						newCanvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent());
-						newCanvas.addEventHandler(ScrollEvent.SCROLL_STARTED, mouseScrollEvent());
-
-
-						Tab tmp = new Tab(value.getName().substring(0, value.getName().length() - 4));
-						tmp.setClosable(true);
-						tmp.setOnCloseRequest(fermetureOnglet());
-						tmp.setContent(newCanvas);
-						actualiser();
-						onglets.getTabs().add(tmp);
-						onglets.getSelectionModel().select(tmp);
-
-						listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
-
-						nbOngletActifs++;
+						lireFichier(value);
+					} catch (IOException e) {
+						e.printStackTrace();
 					}
 				}
 			}
@@ -293,7 +271,8 @@ public class MainWindow implements Observateur{
 				if(idxOfClosedTab >= 0) {
 					listOfPlyFiles.remove(idxOfClosedTab);
 					onglets.getTabs().remove(selectedTab);
-					listLien.remove(idxOfClosedTab);
+					//listLien.remove(idxOfClosedTab);
+					fichiersEnLecture.remove(idxOfClosedTab);
 					nbOngletActifs--;
 				}
 
@@ -437,46 +416,49 @@ public class MainWindow implements Observateur{
 	 * 			f le fichier à lire
 	 */
 	public void lireFichier(File f) throws IOException{
-		try {
-			aPlyReader.initPly(f.getAbsolutePath());
-			ply = aPlyReader.getPly(f.getAbsolutePath());
-			if(!ply.getErrorList().getListFaceErreur().isEmpty() || !ply.getErrorList().getListPointErreur().isEmpty()) {
-				WindowError errorWindow = new WindowError();
-				WindowError.errorList = ply.getErrorList();
-				errorWindow.start();
+		if(!fichiersEnLecture.contains(f)) {
+			try {
+				aPlyReader.initPly(f.getAbsolutePath());
+				ply = aPlyReader.getPly(f.getAbsolutePath());
+				if (!ply.getErrorList().getListFaceErreur().isEmpty() || !ply.getErrorList().getListPointErreur().isEmpty()) {
+					WindowError errorWindow = new WindowError();
+					WindowError.errorList = ply.getErrorList();
+					errorWindow.start();
+				}
+
+				ply.ajouterObservateur((Observateur) MainWindow.this);
+				listOfPlyFiles.add(ply);
+				ply = null;
+				Canvas newCanvas = new Canvas();
+				newCanvas.setHeight(570);
+				newCanvas.setWidth(1160);
+				newCanvas.setLayoutX(-1.0);
+				newCanvas.setId("c" + nbOngletActifs);
+				newCanvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent());
+				newCanvas.addEventHandler(ScrollEvent.ANY, mouseScrollEvent());
+
+				Tab tmpTab = new Tab(f.getName().substring(0, f.getName().length() - 4)); //Modifie le titre de l'onglet.);
+				tmpTab.setClosable(true);
+				tmpTab.setOnCloseRequest(fermetureOnglet());
+				tmpTab.setContent(newCanvas);
+
+				String name = f.getName().substring(0, f.getName().length() - 4);
+				tmpTab.setText(name);
+				onglets.getTabs().add(tmpTab);
+				onglets.getSelectionModel().select(tmpTab);
+
+				//onglets.getTabs().get(nbOngletActifs).setText();  //Modifie le titre de l'onglet.
+
+				listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
+				nbOngletActifs++;
+				this.buttonAutoTurn.setDisable(false);
+				this.buttonLumiere.setDisable(false);
+				this.buttonTrait.setDisable(false);
+				this.buttonFaces.setDisable(false);
+			} catch (FileNotFoundException fileException) {
+				fileException.printStackTrace();
 			}
-
-			ply.ajouterObservateur((Observateur) MainWindow.this);
-			listOfPlyFiles.add(ply);
-			ply = null;
-			Canvas newCanvas = new Canvas();
-			newCanvas.setHeight(570);
-			newCanvas.setWidth(1160);
-			newCanvas.setLayoutX(-1.0);
-			newCanvas.setId("c" + nbOngletActifs);
-			newCanvas.addEventHandler(MouseEvent.ANY, mouseDraggedEvent());
-			newCanvas.addEventHandler(ScrollEvent.ANY,mouseScrollEvent());
-
-			Tab tmpTab = new Tab(f.getName().substring(0, f.getName().length()-4)); //Modifie le titre de l'onglet.);
-			tmpTab.setClosable(true);
-			tmpTab.setOnCloseRequest(fermetureOnglet());
-			tmpTab.setContent(newCanvas);
-
-			String name = f.getName().substring(0, f.getName().length()-4);
-			tmpTab.setText(name);
-			onglets.getTabs().add(tmpTab);
-			onglets.getSelectionModel().select(tmpTab);
-
-			//onglets.getTabs().get(nbOngletActifs).setText();  //Modifie le titre de l'onglet.
-
-			listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
-			nbOngletActifs++;
-			this.buttonAutoTurn.setDisable(false);
-			this.buttonLumiere.setDisable(false);
-			this.buttonTrait.setDisable(false);
-			this.buttonFaces.setDisable(false);
-		}catch(FileNotFoundException fileException) {
-			fileException.printStackTrace();
+			fichiersEnLecture.add(f);
 		}
 	}
 
