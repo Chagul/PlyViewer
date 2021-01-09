@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project default="javadoc">
+    <target name="javadoc">
+        <javadoc access="private" author="true" classpath="/home/aurelien/Libs/javafx-sdk-11.0.2/lib/javafx-swt.jar:/home/aurelien/.p2/pool/plugins/org.junit_4.13.0.v20200204-1500.jar:/home/aurelien/Libs/javafx-sdk-11.0.2/lib/javafx.graphics.jar:/home/aurelien/Libs/javafx-sdk-11.0.2/lib/javafx.swing.jar:/home/aurelien/Libs/javafx-sdk-11.0.2/lib/javafx.web.jar:/home/aurelien/Libs/javafx-sdk-11.0.2/lib/javafx.fxml.jar:/home/aurelien/Libs/javafx-sdk-11.0.2/lib/javafx.base.jar:/home/aurelien/Libs/javafx-sdk-11.0.2/lib/javafx.media.jar:/home/aurelien/.p2/pool/plugins/org.hamcrest.core_1.3.0.v20180420-1519.jar:/home/aurelien/Libs/javafx-sdk-11.0.2/lib/javafx.controls.jar" destdir="doc" nodeprecated="false" nodeprecatedlist="false" noindex="false" nonavbar="false" notree="false" packagenames="modele,vue,controller" source="11" sourcepath="sources-du-projet/test:sources-du-projet/src:sources-du-projet/ressources/icones" splitindex="true" use="true" version="true"/>
+    </target>
+</project>
