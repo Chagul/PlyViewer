@@ -21,6 +21,7 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.layout.Border;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -87,11 +88,15 @@ public class MainWindow implements Observateur{
 	Button aboutUs;
 
 	@FXML
-	Button buttonTrait;
+	ToggleButton buttonTrait;
 	@FXML
-	Button buttonLumiere;
+	ToggleButton buttonLumiere;
 	@FXML
-	Button buttonAutoTurn;
+	ToggleButton buttonAutoTurn;
+	@FXML
+	ToggleButton buttonFaces;
+	@FXML
+	Button buttonFaces1;
 
 	@FXML
 	Button quitter;
@@ -107,6 +112,9 @@ public class MainWindow implements Observateur{
 
 		//Faire corréspondre les informations affichées à l'onglet selectionné par l'utilisateur
 		onglets.getSelectionModel().selectedItemProperty().addListener(informationSwitch());
+		
+		//Met à jour les toggleButton pour chaque modèle
+		onglets.getSelectionModel().selectedItemProperty().addListener(buttonMaj());
 
 		//Liste des objets PlyFile
 		listOfPlyFiles = new ArrayList<>();
@@ -147,6 +155,20 @@ public class MainWindow implements Observateur{
 		return res;
 	}
 
+
+	public ChangeListener<Tab> buttonMaj(){
+		ChangeListener<Tab> update = new ChangeListener<Tab>() {
+			@Override
+			public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
+				Model3D selectedPly = listOfPlyFiles.get(onglets.getTabs().indexOf(newValue));
+				buttonAutoTurn.setSelected(selectedPly.isTurning());
+				buttonFaces.setSelected(selectedPly.isFaceDessine());
+				buttonTrait.setSelected(selectedPly.isTraitDessine());
+				buttonLumiere.setSelected(selectedPly.isLumiereActive());
+			}
+		};
+		return update;
+	}
 	/**
 	 * Gerer les propriétés des cellules de la liste des fichiers listViewFiles
 	 * @return Callback
@@ -433,11 +455,11 @@ public class MainWindow implements Observateur{
 			onglets.getTabs().get(nbOngletActifs).setText(f.getName().substring(0, f.getName().length()-4));  //Modifie le titre de l'onglet.
 
 			listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
-
 			nbOngletActifs++;
 			this.buttonAutoTurn.setDisable(false);
 			this.buttonLumiere.setDisable(false);
 			this.buttonTrait.setDisable(false);
+			this.buttonFaces.setDisable(false);
 		}catch(FileNotFoundException fileException) {
 			fileException.printStackTrace();
 		}
@@ -481,6 +503,15 @@ public class MainWindow implements Observateur{
 
 	}
 
+	public void buttonPressedFaces() {
+		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
+		if(!plySelected.isFaceDessine())
+			plySelected.setFaceDessine(true);
+		else
+			plySelected.setFaceDessine(false);
+
+		actualiser();
+	}
 	/**
 	 * Button lissage (soon).
 	 */
@@ -497,12 +528,15 @@ public class MainWindow implements Observateur{
 	/**
 	 * Button ombre (soon).
 	 */
-	public void buttonPressedFaces() {
+	public void buttonPressedLumiere() {
 		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
-		if(!plySelected.isFaceDessine())
+		if(!plySelected.isLumiereActive()) {
+			plySelected.setLumiereActive(true);
 			plySelected.setFaceDessine(true);
+			this.buttonFaces.setSelected(true);
+		}
 		else
-			plySelected.setFaceDessine(false);
+			plySelected.setLumiereActive(false);
 
 		actualiser();
 	}
@@ -513,7 +547,7 @@ public class MainWindow implements Observateur{
 	public void buttonPressedAutoTurn() {
 		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
 		Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
-		if(!isTurning) {
+		if(!plySelected.isTurning()) {
 			KeyFrame beggining = new KeyFrame(Duration.seconds(0));
 			KeyFrame end = new KeyFrame(Duration.millis(100), event ->{
 				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
@@ -527,7 +561,7 @@ public class MainWindow implements Observateur{
 		}else {
 			rotation.stop();
 		}
-		isTurning = !isTurning;
+		plySelected.setTurning(!plySelected.isTurning());
 	}
 
 	/**

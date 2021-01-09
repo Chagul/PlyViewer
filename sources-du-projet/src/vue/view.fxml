@@ -5,6 +5,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.ToggleButton?>
 <?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.image.Image?>
@@ -72,7 +73,10 @@
          <children>
             <ToolBar>
               <items>
-                  <Button fx:id="buttonTrait" disable="true" mnemonicParsing="false" onAction="#buttonPressedTraits">
+                  <ToggleButton fx:id="buttonTrait" disable="true" mnemonicParsing="false" onAction="#buttonPressedTraits">
+                     <tooltip>
+                        <Tooltip text="Afficher les lignes" />
+                     </tooltip>
                      <graphic>
                         <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -80,23 +84,23 @@
                            </image>
                         </ImageView>
                      </graphic>
+                  </ToggleButton>
+                  <ToggleButton fx:id="buttonLumiere" disable="true" mnemonicParsing="false" onAction="#buttonPressedLumiere">
                      <tooltip>
-                        <Tooltip text="Affiche les lignes" />
+                        <Tooltip text="Eclairage" />
                      </tooltip>
-                  </Button>
-                  <Button fx:id="buttonLumiere" disable="true" mnemonicParsing="false" onAction="#buttonPressedFaces">
                      <graphic>
                         <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
                            <image>
                               <Image url="@..//lumiere.png" />
                            </image>
                         </ImageView>
-                     </graphic>
+                     </graphic>   
+                  </ToggleButton>
+                  <ToggleButton fx:id="buttonAutoTurn" disable="true" mnemonicParsing="false" onAction="#buttonPressedAutoTurn">
                      <tooltip>
-                        <Tooltip text="Eclairage" />
+                        <Tooltip text="Rotation automatique" />
                      </tooltip>
-                  </Button>
-                  <Button fx:id="buttonAutoTurn" disable="true" mnemonicParsing="false" onAction="#buttonPressedAutoTurn">
                      <graphic>
                         <ImageView accessibleHelp="test" fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
                            <image>
@@ -104,10 +108,19 @@
                            </image>
                         </ImageView>
                      </graphic>
+                  </ToggleButton>
+                  <ToggleButton fx:id="buttonFaces" disable="true" mnemonicParsing="false" onAction="#buttonPressedFaces">
                      <tooltip>
-                        <Tooltip text="Rotation automatique" />
+                        <Tooltip text="Afficher les faces" />
                      </tooltip>
-                  </Button>
+                     <graphic>
+                        <ImageView fitHeight="26.0" fitWidth="61.0" pickOnBounds="true" preserveRatio="true">
+                           <image>
+                              <Image url="@../triangle.png" />
+                           </image>
+                        </ImageView>
+                     </graphic>
+                  </ToggleButton>
               </items>
             </ToolBar>
          </children>

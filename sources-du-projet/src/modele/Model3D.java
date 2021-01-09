@@ -26,6 +26,11 @@ public class Model3D implements Observable{
 	private Observateur observateurCanvas;
 	private boolean traitDessine;
 	private boolean faceDessine;
+	private boolean lumiereActive;
+	private boolean isTurning;
+
+
+
 	private String author;
 	private String description;
 
@@ -39,6 +44,9 @@ public class Model3D implements Observable{
 		this.errorList = new ErrorList(listPointErreur, listFaceErreur);
 		this.setTraitDessine(false);
 		this.setFaceDessine(false);
+		this.setLumiereActive(false);
+		this.setTurning(false);
+		
 	}
 	
 
@@ -61,7 +69,6 @@ public class Model3D implements Observable{
 	 * @param canvas Le canvas sur lequel le ply sera dessiné
 	 */
 	public void firstDraw(Canvas canvas) {
-		//System.out.println("Votre modèle comporte " + this.getArrayListFace().size() + " faces et " + this.tabPoint.length + " points.");
 		final double RAPPORT_MISE_A_L_ECHELLE = 0.60;
 		final double MISE_A_L_ECHELLE_HORIZONTALE = canvas.getWidth()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
 		final double MISE_A_L_ECHELLE_VERTICALE = canvas.getHeight()/this.rapport*RAPPORT_MISE_A_L_ECHELLE;
@@ -138,15 +145,15 @@ public class Model3D implements Observable{
 			if(this.traitDessine) {
 				gc.strokePolygon(coordX, coordY, coordX.length);
 			}
+			if(this.lumiereActive) {
 			Vecteur vecteurFace1 = new Vecteur(coordX[1]-coordX[0], coordY[1]-coordY[0], coordZ[1] - coordZ[0]);
 			Vecteur vecteurFace2 = new Vecteur(coordX[coordX.length-1]-coordX[0], coordY[coordY.length-1]-coordY[0], coordZ[coordZ.length-1] - coordZ[0]);
 			Vecteur vecteurNormal = vecteurFace1.produitVectoriel(vecteurFace2);
 			double coeffLumineux = (Math.cos((vecteurLumiere.Normalisation()).produitScalaire(vecteurNormal.Normalisation())));
-			if( coeffLumineux >= 0) 
-				gc.setFill(Color.rgb((int)(face.getRgbColor()[0]*coeffLumineux), (int)(face.getRgbColor()[1]*coeffLumineux), (int)(face.getRgbColor()[2]*coeffLumineux)));
-			
-			else
+			gc.setFill(Color.rgb((int)(face.getRgbColor()[0]*coeffLumineux), (int)(face.getRgbColor()[1]*coeffLumineux), (int)(face.getRgbColor()[2]*coeffLumineux)));
+			}else {
 				gc.setFill(Color.rgb(face.getRgbColor()[0], face.getRgbColor()[1], (face.getRgbColor()[2])));
+			}
 			gc.fillPolygon(coordX, coordY, coordX.length);
 		}
 	}
@@ -253,4 +260,21 @@ public class Model3D implements Observable{
 		this.pointDuMilieu = aPoint;
 	}
 
+	public boolean isLumiereActive() {
+		return lumiereActive;
+	}
+
+
+	public void setLumiereActive(boolean lumiereActive) {
+		this.lumiereActive = lumiereActive;
+	}
+	
+	public boolean isTurning() {
+		return isTurning;
+	}
+
+
+	public void setTurning(boolean isTurning) {
+		this.isTurning = isTurning;
+	}
 }
