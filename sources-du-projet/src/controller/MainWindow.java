@@ -166,11 +166,14 @@ public class MainWindow implements Observateur{
 		ChangeListener<Tab> update = new ChangeListener<Tab>() {
 			@Override
 			public void changed(ObservableValue<? extends Tab> observable, Tab oldValue, Tab newValue) {
-				Model3D selectedPly = listOfPlyFiles.get(onglets.getTabs().indexOf(newValue));
-				buttonAutoTurn.setSelected(selectedPly.isTurning());
-				buttonFaces.setSelected(selectedPly.isFaceDessine());
-				buttonTrait.setSelected(selectedPly.isTraitDessine());
-				buttonLumiere.setSelected(selectedPly.isLumiereActive());
+				int idx = onglets.getTabs().indexOf(newValue);
+				if(idx >= 0) {
+					Model3D selectedPly = listOfPlyFiles.get(idx);
+					buttonAutoTurn.setSelected(selectedPly.isTurning());
+					buttonFaces.setSelected(selectedPly.isFaceDessine());
+					buttonTrait.setSelected(selectedPly.isTraitDessine());
+					buttonLumiere.setSelected(selectedPly.isLumiereActive());
+				}
 			}
 		};
 		return update;
@@ -287,9 +290,12 @@ public class MainWindow implements Observateur{
 				Tab selectedTab = onglets.getSelectionModel().getSelectedItem();
 				int idxOfClosedTab = onglets.getSelectionModel().getSelectedIndex();
 
-				listOfPlyFiles.remove(idxOfClosedTab);
-				onglets.getTabs().remove(selectedTab);
-				listLien.remove(idxOfClosedTab);
+				if(idxOfClosedTab >= 0) {
+					listOfPlyFiles.remove(idxOfClosedTab);
+					onglets.getTabs().remove(selectedTab);
+					listLien.remove(idxOfClosedTab);
+					nbOngletActifs--;
+				}
 
 				if(onglets.getTabs().isEmpty()) {
 					fileName.setText("Nom de Fichier : " );
@@ -456,9 +462,12 @@ public class MainWindow implements Observateur{
 			tmpTab.setOnCloseRequest(fermetureOnglet());
 			tmpTab.setContent(newCanvas);
 
+			String name = f.getName().substring(0, f.getName().length()-4);
+			tmpTab.setText(name);
 			onglets.getTabs().add(tmpTab);
 			onglets.getSelectionModel().select(tmpTab);
-			onglets.getTabs().get(nbOngletActifs).setText(f.getName().substring(0, f.getName().length()-4));  //Modifie le titre de l'onglet.
+
+			//onglets.getTabs().get(nbOngletActifs).setText();  //Modifie le titre de l'onglet.
 
 			listOfPlyFiles.get(nbOngletActifs).firstDraw((Canvas) onglets.getSelectionModel().getSelectedItem().getContent());
 			nbOngletActifs++;
