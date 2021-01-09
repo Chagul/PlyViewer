@@ -48,7 +48,6 @@ public class MainWindow implements Observateur{
 	public void setStage(Stage stage) {
 		MainWindow.stage = stage;
 	}
-	Timeline rotation;
 	ArrayList<Model3D> listOfPlyFiles;
 	int nbOngletActifs;
 
@@ -267,13 +266,15 @@ public class MainWindow implements Observateur{
 		EventHandler<Event> res = new EventHandler<Event>() {
 			@Override
 			public void handle(Event event) {
+				Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
 				Tab selectedTab = onglets.getSelectionModel().getSelectedItem();
 				int idxOfClosedTab = onglets.getSelectionModel().getSelectedIndex();
-
+				plySelected.setTurning(false);
+				plySelected.getRotationAuto().stop();
+				buttonAutoTurn.setSelected(false);
 				if(idxOfClosedTab >= 0) {
 					listOfPlyFiles.remove(idxOfClosedTab);
 					onglets.getTabs().remove(selectedTab);
-					//listLien.remove(idxOfClosedTab);
 					fichiersEnLecture.remove(idxOfClosedTab);
 					nbOngletActifs--;
 				}
@@ -284,6 +285,15 @@ public class MainWindow implements Observateur{
 					fileDescription.setText("Description : " );
 					fileNbFaces.setText("Nombre de Faces : " );
 					fileNbPoints.setText("Nombre de Points : ");
+					buttonAutoTurn.setDisable(true);
+					buttonLumiere.setDisable(true);
+					buttonTrait.setDisable(true);
+					buttonFaces.setDisable(true);
+					buttonAutoTurn.setSelected(false);
+					buttonLumiere.setSelected(false);
+					buttonTrait.setSelected(false);
+					buttonFaces.setSelected(false);
+					
 				}
 			}
 		};
@@ -553,19 +563,19 @@ public class MainWindow implements Observateur{
 		Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 		if(!plySelected.isTurning()) {
 			KeyFrame beggining = new KeyFrame(Duration.seconds(0));
-			KeyFrame end = new KeyFrame(Duration.millis(100), event ->{
+			KeyFrame end = new KeyFrame(Duration.millis(25), event ->{
 				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
 				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.X, 1));
 				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Y, 1));
 				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(selected.getWidth() / 2, selected.getHeight() / 2, 0));
 			});
-			rotation = new Timeline(beggining, end);
-			rotation.setCycleCount(Timeline.INDEFINITE);
-			rotation.play();
+			plySelected.setRotationAuto(new Timeline(beggining, end));			
+			plySelected.getRotationAuto().play();
+			plySelected.setTurning(true);
 		}else {
-			rotation.stop();
+			plySelected.getRotationAuto().stop();
+			plySelected.setTurning(false);
 		}
-		plySelected.setTurning(!plySelected.isTurning());
 	}
 
 	/**

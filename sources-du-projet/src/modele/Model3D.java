@@ -6,6 +6,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
+import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -28,6 +29,7 @@ public class Model3D implements Observable{
 	private boolean faceDessine;
 	private boolean lumiereActive;
 	private boolean isTurning;
+	private Timeline rotationAuto;
 
 
 
@@ -276,5 +278,17 @@ public class Model3D implements Observable{
 
 	public void setTurning(boolean isTurning) {
 		this.isTurning = isTurning;
+	}
+
+
+	public Timeline getRotationAuto() {
+		return rotationAuto;
+	}
+
+
+	public void setRotationAuto(Timeline rotationAuto) {
+		this.rotationAuto = rotationAuto;
+		this.rotationAuto.setCycleCount(Timeline.INDEFINITE);
+		
 	}
 }
