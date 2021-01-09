@@ -1,10 +1,5 @@
 package modele;
 
-/**
- * Classe vecteur qui sert a la création et au calcul sur les vecteurs.
- * @author planckea
- *
- */
 public class Vecteur {
 
 	private double x;
@@ -71,6 +66,24 @@ public class Vecteur {
 		return (Math.sqrt(this.x*this.x + this.y*this.y + this.z*this.z));
 	}
 	
+		@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Vecteur other = (Vecteur) obj;
+		if (Math.abs(x - other.x) > 0.0001)
+			return false;
+		if (Math.abs(y - other.y) > 0.0001)
+			return false;
+		if (Math.abs(z - other.z) > 0.0001) 
+			return false;
+		return true;
+	}
+
 	/**
 	 * Normalise un vecteur
 	 * @return Le vecteur normalisé
