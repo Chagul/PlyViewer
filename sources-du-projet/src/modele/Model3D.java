@@ -10,7 +10,7 @@ import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 /**
- * 
+ * Modele ply
  * @author planckea
  *
  */
@@ -117,8 +117,8 @@ public class Model3D implements Observable{
 	}
 
 	/**
-	 * 
-	 * @param canvas
+	 * Dessine les faces avec ou sans lumière selon les boutons enclenchés
+	 * @param canvas Le canvas sur lequel serra dessiné le modèle
 	 */
 	public void drawFaces(Canvas canvas) {
 		double[] coordX;
@@ -158,8 +158,17 @@ public class Model3D implements Observable{
 		}
 	}
 
+	@Override
+	public void ajouterObservateur(Observateur o) {
+		observateurCanvas = o;
+		
+	}
 
-
+	@Override
+	public void supprimerObservateur(Observateur o) {
+		observateurCanvas = null;
+		
+	}
 
 	public ArrayList<Face> getArrayListFace() {
 		return arrayListFace;
@@ -169,9 +178,13 @@ public class Model3D implements Observable{
 		return tabPoint;
 	}
 
-	public int getNbFaces() { return this.getArrayListFace().size(); }
+	public int getNbFaces() {
+		return this.getArrayListFace().size();
+		}
 
-	public int getNbPoints() { return this.getTabPoint().length; }
+	public int getNbPoints() { 
+		return this.getTabPoint().length; 
+	}
 
 	public String getDescription() { 
 		return description; 
@@ -196,18 +209,6 @@ public class Model3D implements Observable{
 
 	public Point getPointDuMilieu() {
 		return this.pointDuMilieu;
-	}
-
-	@Override
-	public void ajouterObservateur(Observateur o) {
-		observateurCanvas = o;
-		
-	}
-
-	@Override
-	public void supprimerObservateur(Observateur o) {
-		observateurCanvas = null;
-		
 	}
 
 	@Override
@@ -272,7 +273,6 @@ public class Model3D implements Observable{
 	public boolean isTurning() {
 		return isTurning;
 	}
-
 
 	public void setTurning(boolean isTurning) {
 		this.isTurning = isTurning;

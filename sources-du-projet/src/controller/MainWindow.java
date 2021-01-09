@@ -21,7 +21,6 @@ import javafx.scene.control.*;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
-import javafx.scene.layout.Border;
 import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -50,7 +49,6 @@ public class MainWindow implements Observateur{
 	Timeline rotation;
 	ArrayList<Model3D> listOfPlyFiles;
 	int nbOngletActifs;
-	boolean isTurning = false;
 
 	public static Stage stage;
 	ObservableList<File> listLien;
@@ -135,6 +133,10 @@ public class MainWindow implements Observateur{
 
 	}
 
+	/**
+	 * Creer un listener qui permet de lier les informations affichées avec le bon onglet
+	 * @return le listener créé
+	 */
 	public ChangeListener<Tab> informationSwitch() {
 		ChangeListener<Tab> res = new ChangeListener<Tab>() {
 			@Override
@@ -156,6 +158,10 @@ public class MainWindow implements Observateur{
 	}
 
 
+	/**
+	 * Créer un listener qui permet de lier les états des toggle Button avec l'état du ply dans chaque onglet
+	 * @return le listener créé
+	 */
 	public ChangeListener<Tab> buttonMaj(){
 		ChangeListener<Tab> update = new ChangeListener<Tab>() {
 			@Override
@@ -503,6 +509,9 @@ public class MainWindow implements Observateur{
 
 	}
 
+	/**
+	 * Action effectuée quand le bouton faces est enclenché. Les faces se dessinent.
+	 */
 	public void buttonPressedFaces() {
 		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
 		if(!plySelected.isFaceDessine())
@@ -513,7 +522,7 @@ public class MainWindow implements Observateur{
 		actualiser();
 	}
 	/**
-	 * Button lissage (soon).
+	 *Action effectuée quand le bouton trait est enclenché. Les traits se dessinent.
 	 */
 	public void buttonPressedTraits() {
 		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
@@ -526,7 +535,7 @@ public class MainWindow implements Observateur{
 
 	}
 	/**
-	 * Button ombre (soon).
+	 * Action effectuée quand le bouton lumière est enclenché. La lumière est prise en compte et affichée.
 	 */
 	public void buttonPressedLumiere() {
 		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
@@ -542,7 +551,7 @@ public class MainWindow implements Observateur{
 	}
 
 	/**
-	 * Button vue tranches (soon).
+	 * Action effectuée quand le bouton autoTurn est enclenché. Le modèle tourne automatiquement jusqu'à réenclement du bouton 
 	 */
 	public void buttonPressedAutoTurn() {
 		Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
@@ -572,6 +581,9 @@ public class MainWindow implements Observateur{
 		System.exit(1);
 	}
 
+	/**
+	 * Actualise le modèle
+	 */
 	@Override
 	public void actualiser() {
 		Model3D selectedPly = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());

@@ -1,5 +1,10 @@
 package modele;
 
+/**
+ * Classe vecteur qui sert a la création et au calcul sur les vecteurs.
+ * @author planckea
+ *
+ */
 public class Vecteur {
 
 	private double x;
