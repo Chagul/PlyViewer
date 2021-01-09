@@ -10,6 +10,13 @@ import javafx.animation.Timeline;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
+import modele.Math.Matrice;
+import modele.Math.Rotation;
+import modele.Math.Vecteur;
+import modele.outils.CouplePoint;
+import modele.outils.ErrorList;
+import modele.outils.Observable;
+import modele.outils.Observateur;
 /**
  * Modele ply
  * @author planckea

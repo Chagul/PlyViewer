@@ -1,6 +1,8 @@
-package modele;
+package modele.Math;
 
 import java.util.Arrays;
+
+import modele.Point;
 
 /**
  * <b>Matrice est la classe représentant une matrice algébrique.</b>

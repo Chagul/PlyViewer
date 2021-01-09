@@ -8,6 +8,9 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 
+import modele.Math.Matrice;
+import modele.Math.Rotation;
+
 public class TestMatrice {
 	double k;
 	double degre;

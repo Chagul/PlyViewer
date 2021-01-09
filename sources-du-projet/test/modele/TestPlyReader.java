@@ -6,6 +6,8 @@ import java.io.FileNotFoundException;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import modele.exception.CreationFormatFaceException;
 /**
  * 
  * @author planckea

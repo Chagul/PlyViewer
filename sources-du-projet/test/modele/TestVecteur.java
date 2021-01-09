@@ -2,6 +2,9 @@ package modele;
 
 import org.junit.Before;
 import org.junit.Test;
+
+import modele.Math.Vecteur;
+
 import static org.junit.Assert.*;
 /**
  * 

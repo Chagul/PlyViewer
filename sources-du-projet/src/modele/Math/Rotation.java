@@ -1,4 +1,4 @@
-package modele;
+package modele.Math;
 
 public enum Rotation {
 	X("axeX"), Y("axeY"), Z("axeZ");

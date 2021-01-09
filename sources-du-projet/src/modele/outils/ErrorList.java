@@ -1,4 +1,4 @@
-package modele;
+package modele.outils;
 
 import java.util.ArrayList;
 

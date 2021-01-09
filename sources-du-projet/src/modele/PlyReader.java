@@ -5,6 +5,13 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 import java.util.regex.Pattern;
+
+import modele.exception.CreationFormatFaceException;
+import modele.exception.CreationFormatPointException;
+import modele.exception.CreationNombreFaceException;
+import modele.exception.CreationPointManquantException;
+import modele.outils.ObjectErrorControl;
+
 import java.util.regex.Matcher;
 /**
  * 

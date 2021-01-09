@@ -1,4 +1,4 @@
-package modele;
+package modele.exception;
 
 public class CreationPointManquantException extends Exception {
 

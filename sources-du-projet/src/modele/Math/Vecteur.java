@@ -1,4 +1,4 @@
-package modele;
+package modele.Math;
 
 public class Vecteur {
 

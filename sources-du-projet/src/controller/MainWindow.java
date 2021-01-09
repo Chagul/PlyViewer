@@ -28,9 +28,9 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 import javafx.util.Duration;
 import modele.Model3D;
-import modele.Observateur;
 import modele.PlyReader;
-import modele.Rotation;
+import modele.Math.Rotation;
+import modele.outils.Observateur;
 import vue.WindowError;
 import vue.WindowInfos;
 
@@ -563,7 +563,7 @@ public class MainWindow implements Observateur{
 		Canvas selected = (Canvas) onglets.getSelectionModel().getSelectedItem().getContent();
 		if(!plySelected.isTurning()) {
 			KeyFrame beggining = new KeyFrame(Duration.seconds(0));
-			KeyFrame end = new KeyFrame(Duration.millis(25), event ->{
+			KeyFrame end = new KeyFrame(Duration.millis(25f), event ->{
 				plySelected.setMatricePoint(plySelected.getMatricePoint().translation(-selected.getWidth() / 2, -selected.getHeight() / 2, 0));
 				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.X, 1));
 				plySelected.setMatricePoint(plySelected.getMatricePoint().rotation(Rotation.Y, 1));
