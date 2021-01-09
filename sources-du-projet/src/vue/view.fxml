@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.TabPane?>
 <?import javafx.scene.control.ToolBar?>
@@ -9,13 +11,13 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
 <AnchorPane prefHeight="700.0" prefWidth="1450.0" xmlns="http://javafx.com/javafx/11.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.MainWindow">
    <children>
-      <ListView fx:id="listViewFiles" layoutX="1233.0" layoutY="37.0" prefHeight="312.0" prefWidth="200.0" />
-      <ListView id="recentlyOpened" fx:id="recentlyOpened" layoutX="1231.0" layoutY="376.0" prefHeight="288.0" prefWidth="200.0" />
-      <Text layoutX="1241.0" layoutY="366.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Ouvert récemment  :" wrappingWidth="150.7294921875" />
       <ToolBar prefHeight="48.0" prefWidth="346.0">
         <items>
           <Button fx:id="importOpen" mnemonicParsing="false" onAction="#buttonPressedParcourirEtOuvrir" prefHeight="36.0" prefWidth="42.0">
@@ -64,7 +66,6 @@
                </tooltip></Button>
         </items>
       </ToolBar>
-      <Text layoutX="1241.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Fichiers importés :" wrappingWidth="135.7294921875" />
       <TabPane fx:id="onglets" layoutX="26.0" layoutY="48.0" prefHeight="604.0" prefWidth="1192.0" tabClosingPolicy="UNAVAILABLE">
       </TabPane>
       <HBox alignment="CENTER_LEFT" fillHeight="false" layoutY="653.0" maxWidth="1219.0" prefHeight="48.0" prefWidth="1219.0">
@@ -111,5 +112,63 @@
             </ToolBar>
          </children>
       </HBox>
+      <Pane layoutX="1233.0" layoutY="443.0" prefHeight="191.0" prefWidth="200.0">
+         <children>
+            <VBox fx:id="listFilesInformations" prefHeight="253.0" prefWidth="200.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Informations :" wrappingWidth="150.7294921875">
+                     <font>
+                        <Font name="Arial Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="10.0" />
+                     </VBox.margin>
+                  </Text>
+                  <Label fx:id="fileName" text="Nom de Fichier :">
+                     <VBox.margin>
+                        <Insets bottom="7.0" top="7.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="fileAuteur" text="Auteur :">
+                     <VBox.margin>
+                        <Insets bottom="7.0" top="7.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="fileDescription" text="Description :">
+                     <VBox.margin>
+                        <Insets bottom="7.0" top="7.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="fileNbFaces" text="Nombre de Faces : ">
+                     <VBox.margin>
+                        <Insets bottom="7.0" top="7.0" />
+                     </VBox.margin>
+                  </Label>
+                  <Label fx:id="fileNbPoints" text="Nombre de Points :">
+                     <VBox.margin>
+                        <Insets bottom="7.0" top="7.0" />
+                     </VBox.margin>
+                  </Label>
+               </children>
+            </VBox>
+         </children>
+      </Pane>
+      <Pane layoutX="1233.0" layoutY="48.0" prefHeight="335.0" prefWidth="200.0">
+         <children>
+            <VBox fx:id="listFiles" prefHeight="335.0" prefWidth="200.0">
+               <children>
+                  <Text strokeType="OUTSIDE" strokeWidth="0.0" text="Fichiers :" wrappingWidth="135.7294921875">
+                     <font>
+                        <Font name="Arial Bold" size="14.0" />
+                     </font>
+                     <VBox.margin>
+                        <Insets bottom="10.0" top="10.0" />
+                     </VBox.margin>
+                  </Text>
+                  <ListView fx:id="listViewFiles" prefHeight="312.0" prefWidth="200.0" />
+               </children>
+            </VBox>
+         </children>
+      </Pane>
    </children>
 </AnchorPane>

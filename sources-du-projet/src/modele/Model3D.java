@@ -166,6 +166,14 @@ public class Model3D implements Observable{
 		return tabPoint;
 	}
 
+	public int getNbFaces() { return this.getArrayListFace().size(); }
+
+	public int getNbPoints() { return this.getTabPoint().length; }
+
+	public String getDescription() { return "Non précisé"; }
+
+	public String getAuteur() { return "Non précisé"; }
+
 	public Matrice getMatricePoint() {
 		return matricePoint;
 	}
