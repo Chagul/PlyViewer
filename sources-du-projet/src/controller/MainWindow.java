@@ -440,7 +440,7 @@ public class MainWindow implements Observateur{
 		try {
 			aPlyReader.initPly(f.getAbsolutePath());
 			ply = aPlyReader.getPly(f.getAbsolutePath());
-			if(!ply.getErrorList().isEmpty()) {
+			if(!ply.getErrorList().getListFaceErreur().isEmpty() || !ply.getErrorList().getListPointErreur().isEmpty()) {
 				WindowError errorWindow = new WindowError();
 				WindowError.errorList = ply.getErrorList();
 				errorWindow.start();
