@@ -18,6 +18,7 @@ import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.control.*;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
@@ -31,6 +32,7 @@ import modele.Observateur;
 import modele.PlyReader;
 import modele.Rotation;
 import vue.WindowError;
+import vue.WindowInfos;
 
 /**
  * Controller Principal
@@ -495,9 +497,11 @@ public class MainWindow implements Observateur{
 
 	/**
 	 * Possibilité d'avoir des infos sur l'application.
+	 * @throws IOException 
 	 */
-	public void buttonPressedAboutUs() {
-
+	public void buttonPressedAboutUs() throws IOException {
+		WindowInfos infos = new WindowInfos(AlertType.INFORMATION);
+		infos.start();
 	}
 
 	/**
