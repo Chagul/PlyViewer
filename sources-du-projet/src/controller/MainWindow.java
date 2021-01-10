@@ -269,8 +269,10 @@ public class MainWindow implements Observateur{
 				Model3D plySelected = (Model3D) listOfPlyFiles.get(onglets.getSelectionModel().getSelectedIndex());
 				Tab selectedTab = onglets.getSelectionModel().getSelectedItem();
 				int idxOfClosedTab = onglets.getSelectionModel().getSelectedIndex();
+				if(plySelected.getRotationAuto() != null) {
 				plySelected.setTurning(false);
 				plySelected.getRotationAuto().stop();
+				}
 				buttonAutoTurn.setSelected(false);
 				if(idxOfClosedTab >= 0) {
 					listOfPlyFiles.remove(idxOfClosedTab);
