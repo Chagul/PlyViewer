@@ -430,7 +430,7 @@ public class MainWindow implements Observateur{
 	 * 			f le fichier à lire
 	 */
 	public void lireFichier(File f) throws IOException{
-		if(!fichiersEnLecture.contains(f)) {
+		if(f!= null && !fichiersEnLecture.contains(f)) {
 			try {
 				aPlyReader.initPly(f.getAbsolutePath());
 				ply = aPlyReader.getPly(f.getAbsolutePath());
