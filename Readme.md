@@ -6,11 +6,11 @@ KHARMACH Mohamed-Amine,
 - Une partie des math, principalement les matrices,
   L'IHM en elle même ( conception et realisation ),
   L'integration de toutes les fonctionnalités du projet pour en faire une seul interface,
-  Une partie des test des matrices .
+  Une partie des test des matrices + UML.
 
 BROUSMICHE Lucas,
 
-- conception des premières versions de certaines classe et de la première version de l'IHM.
+- conception des premières versions de certaines classe et de la première version de l'IHM + UML.
 
 PLANCKE Aurélien,
 - Classe en rapport avec le Parser, Modele 3D, test du Parser.
@@ -24,3 +24,5 @@ PLANCKE Aurélien,
 - Exécutable
 
 BIGWI Hodari.
+
+- realisation des test de la classe vecteur + UML.
