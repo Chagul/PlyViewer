@@ -108,19 +108,15 @@ public class PlyReader {
 			try {
 				analyseString(tmpReader,aPlyFile);	
 			}catch(CreationFormatPointException cfpe){
-				System.out.println(cfpe.getMessage());
 				aPlyFile.getErrorList().getListPointErreur().add(cfpe.getMessage());
 				continue;
 			}catch(CreationPointManquantException cpme) {
-				System.out.println(cpme.getMessage());
 				aPlyFile.getErrorList().getListPointErreur().add(cpme.getMessage());
 				continue;
 			}catch(CreationFormatFaceException cffe) {
-				System.out.println(cffe.getMessage());
 				aPlyFile.getErrorList().getListFaceErreur().add(cffe.getMessage());
 				continue;
 			}catch(CreationNombreFaceException cnfe) {
-				System.out.println(cnfe.getMessage());
 				aPlyFile.getErrorList().getListFaceErreur().add(cnfe.getMessage());
 				continue;
 			}
